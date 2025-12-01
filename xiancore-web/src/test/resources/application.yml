@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: XianCore Test Suite
+
+  # 使用内存H2数据库进行测试
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  h2:
+    console:
+      enabled: true
+
+server:
+  port: 0  # 随机端口用于测试
+
+logging:
+  level:
+    root: INFO
+    com.xiancore: DEBUG
+    org.springframework: WARN
+    org.hibernate: WARN
