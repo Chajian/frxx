@@ -1,6 +1,6 @@
 package com.xiancore.web.api.controller;
 
-import com.xiancore.web.api.dto.ApiResponse;
+import com.xiancore.common.dto.ApiResponse;
 import com.xiancore.web.api.dto.PageResponse;
 import com.xiancore.web.entity.PlayerStats;
 import com.xiancore.web.service.PlayerStatsService;

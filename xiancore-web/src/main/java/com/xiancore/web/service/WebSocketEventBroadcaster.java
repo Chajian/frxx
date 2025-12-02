@@ -1,6 +1,6 @@
 package com.xiancore.web.service;
 
-import com.xiancore.web.api.dto.ApiResponse;
+import com.xiancore.common.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

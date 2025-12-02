@@ -1,7 +1,7 @@
 package com.xiancore.web.api.controller;
 
 import com.xiancore.common.dto.BossDTO;
-import com.xiancore.web.api.dto.ApiResponse;
+import com.xiancore.common.dto.ApiResponse;
 import com.xiancore.web.api.dto.PageResponse;
 import com.xiancore.web.entity.Boss;
 import com.xiancore.web.service.BossService;

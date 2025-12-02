@@ -24,6 +24,13 @@
             <artifactId>gson</artifactId>
         </dependency>
 
+        <!-- Apache HttpClient for HTTP communication -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.14</version>
+        </dependency>
+
         <!-- Lombok for code generation -->
         <dependency>
             <groupId>org.projectlombok</groupId>

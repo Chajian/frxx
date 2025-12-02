@@ -37,7 +37,6 @@
     <modules>
         <module>xiancore-common</module>
         <module>xiancore-boss-system</module>
-        <module>xiancore-plugin</module>
         <module>xiancore-web</module>
         <module>XianCore</module>
     </modules>
@@ -101,12 +100,6 @@
             <dependency>
                 <groupId>com.xiancore</groupId>
                 <artifactId>xiancore-boss-system</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.xiancore</groupId>
-                <artifactId>xiancore-plugin</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

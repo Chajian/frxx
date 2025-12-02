@@ -37,6 +37,18 @@ public class ApiResponse<T> {
     }
 
     /**
+     * 创建成功响应（无数据）
+     */
+    public static <T> ApiResponse<T> success() {
+        return ApiResponse.<T>builder()
+                .code(0)
+                .message("Success")
+                .data(null)
+                .timestamp(System.currentTimeMillis())
+                .build();
+    }
+
+    /**
      * 创建失败响应
      */
     public static <T> ApiResponse<T> error(Integer code, String message) {

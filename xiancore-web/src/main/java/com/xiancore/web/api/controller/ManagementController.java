@@ -1,6 +1,6 @@
 package com.xiancore.web.api.controller;
 
-import com.xiancore.web.api.dto.ApiResponse;
+import com.xiancore.common.dto.ApiResponse;
 import com.xiancore.web.service.AuditLogService;
 import com.xiancore.web.service.CacheService;
 import com.xiancore.web.service.PerformanceMonitorService;

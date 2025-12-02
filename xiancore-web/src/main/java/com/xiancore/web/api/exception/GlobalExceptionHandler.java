@@ -1,6 +1,6 @@
 package com.xiancore.web.api.exception;
 
-import com.xiancore.web.api.dto.ApiResponse;
+import com.xiancore.common.dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
