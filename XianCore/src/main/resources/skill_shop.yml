@@ -1,0 +1,418 @@
+# ========================================
+# XianCore 功法商店配置文件
+# Version: 1.0.0
+# ========================================
+#
+# 管理员可以通过此文件自定义功法商店的所有内容
+# 修改后使用 /xiancore reload skill_shop 重载配置
+
+# 商店基础配置
+shop:
+  # 商店标题
+  title: "§2§l功法商店"
+
+  # 商店大小 (9/18/27/36/45/54)
+  size: 54
+
+  # 是否启用商店
+  enabled: true
+
+  # 货币类型 (spirit_stone=灵石, contribution=贡献点, money=金币)
+  currency: "spirit_stone"
+
+  # 是否允许重复购买同一功法秘籍
+  allow-duplicate-purchase: true
+
+  # 购买成功音效
+  purchase-sound:
+    enabled: true
+    sound: "ENTITY_PLAYER_LEVELUP"
+    volume: 1.0
+    pitch: 1.0
+
+  # 购买失败音效
+  fail-sound:
+    enabled: true
+    sound: "ENTITY_VILLAGER_NO"
+    volume: 1.0
+    pitch: 1.0
+
+# 商店分类配置
+categories:
+  # 基础功法分类
+  basic:
+    display-name: "§a基础功法"
+    icon: "BOOK"
+    slot: 10
+    description:
+      - "§7适合新手修炼者"
+      - "§7价格低廉，容易上手"
+
+  # 进阶功法分类
+  advanced:
+    display-name: "§b进阶功法"
+    icon: "ENCHANTED_BOOK"
+    slot: 13
+    description:
+      - "§7需要一定修为基础"
+      - "§7威力强大，消耗较高"
+
+  # 特殊功法分类
+  special:
+    display-name: "§d特殊功法"
+    icon: "NETHER_STAR"
+    slot: 16
+    description:
+      - "§7稀有珍贵的功法"
+      - "§7拥有独特效果"
+
+# 功法商品配置
+# 每个商品的格式：
+#   商品ID:
+#     display-name: "显示名称"
+#     skill-id: "功法ID（对应skill.yml中的功法）"
+#     category: "所属分类"
+#     price: 价格（灵石）
+#     stock: 库存（-1为无限）
+#     refresh-time: 刷新时间（秒，-1为不刷新）
+#     required-realm: "需求境界（可选）"
+#     required-level: 需求等级（可选）
+#     discount: 折扣（0.8=8折，可选）
+#     lore: 物品描述
+#     icon: 显示图标（可选，默认使用书本）
+
+items:
+  # ========== 基础功法 ==========
+
+  basic_fireball:
+    display-name: "§c§l火球术秘籍"
+    skill-id: "fireball"
+    category: "basic"
+    price: 100
+    stock: -1
+    refresh-time: -1
+    required-realm: "炼气期"
+    icon: "FIRE_CHARGE"
+    lore:
+      - "§7基础火系攻击功法"
+      - "§7凝聚火焰之力发射火球"
+      - ""
+      - "§e功法属性:"
+      - "§7• 类型: §c攻击"
+      - "§7• 元素: §c火"
+      - "§7• 冷却: §f10秒"
+      - ""
+      - "§a适合新手修炼者"
+
+  basic_heal:
+    display-name: "§a§l回春术秘籍"
+    skill-id: "heal"
+    category: "basic"
+    price: 150
+    stock: -1
+    required-realm: "炼气期"
+    icon: "GLISTERING_MELON_SLICE"
+    lore:
+      - "§7基础治疗功法"
+      - "§7运转灵气恢复生命"
+      - ""
+      - "§e功法属性:"
+      - "§7• 类型: §a治疗"
+      - "§7• 元素: §a木"
+      - "§7• 冷却: §f15秒"
+      - ""
+      - "§a队伍必备功法"
+
+  basic_shield:
+    display-name: "§7§l金刚护体秘籍"
+    skill-id: "shield"
+    category: "basic"
+    price: 200
+    stock: -1
+    required-realm: "筑基期"
+    icon: "SHIELD"
+    lore:
+      - "§7基础防御功法"
+      - "§7形成护体灵气护盾"
+      - ""
+      - "§e功法属性:"
+      - "§7• 类型: §b防御"
+      - "§7• 元素: §7土"
+      - "§7• 持续: §f30秒"
+      - ""
+      - "§a生存必备"
+
+  basic_speed:
+    display-name: "§f§l疾风步秘籍"
+    skill-id: "speed_boost"
+    category: "basic"
+    price: 180
+    stock: -1
+    required-realm: "炼气期"
+    icon: "FEATHER"
+    lore:
+      - "§7基础移动功法"
+      - "§7提升移动速度"
+      - ""
+      - "§e功法属性:"
+      - "§7• 类型: §e辅助"
+      - "§7• 元素: §f风"
+      - "§7• 持续: §f20秒"
+
+  # ========== 进阶功法 ==========
+
+  advanced_thunder:
+    display-name: "§5§l雷霆万钧秘籍"
+    skill-id: "thunderbolt"
+    category: "advanced"
+    price: 1500
+    stock: -1
+    required-realm: "筑基期"
+    required-level: 20
+    icon: "LIGHTNING_ROD"
+    lore:
+      - "§7强大的雷系群攻功法"
+      - "§7召唤天雷轰击敌人"
+      - ""
+      - "§e功法属性:"
+      - "§7• 类型: §c攻击 §7(AOE)"
+      - "§7• 元素: §5雷"
+      - "§7• 范围: §f5格"
+      - "§7• 冷却: §f30秒"
+      - ""
+      - "§6群战利器"
+
+  advanced_yujian:
+    display-name: "§e§l御剑飞行秘籍"
+    skill-id: "yujian"
+    category: "advanced"
+    price: 2000
+    stock: 5
+    refresh-time: 86400 # 每天刷新
+    required-realm: "结丹期"
+    required-level: 30
+    icon: "IRON_SWORD"
+    lore:
+      - "§7传说中的御剑之术"
+      - "§7御剑于空，飞行移动"
+      - ""
+      - "§e功法属性:"
+      - "§7• 类型: §e移动"
+      - "§7• 元素: §7金"
+      - "§7• 持续: §f60秒"
+      - "§7• 冷却: §f5分钟"
+      - ""
+      - "§c限量供应 §7每日仅售 §e5本"
+
+  advanced_frost:
+    display-name: "§b§l冰封千里秘籍"
+    skill-id: "frost_nova"
+    category: "advanced"
+    price: 1800
+    stock: -1
+    required-realm: "筑基期"
+    required-level: 25
+    icon: "ICE"
+    lore:
+      - "§7强力控制型功法"
+      - "§7冰封周围敌人"
+      - ""
+      - "§e功法属性:"
+      - "§7• 类型: §b控制"
+      - "§7• 元素: §b水"
+      - "§7• 范围: §f8格"
+      - "§7• 冷却: §f45秒"
+      - ""
+      - "§6控制专家必备"
+
+  advanced_soul:
+    display-name: "§d§l灵魂汲取秘籍"
+    skill-id: "soul_drain"
+    category: "advanced"
+    price: 2200
+    stock: -1
+    required-realm: "结丹期"
+    required-level: 28
+    icon: "GHAST_TEAR"
+    lore:
+      - "§7邪修功法，吸取生命"
+      - "§7攻击同时恢复自身"
+      - ""
+      - "§e功法属性:"
+      - "§7• 类型: §c攻击 §7+ §a治疗"
+      - "§7• 元素: §d暗"
+      - "§7• 吸血: §c50%"
+      - "§7• 冷却: §f20秒"
+      - ""
+      - "§c修炼需谨慎"
+
+  # ========== 特殊功法 ==========
+
+  special_phoenix:
+    display-name: "§6§l凤凰涅槃秘籍"
+    skill-id: "phoenix_rebirth"
+    category: "special"
+    price: 5000
+    stock: 1
+    refresh-time: 604800 # 每周刷新
+    required-realm: "金丹期"
+    required-level: 40
+    icon: "TOTEM_OF_UNDYING"
+    lore:
+      - "§6§l传说级功法"
+      - "§7凤凰涅槃，死而复生"
+      - ""
+      - "§e功法属性:"
+      - "§7• 类型: §d特殊"
+      - "§7• 元素: §6神"
+      - "§7• 效果: §a死亡时复活"
+      - "§7• 冷却: §f1小时"
+      - ""
+      - "§c§l极其稀有 §7每周仅售 §e1本"
+      - "§6价值连城"
+
+  special_time:
+    display-name: "§3§l时光倒流秘籍"
+    skill-id: "time_rewind"
+    category: "special"
+    price: 8000
+    stock: 1
+    refresh-time: 604800
+    required-realm: "元婴期"
+    required-level: 50
+    icon: "CLOCK"
+    lore:
+      - "§3§l神话级功法"
+      - "§7掌控时间，逆转过去"
+      - ""
+      - "§e功法属性:"
+      - "§7• 类型: §d特殊"
+      - "§7• 元素: §3时间"
+      - "§7• 效果: §e回溯5秒状态"
+      - "§7• 冷却: §f2小时"
+      - ""
+      - "§c§l传说功法"
+      - "§5需要极高悟性"
+
+  special_domain:
+    display-name: "§5§l领域展开秘籍"
+    skill-id: "domain_expansion"
+    category: "special"
+    price: 10000
+    stock: 1
+    refresh-time: 2592000 # 每月刷新
+    required-realm: "化神期"
+    required-level: 60
+    discount: 0.8 # 8折优惠
+    icon: "END_PORTAL_FRAME"
+    lore:
+      - "§5§l至高级功法"
+      - "§7展开个人领域，主宰一切"
+      - ""
+      - "§e功法属性:"
+      - "§7• 类型: §d特殊"
+      - "§7• 元素: §5空间"
+      - "§7• 范围: §f30格"
+      - "§7• 持续: §f30秒"
+      - "§7• 冷却: §f5小时"
+      - ""
+      - "§c§l终极功法"
+      - "§6当前 §a8折优惠"
+      - "§5化神期以上才可修炼"
+
+  special_void:
+    display-name: "§0§l虚空行走秘籍"
+    skill-id: "void_walk"
+    category: "special"
+    price: 6000
+    stock: 2
+    refresh-time: 259200 # 3天刷新
+    required-realm: "元婴期"
+    required-level: 45
+    icon: "ENDER_PEARL"
+    lore:
+      - "§5§l稀有功法"
+      - "§7穿梭虚空，瞬间移动"
+      - ""
+      - "§e功法属性:"
+      - "§7• 类型: §e移动"
+      - "§7• 元素: §0虚空"
+      - "§7• 距离: §f50格"
+      - "§7• 冷却: §f3分钟"
+      - ""
+      - "§6逃生神技"
+
+# 商店刷新配置
+refresh:
+  # 是否启用自动刷新
+  enabled: true
+
+  # 全局刷新时间（会刷新所有有刷新时间的商品）
+  global-refresh:
+    enabled: true
+    # 每天凌晨4点刷新
+    time: "04:00"
+
+  # 刷新提醒
+  broadcast:
+    enabled: true
+    message: "§a§l[功法商店] §e商店已刷新！快来看看有什么新功法吧！"
+
+# 折扣活动配置
+discounts:
+  # VIP折扣
+  vip-discount:
+    enabled: true
+    vip1: 0.95 # 9.5折
+    vip2: 0.90 # 9折
+    vip3: 0.85 # 8.5折
+
+  # 节日折扣（可设置特定时间段）
+  holiday-discount:
+    enabled: false
+    discount: 0.7 # 7折
+    start-date: "2025-01-01 00:00"
+    end-date: "2025-01-07 23:59"
+    message: "§6§l新年活动 §e全场7折！"
+
+# 购买限制
+purchase-limits:
+  # 每日购买次数限制
+  daily-limit:
+    enabled: true
+    default: 10 # 默认每天10次
+    vip1: 15
+    vip2: 20
+    vip3: -1 # -1为无限
+
+  # 每个功法的购买次数限制
+  skill-limit:
+    enabled: true
+    # 默认每个功法只能买1本（已学习的功法不能再买）
+    check-learned: true
+
+# UI美化配置
+ui:
+  # 背景玻璃板颜色
+  background-glass: "GRAY_STAINED_GLASS_PANE"
+
+  # 分类按钮是否发光
+  category-enchant-glow: true
+
+  # 信息展示位置
+  info-slot: 49
+
+  # 返回按钮
+  back-button:
+    enabled: true
+    slot: 45
+    name: "§c§l返回"
+    lore:
+      - "§7点击返回上一页"
+
+# 调试配置
+debug:
+  # 是否启用调试模式
+  enabled: false
+  # 是否显示详细购买信息
+  verbose-purchase: false

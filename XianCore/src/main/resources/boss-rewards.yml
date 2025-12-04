@@ -1,0 +1,642 @@
+# ============================================
+# XianCore Boss 奖励系统配置文件
+# ============================================
+#
+# 此配置文件定义击杀Boss后的奖励内容
+# 支持多种奖励类型：经验、金钱、物品、命令、MythicMobs物品
+#
+# 作者: XianCore Team
+# 版本: 1.0.0
+# ============================================
+
+# ==================== 全局设置 ====================
+settings:
+  # 是否启用奖励系统
+  enable-rewards: true
+  
+  # 是否启用金钱奖励（需要Vault插件）
+  enable-money-rewards: true
+  
+  # 是否广播奖励信息
+  broadcast-rewards: true
+  
+  # 最大奖励排名（前N名获得奖励）
+  max-reward-ranks: 10
+
+# ==================== Boss等级奖励配置 ====================
+# 格式：
+# tiers:
+#   <tier>:                    # Boss等级 (1-4)
+#     ranks:
+#       <rank>:                # 排名 (1-10)
+#         multiplier: <倍率>   # 排名倍率
+#         rewards:
+#           <reward_id>:
+#             type: <类型>      # experience/money/item/command/mythic_item
+#             amount: <数量>
+#             chance: <概率>    # 0.0-1.0，1.0=100%
+#             display-name: <显示名称>
+
+tiers:
+  # ==================== 等级1 Boss奖励 ====================
+  1:
+    ranks:
+      # 第1名 - 2.0倍
+      1:
+        multiplier: 2.0
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 100
+            chance: 1.0
+            display-name: "§a经验 +100"
+          money_reward:
+            type: money
+            amount: 200.0
+            chance: 1.0
+            display-name: "§e金钱 +200"
+          bonus_item:
+            type: item
+            material: DIAMOND
+            amount: 2
+            chance: 0.5
+            display-name: "§b钻石 x2"
+      
+      # 第2名 - 1.5倍
+      2:
+        multiplier: 1.5
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 100
+            chance: 1.0
+            display-name: "§a经验 +100"
+          money_reward:
+            type: money
+            amount: 200.0
+            chance: 1.0
+            display-name: "§e金钱 +200"
+          bonus_item:
+            type: item
+            material: DIAMOND
+            amount: 1
+            chance: 0.3
+            display-name: "§b钻石 x1"
+      
+      # 第3名 - 1.2倍
+      3:
+        multiplier: 1.2
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 100
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 200.0
+            chance: 1.0
+      
+      # 第4-5名 - 1.0倍
+      4:
+        multiplier: 1.0
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 100
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 200.0
+            chance: 1.0
+      
+      5:
+        multiplier: 1.0
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 100
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 200.0
+            chance: 1.0
+      
+      # 第6-10名 - 0.8倍
+      6:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 100
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 200.0
+            chance: 1.0
+      
+      7:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 100
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 200.0
+            chance: 1.0
+      
+      8:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 100
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 200.0
+            chance: 1.0
+      
+      9:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 100
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 200.0
+            chance: 1.0
+      
+      10:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 100
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 200.0
+            chance: 1.0
+
+  # ==================== 等级2 Boss奖励 ====================
+  2:
+    ranks:
+      1:
+        multiplier: 2.0
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 200
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 500.0
+            chance: 1.0
+          rare_item:
+            type: item
+            material: EMERALD
+            amount: 3
+            chance: 0.6
+            display-name: "§a绿宝石 x3"
+      
+      2:
+        multiplier: 1.5
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 200
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 500.0
+            chance: 1.0
+          rare_item:
+            type: item
+            material: EMERALD
+            amount: 2
+            chance: 0.4
+            display-name: "§a绿宝石 x2"
+      
+      3:
+        multiplier: 1.2
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 200
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 500.0
+            chance: 1.0
+      
+      4:
+        multiplier: 1.0
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 200
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 500.0
+            chance: 1.0
+      
+      5:
+        multiplier: 1.0
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 200
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 500.0
+            chance: 1.0
+      
+      6:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 200
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 500.0
+            chance: 1.0
+      
+      7:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 200
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 500.0
+            chance: 1.0
+      
+      8:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 200
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 500.0
+            chance: 1.0
+      
+      9:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 200
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 500.0
+            chance: 1.0
+      
+      10:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 200
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 500.0
+            chance: 1.0
+
+  # ==================== 等级3 Boss奖励 ====================
+  3:
+    ranks:
+      1:
+        multiplier: 2.0
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 500
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 1000.0
+            chance: 1.0
+          epic_item:
+            type: item
+            material: NETHERITE_INGOT
+            amount: 2
+            chance: 0.7
+            display-name: "§5下界合金锭 x2"
+          # 可选：MythicMobs物品奖励
+          # mythic_reward:
+          #   type: mythic_item
+          #   item-id: "legendary_sword"
+          #   amount: 1
+          #   chance: 0.3
+          #   display-name: "§6传说之剑"
+      
+      2:
+        multiplier: 1.5
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 500
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 1000.0
+            chance: 1.0
+          epic_item:
+            type: item
+            material: NETHERITE_INGOT
+            amount: 1
+            chance: 0.5
+            display-name: "§5下界合金锭 x1"
+      
+      3:
+        multiplier: 1.2
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 500
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 1000.0
+            chance: 1.0
+      
+      4:
+        multiplier: 1.0
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 500
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 1000.0
+            chance: 1.0
+      
+      5:
+        multiplier: 1.0
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 500
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 1000.0
+            chance: 1.0
+      
+      6:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 500
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 1000.0
+            chance: 1.0
+      
+      7:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 500
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 1000.0
+            chance: 1.0
+      
+      8:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 500
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 1000.0
+            chance: 1.0
+      
+      9:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 500
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 1000.0
+            chance: 1.0
+      
+      10:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 500
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 1000.0
+            chance: 1.0
+
+  # ==================== 等级4 Boss奖励 ====================
+  4:
+    ranks:
+      1:
+        multiplier: 2.0
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 1000
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 2000.0
+            chance: 1.0
+          legendary_item1:
+            type: item
+            material: NETHER_STAR
+            amount: 3
+            chance: 0.8
+            display-name: "§d下界之星 x3"
+          legendary_item2:
+            type: item
+            material: TOTEM_OF_UNDYING
+            amount: 1
+            chance: 0.5
+            display-name: "§6不死图腾"
+          # 可选：执行命令奖励
+          # command_reward:
+          #   type: command
+          #   command: "give %player% diamond 10"
+          #   chance: 1.0
+          #   display-name: "§b特殊奖励"
+      
+      2:
+        multiplier: 1.5
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 1000
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 2000.0
+            chance: 1.0
+          legendary_item:
+            type: item
+            material: NETHER_STAR
+            amount: 2
+            chance: 0.6
+            display-name: "§d下界之星 x2"
+      
+      3:
+        multiplier: 1.2
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 1000
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 2000.0
+            chance: 1.0
+          legendary_item:
+            type: item
+            material: NETHER_STAR
+            amount: 1
+            chance: 0.4
+            display-name: "§d下界之星"
+      
+      4:
+        multiplier: 1.0
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 1000
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 2000.0
+            chance: 1.0
+      
+      5:
+        multiplier: 1.0
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 1000
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 2000.0
+            chance: 1.0
+      
+      6:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 1000
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 2000.0
+            chance: 1.0
+      
+      7:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 1000
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 2000.0
+            chance: 1.0
+      
+      8:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 1000
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 2000.0
+            chance: 1.0
+      
+      9:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 1000
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 2000.0
+            chance: 1.0
+      
+      10:
+        multiplier: 0.8
+        rewards:
+          exp_reward:
+            type: experience
+            amount: 1000
+            chance: 1.0
+          money_reward:
+            type: money
+            amount: 2000.0
+            chance: 1.0
+
+# ============================================
+# 配置说明:
+#
+# 奖励类型:
+#   - experience: 经验奖励
+#   - money: 金钱奖励 (需要Vault)
+#   - item: 物品奖励
+#   - command: 命令奖励
+#   - mythic_item: MythicMobs物品奖励
+#
+# 排名倍率:
+#   最终奖励 = 基础奖励 * 排名倍率 * (0.5 + 伤害占比)
+#   第1名: 2.0倍
+#   第2名: 1.5倍
+#   第3名: 1.2倍
+#   第4-5名: 1.0倍
+#   第6-10名: 0.8倍
+#
+# 奖励概率:
+#   chance: 1.0 = 100% 获得
+#   chance: 0.5 = 50% 获得
+#   chance: 0.1 = 10% 获得
+#
+# 示例:
+#   假设玩家是第1名（2.0倍），造成40%伤害
+#   经验 = 100 * 2.0 * (0.5 + 0.4) = 180经验
+#   金钱 = 200 * 2.0 * (0.5 + 0.4) = 360金钱
+# ============================================

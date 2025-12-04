@@ -1,0 +1,49 @@
+name: XianCore-Addon
+version: "${project.version}"
+main: com.yourserver.xiancore.XianCoreAddon
+api-version: 1.16
+author: YourServer Team
+description: 属性提升道具系统 - 基于MMOCore扩展
+
+depend:
+  - MMOCore
+  - MMOItems
+  - MythicLib
+
+softdepend:
+  - PlaceholderAPI
+  - Vault
+
+commands:
+  xiancore:
+    description: XianCore主命令
+    usage: /xiancore <attribute|buff|items|reload|admin>
+    permission: xiancore.use
+    aliases: [xc, xian]
+
+permissions:
+  xiancore.use:
+    description: 允许使用基础命令
+    default: true
+  xiancore.items.use:
+    description: 允许使用道具
+    default: true
+  xiancore.admin:
+    description: 管理员权限
+    default: op
+    children:
+      xiancore.admin.reset: true
+      xiancore.admin.give: true
+      xiancore.admin.reload: true
+  xiancore.admin.reset:
+    description: 重置玩家道具使用次数
+    default: op
+  xiancore.admin.give:
+    description: 给予玩家道具
+    default: op
+  xiancore.admin.reload:
+    description: 重载配置
+    default: op
+  xiancore.bypass.limit:
+    description: 绕过使用次数限制
+    default: false

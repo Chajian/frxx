@@ -1,0 +1,384 @@
+# 天劫系统配置
+# XianCore 修仙插件 - 天劫系统
+
+# ========== 全局设置 ==========
+global:
+  # 天劫冷却时间（秒）
+  cooldown: 300
+
+  # 天劫范围（格）
+  range: 50.0
+
+  # 劫雷间隔（秒）
+  wave-interval: 3
+
+  # 是否允许离开范围
+  allow-leave-range: false
+
+  # 天劫失败是否保留进度
+  save-progress-on-failure: false
+
+  # 启用调试模式
+  debug: false
+
+# ========== 天劫难度配置 ==========
+difficulty:
+  # 基础伤害倍率（越高越难）
+  base-damage-multiplier: 1.0
+
+  # 波数伤害递增率（每波增加20%）
+  wave-damage-increment: 0.2
+
+  # 劫雷数量递增（每3波增加1个劫雷）
+  lightning-increment-per-waves: 3
+
+  # 最大同时劫雷数
+  max-simultaneous-lightning: 5
+
+  # 劫雷命中半径（格）
+  lightning-hit-radius: 5.0
+
+  # 是否允许死亡重试（失败后可继续）
+  allow-death-retry: false
+
+# ========== 天劫类型配置 ==========
+tribulation-types:
+  # 凝气劫（炼气期→筑基期）
+  qi-condensation:
+    display-name: "凝气劫"
+    tier: 1
+    description: "炼气期突破到筑基期的天劫"
+    waves: 1
+    base-damage: 10.0
+    difficulty-multiplier: 1.0
+    wave-interval: 3
+
+  # 筑基劫（筑基期→结丹期）
+  foundation:
+    display-name: "筑基劫"
+    tier: 2
+    description: "筑基期突破到结丹期的天劫"
+    waves: 3
+    base-damage: 20.0
+    difficulty-multiplier: 1.5
+    wave-interval: 3
+
+  # 金丹劫（结丹期→元婴期）
+  golden-core:
+    display-name: "金丹劫"
+    tier: 3
+    description: "结丹期突破到元婴期的天劫"
+    waves: 6
+    base-damage: 30.0
+    difficulty-multiplier: 2.0
+    wave-interval: 3
+
+  # 元婴劫（元婴期→化神期）
+  nascent-soul:
+    display-name: "元婴劫"
+    tier: 4
+    description: "元婴期突破到化神期的天劫"
+    waves: 9
+    base-damage: 40.0
+    difficulty-multiplier: 2.5
+    wave-interval: 3
+
+  # 化神劫（化神期→炼虚期）
+  soul-formation:
+    display-name: "化神劫"
+    tier: 5
+    description: "化神期突破到炼虚期的天劫"
+    waves: 18
+    base-damage: 50.0
+    difficulty-multiplier: 3.0
+    wave-interval: 2
+
+  # 炼虚劫（炼虚期→合体期）
+  void-refinement:
+    display-name: "炼虚劫"
+    tier: 6
+    description: "炼虚期突破到合体期的天劫"
+    waves: 27
+    base-damage: 60.0
+    difficulty-multiplier: 3.5
+    wave-interval: 2
+
+  # 合体劫（合体期→大乘期）
+  integration:
+    display-name: "合体劫"
+    tier: 7
+    description: "合体期突破到大乘期的天劫"
+    waves: 36
+    base-damage: 70.0
+    difficulty-multiplier: 4.0
+    wave-interval: 2
+
+  # 大乘劫（大乘期→渡劫期）
+  mahayana:
+    display-name: "大乘劫"
+    tier: 8
+    description: "大乘期突破到渡劫期的天劫"
+    waves: 49
+    base-damage: 80.0
+    difficulty-multiplier: 4.5
+    wave-interval: 1
+
+  # 飞升劫（渡劫期→飞升）
+  transcendence:
+    display-name: "飞升劫"
+    tier: 9
+    description: "渡劫期飞升的终极天劫"
+    waves: 81
+    base-damage: 100.0
+    difficulty-multiplier: 5.0
+    wave-interval: 1
+
+# ========== 奖励配置 ==========
+rewards:
+  # 修为奖励基础值（乘以tier）
+  qi-base: 10000
+
+  # 灵石奖励基础值（乘以tier）
+  spirit-stones-base: 100
+
+  # 功法点奖励（等于tier）
+  skill-points-per-tier: 1
+
+  # 活跃灵气基础值
+  active-qi-base: 25
+
+  # 活跃灵气每tier加成
+  active-qi-per-tier: 5
+
+  # 评级奖励加成
+  rating-bonus:
+    # S级（完美通关）
+    S:
+      qi-multiplier: 2.0        # 修为x2
+      spirit-stones-bonus: 500  # 额外500灵石
+      skill-points-bonus: 3     # 额外3功法点
+      active-qi-bonus: 50       # 额外50活跃灵气
+      title: "§d§l【渡劫天才】"
+
+    # A级（无死亡）
+    A:
+      qi-multiplier: 1.5        # 修为x1.5
+      spirit-stones-bonus: 300  # 额外300灵石
+      skill-points-bonus: 2     # 额外2功法点
+      active-qi-bonus: 30       # 额外30活跃灵气
+      title: "§6§l【渡劫高手】"
+
+    # B级（死亡1次）
+    B:
+      qi-multiplier: 1.2        # 修为x1.2
+      spirit-stones-bonus: 150  # 额外150灵石
+      skill-points-bonus: 1     # 额外1功法点
+      active-qi-bonus: 15       # 额外15活跃灵气
+      title: "§e§l【渡劫者】"
+
+    # C级（死亡2次以上）
+    C:
+      qi-multiplier: 1.0        # 无修为加成
+      spirit-stones-bonus: 50   # 额外50灵石
+      skill-points-bonus: 0     # 无功法点加成
+      active-qi-bonus: 5        # 额外5活跃灵气
+      title: "§7§l【险渡】"
+
+  # 特殊奖励（随机掉落）
+  special-rewards:
+    enabled: true
+
+    # 随机掉落概率（基于评级）
+    drop-chance:
+      S: 0.5   # 50%
+      A: 0.3   # 30%
+      B: 0.15  # 15%
+      C: 0.05  # 5%
+
+    # 可能的奖励物品（需要配合物品系统）
+    possible-items:
+      - type: "RARE_MATERIAL"
+        name: "§d天劫精华"
+        description: "天劫凝聚的精华，可用于炼器"
+
+      - type: "SPIRIT_STONE"
+        name: "§6灵石礼包"
+        amount: 1000
+
+      - type: "SKILL_BOOK"
+        name: "§b随机功法秘籍"
+        quality: "random"
+
+# ========== 惩罚配置 ==========
+penalties:
+  # 失败惩罚
+  failure:
+    # 修为损失比例
+    qi-loss-percent: 10
+
+    # 是否损失物品
+    drop-items: false
+
+    # 是否损失装备耐久
+    damage-equipment: true
+    equipment-damage-percent: 20
+
+    # 获得少量活跃灵气（鼓励尝试）
+    consolation-active-qi: 8
+
+  # 死亡惩罚（如果允许死亡重试）
+  death:
+    # 每次死亡减少的奖励比例
+    reward-reduction-per-death: 0.15  # 15%
+
+    # 最大死亡次数
+    max-deaths: 3
+
+# ========== 特效配置 ==========
+effects:
+  # 音效
+  sounds:
+    start: "ENTITY_WITHER_SPAWN"
+    lightning: "ENTITY_LIGHTNING_BOLT_THUNDER"
+    success: "UI_TOAST_CHALLENGE_COMPLETE"
+    failure: "ENTITY_ENDER_DRAGON_DEATH"
+    wave-warning: "BLOCK_BELL_USE"
+
+  # 粒子效果
+  particles:
+    # 天劫开始
+    start:
+      type: "EXPLOSION_LARGE"
+      count: 20
+
+    # 劫雷击中
+    lightning:
+      type: "ELECTRIC_SPARK"
+      count: 50
+
+    # 渡劫成功
+    success:
+      type: "TOTEM"
+      count: 100
+
+    # 渡劫失败
+    failure:
+      type: "SMOKE_LARGE"
+      count: 50
+
+    # 进度提示（每5波）
+    progress:
+      type: "END_ROD"
+      count: 30
+
+  # 天气效果
+  weather:
+    # 天劫期间改变天气
+    change-weather: true
+    weather-type: "THUNDER"
+
+    # 天劫结束后恢复天气
+    restore-weather: true
+
+# ========== 消息配置 ==========
+messages:
+  # 天劫开始
+  start:
+    - "§6§l=================="
+    - "§c§l天劫降临!"
+    - "§e劫数: §f{type}"
+    - "§e波数: §f{waves}"
+    - "§e范围: §f{range}格"
+    - "§c请不要离开天劫范围!"
+    - "§6§l=================="
+
+  # 波数提示
+  wave:
+    - "§e第 §c{current}§e/§c{total} §e波劫雷!"
+    - "§7伤害: §c{damage}"
+
+  # 进度提示（每5波）
+  progress:
+    - "§b§l========== 渡劫进度 =========="
+    - "§e已完成: §a{current}§e/§c{total} 波"
+    - "§e进度: §6{percent}%"
+    - "§e受到伤害: §c{total_damage}"
+    - "§e死亡次数: §c{deaths}"
+    - "§b§l============================"
+
+  # 渡劫成功
+  success:
+    - "§a§l=================="
+    - "§a§l渡劫成功!"
+    - "§e评级: {rating}"
+    - "§e历时: §f{duration} 秒"
+    - "§e劫雷: §f{strikes} 次"
+    - "§e死亡: §f{deaths} 次"
+    - "§a§l=================="
+
+  # 渡劫失败
+  failure:
+    - "§c§l=================="
+    - "§c§l渡劫失败!"
+    - "§e历时: §f{duration} 秒"
+    - "§e已承受: §f{current}/{total} 波"
+    - "§c§l=================="
+
+  # 奖励提示
+  rewards:
+    - "§e奖励:"
+    - "§7- 修为: §b+{qi}"
+    - "§7- 灵石: §6+{stones}"
+    - "§7- 功法点: §d+{points}"
+    - "§7- 活跃灵气: §a+{active_qi}"
+
+  # 惩罚提示
+  penalty:
+    - "§c惩罚:"
+    - "§7- 修为: §c-{qi}"
+    - "§7但你获得了 §a+{active_qi} §7活跃灵气（挑战勇气）"
+
+# ========== 触发条件配置 ==========
+triggers:
+  # 境界突破自动触发
+  auto-trigger-on-breakthrough: false
+
+  # 需要特定物品才能触发天劫
+  require-item: false
+  required-item: "NETHER_STAR"
+  item-name: "§6§l渡劫符"
+  consume-item: true
+
+  # 需要特定位置（如祭坛）
+  require-location: false
+  location-type: "ALTAR"
+
+  # 需要特定时间
+  require-time: false
+  allowed-times:
+    - "NIGHT"
+    - "THUNDER"
+
+  # 需要特定境界
+  minimum-realm: "炼气期"
+
+# ========== 高级功能 ==========
+advanced:
+  # 启用天劫排行榜
+  enable-leaderboard: true
+
+  # 启用天劫回放
+  enable-replay: false
+
+  # 启用观战模式
+  enable-spectator: true
+
+  # 全服广播天劫事件
+  broadcast-events:
+    start: true
+    success: true
+    failure: false
+
+  # 记录天劫历史
+  save-history: true
+  max-history-records: 100

@@ -1,0 +1,172 @@
+# ═══════════════════════════════════════════════════════════════
+# XianCore 宗门领地系统消息文件
+# ═══════════════════════════════════════════════════════════════
+
+messages:
+  # ═══════════════════════════════════════════════════════════════
+  # 圈地相关消息
+  # ═══════════════════════════════════════════════════════════════
+  land:
+    claim:
+      success: "§a成功创建宗门领地！"
+      success-detail: |
+        §a§l==================
+        §a成功创建宗门领地！
+        §e领地名称: §f{land-name}
+        §e领地大小: §f{size} 块
+        §e消耗灵石: §6{cost}
+        §a§l==================
+      failed: "§c领地创建失败，请重试！"
+      permission-denied: "§c仅宗主可以圈地！"
+      insufficient-funds: "§c宗门资金不足！需要: §6{cost} §c当前: §6{funds}"
+      land-limit-reached: "§c已达到领地上限！当前: §6{current}§c/§6{max}"
+      invalid-area: "§c无效的选区，请重新选择！"
+      overlaps-existing: "§c选定的区域与其他领地重叠！"
+      too-close-to-other: "§c选定的区域距其他领地太近，请保持最少 {buffer} 块缓冲距离！"
+      not-allowed-adjacent: "§c不允许与其他宗门领地相邻！"
+
+    expand:
+      success: "§a成功扩展宗门领地！"
+      success-detail: |
+        §a§l==================
+        §a成功扩展宗门领地！
+        §e扩展大小: §f{expand-size} 块
+        §e消耗灵石: §6{cost}
+        §a§l==================
+      failed: "§c领地扩展失败，请重试！"
+      permission-denied: "§c仅长老及以上可以扩展领地！"
+      insufficient-funds: "§c宗门资金不足！需要: §6{cost}"
+      land-limit-reached: "§c扩展将超过领地上限！当前: §6{current} + §6{expand}§c > §6{max}"
+
+    shrink:
+      success: "§a成功缩小宗门领地！"
+      success-detail: |
+        §a§l==================
+        §a成功缩小宗门领地！
+        §e缩小大小: §f{shrink-size} 块
+        §e回收灵石: §6{refund} (50% 返还)
+        §a§l==================
+      failed: "§c领地缩小失败，请重试！"
+      permission-denied: "§c仅长老及以上可以缩小领地！"
+      has-buildings: "§c无法缩小：该区域内有建筑物，请先移除！"
+
+    delete:
+      success: "§a成功删除宗门领地！"
+      success-detail: |
+        §a§l==================
+        §a成功删除宗门领地！
+        §e领地: §f{land-name}
+        §e回收灵石: §6{refund}
+        §a§l==================
+      failed: "§c领地删除失败，请重试！"
+      permission-denied: "§c仅宗主可以删除领地！"
+      has-buildings: "§c无法删除：该领地内有建筑物，请先移除！"
+      confirm-needed: "§e请再次执行命令以确认删除！警告: 这将永久删除领地内的所有建筑！"
+
+    transfer:
+      success: "§a成功转让宗门领地所有权！"
+      failed: "§c领地转让失败，请重试！"
+      permission-denied: "§c仅宗主可以转让领地！"
+      player-not-found: "§c找不到玩家 {player}！"
+
+    info:
+      header: "§a§l========== 宗门领地信息 =========="
+      name: "§e领地名称: §f{name}"
+      owner: "§e所有者: §f{owner}"
+      size: "§e领地大小: §f{size} 块"
+      center: "§e中心坐标: §f{x} {y} {z}"
+      status: "§e状态: §f{status}"
+      last-maintained: "§e最后缴费: §f{date}"
+      footer: "§a════════════════════════"
+
+    enter: "§a欢迎进入宗门领地: §e{land-name}"
+    exit: "§c你已离开宗门领地: §e{land-name}"
+
+  # ═══════════════════════════════════════════════════════════════
+  # 维护费相关消息
+  # ═══════════════════════════════════════════════════════════════
+  maintenance:
+    paid: "§a成功缴纳维护费！"
+    paid-detail: |
+      §a§l==================
+      §a成功缴纳维护费！
+      §e消耗灵石: §6{cost}
+      §e下次缴费: §f{next-date}
+      §a§l==================
+    payment-failed: "§c缴费失败：宗门资金不足！需要: §6{cost}"
+
+    overdue-warning: "§e§l警告: 宗门领地维护费即将逾期！"
+    overdue-warning-detail: |
+      §e§l[警告]
+      §e宗门领地维护费逾期 {days} 天
+      §e需要立即缴纳 §6{cost} §e灵石
+      §e使用 §6/sect land pay §e即可缴费
+
+    overdue-freeze: "§c§l宗门领地维护费逾期，领地功能已冻结！"
+    overdue-freeze-detail: |
+      §c§l[冻结通知]
+      §c宗门领地维护费逾期超过 7 天
+      §c领地功能已被冻结
+      §c需要缴纳全部欠款才能解除冻结
+      §c欠款: §6{overdue-cost} §c灵石
+
+    overdue-release: "§c§l宗门领地逾期过久，部分领地已自动释放！"
+    overdue-release-detail: |
+      §c§l[释放通知]
+      §c宗门领地维护费逾期超过 14 天
+      §c已自动释放 {released-blocks} 块领地
+      §c剩余领地: {remaining-blocks} 块
+      §c请尽快缴纳欠款！
+
+  # ═══════════════════════════════════════════════════════════════
+  # 建筑位相关消息
+  # ═══════════════════════════════════════════════════════════════
+  building-slots:
+    available-slots: "§a可用建筑位: §f{available}§a/§f{total}"
+    insufficient-slots: "§c建筑位不足！需要: §6{required} §c可用: §6{available}"
+
+    placed: "§a成功放置建筑！"
+    placed-detail: |
+      §a建筑放置成功！
+      §e建筑类型: §f{type}
+      §e占用建筑位: §f{slots}
+
+    removed: "§a成功移除建筑！"
+    removed-detail: |
+      §a建筑移除成功！
+      §e建筑类型: §f{type}
+      §e释放建筑位: §f{slots}
+
+  # ═══════════════════════════════════════════════════════════════
+  # 权限相关消息
+  # ═══════════════════════════════════════════════════════════════
+  permissions:
+    access-denied: "§c你没有权限访问此区域！"
+    building-access-denied: "§c你没有权限在此放置建筑！"
+    removal-access-denied: "§c你没有权限移除此建筑！"
+
+  # ═══════════════════════════════════════════════════════════════
+  # 通用消息
+  # ═══════════════════════════════════════════════════════════════
+  common:
+    sect-not-found: "§c找不到宗门！"
+    sect-not-leader: "§c你不是宗主，无法执行此操作！"
+    no-residence-installed: "§c服务器未安装 Residence 插件，领地功能不可用！"
+    feature-disabled: "§c该功能已禁用！"
+    error-occurred: "§c发生错误，请查看服务器日志！"
+
+  # ═══════════════════════════════════════════════════════════════
+  # 命令帮助消息
+  # ═══════════════════════════════════════════════════════════════
+  help:
+    header: "§a§l========== 宗门领地系统帮助 =========="
+    claim: "§e/sect land claim §7- 圈地"
+    expand: "§e/sect land expand §7- 扩展领地"
+    shrink: "§e/sect land shrink §7- 缩小领地"
+    delete: "§e/sect land delete §7- 删除领地"
+    info: "§e/sect land info §7- 查看领地信息"
+    status: "§e/sect land status §7- 查看维护费状态"
+    pay: "§e/sect land pay §7- 缴纳维护费"
+    gui: "§e/sect land gui §7- 打开领地管理界面"
+    members: "§e/sect land members §7- 查看成员权限"
+    footer: "§a═══════════════════════════════════════"

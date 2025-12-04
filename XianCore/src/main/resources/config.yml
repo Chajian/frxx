@@ -1,0 +1,175 @@
+# ========================================
+# XianCore 修仙体系插件 - 主配置文件
+# Version: 1.0.0
+# Author: Olivia Diaz
+# ========================================
+
+# 数据库配置
+database:
+  # 是否使用 MySQL（false 则使用本地 YAML 文件）
+  use-mysql: false
+  host: localhost
+  port: 3306
+  database: xiancore
+  username: root
+  password: password
+  pool-size: 10
+
+# Redis 配置（用于跨服数据同步）
+redis:
+  enabled: false
+  host: localhost
+  port: 6379
+  password: ""
+
+# 修炼系统配置
+cultivation:
+  # 是否启用离线修炼
+  offline-cultivation: true
+  # 离线修炼效率（相对在线修炼的比例）
+  offline-efficiency: 0.5
+  # 突破冷却时间（秒）
+  breakthrough-cooldown: 3600
+
+# 炼器系统配置
+forge:
+  # 炼制成功率基础值
+  base-success-rate: 0.8
+  # 强化成功率基础值
+  enhancement-base-rate: 0.9
+  # 强化失败是否损毁装备
+  destroy-on-fail: true
+
+# 奇遇系统配置
+fate:
+  # 基础触发概率
+  base-chance: 0.0001
+  # 检查间隔（移动次数）
+  check-interval: 100
+  # VIP 概率加成
+  vip-multiplier: 1.5
+
+# 宗门系统配置
+sect:
+  # 创建宗门所需灵石
+  creation-cost: 100000
+  # 宗门最大成员数
+  max-members: 50
+  # 是否启用宗门战争
+  enable-wars: true
+
+# 功法系统配置
+skill:
+  # 快捷键绑定配置
+  keybind:
+    # 是否启用快捷键系统
+    enabled: true
+
+    # 是否允许重新绑定
+    allow-rebind: true
+
+    # 手持物品时是否允许施放
+    allow-with-item: true
+
+    # 是否显示空槽位提示（按F键时未绑定功法）
+    show-empty-slot-hint: false
+
+    # 是否显示新手教程
+    show-tutorial: true
+
+    # 默认绑定（可选，首次登录自动绑定）
+    default-binds:
+      # 槽位: 功法ID（留空表示不绑定）
+      1: ""
+      2: ""
+      3: ""
+      4: ""
+      5: ""
+      6: ""
+      7: ""
+      8: ""
+      9: ""
+
+    # 绑定消息
+    messages:
+      bind-success: "§a已绑定 §e{skill} §a到槽位 §f{slot}"
+      unbind-success: "§7已解绑槽位 §f{slot}"
+      slot-not-bound: "§7槽位 {slot} 未绑定功法"
+      cast-success: "§a施放: §e{skill}"
+      cast-cooldown: "§c{skill} §c冷却中! 剩余 §f{time} §c秒"
+      cast-no-qi: "§c灵气不足! 需要 §f{cost}§c，当前 §f{current}"
+
+  # 冷却显示配置
+  cooldown-display:
+    # 是否启用ActionBar冷却显示
+    enabled: true
+    # ActionBar最多显示几个功法
+    max-skills: 3
+
+  # 功法槽位限制
+  slot-limit:
+    # 是否启用槽位限制
+    enabled: true
+    # 祖父条款（老玩家豁免）
+    grandfather-clause: true
+    # 基础槽位数（按境界）
+    base-slots:
+      炼气期: 3
+      筑基期: 5
+      结丹期: 7
+      元婴期: 10
+      化神期: 12
+      炼虚期: 15
+      合体期: 18
+      大乘期: 20
+    # VIP额外槽位（可选，需要VIP系统支持）
+    vip-bonus:
+      vip1: 2
+      vip2: 4
+      vip3: 6
+
+  # 五行相克系统（将在第三阶段实现）
+  elemental:
+    # 是否启用五行相克
+    enabled: false
+    # PVP是否使用完整相克（false则使用减半系数）
+    full-pvp-multiplier: false
+
+# 击杀获得修为系统
+qi-from-kills:
+  # 是否启用击杀获得修为
+  enabled: true
+  # 是否允许PVP获得修为
+  pvp-enabled: false
+
+  # 奖励计算配置文件
+  config-file: "cultivation_rewards.yml"
+
+  # 防刷机制
+  anti-exploit:
+    enabled: true
+    cooldown-enabled: true
+    daily-limit-enabled: true
+    area-diminishing-returns: true
+
+  # 调试模式
+  debug:
+    enabled: false
+    log-all-kills: false
+    show-calculation-details: false
+
+# 性能优化配置
+performance:
+  # 数据自动保存间隔（分钟）
+  auto-save-interval: 10
+  # 是否启用性能监控
+  enable-monitor: true
+  # TPS 警告阈值
+  tps-warning-threshold: 18.0
+
+# 调试配置
+debug:
+  # 是否启用调试模式
+  enabled: false
+  # 是否显示详细日志
+  verbose: false

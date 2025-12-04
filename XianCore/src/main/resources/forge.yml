@@ -1,0 +1,767 @@
+# 炼器系统配置
+embryo-qualities:
+  - name: "凡品"
+    weight: 50
+    color: "§f"
+  - name: "灵品"
+    weight: 30
+    color: "§b"
+  - name: "宝品"
+    weight: 15
+    color: "§5"
+  - name: "仙品"
+    weight: 4
+    color: "§6§l"
+  - name: "神品"
+    weight: 1
+    color: "§d§l"
+
+# 炼制配方
+recipes:
+  # 凡品武器配方
+  iron_sword:
+    name: "§7凡品铁剑"
+    description: "基础的铁剑，适合新手修士"
+    equipment-type: SWORD
+    quality: "凡品"
+    element: "金"
+    success-rate: 90
+    spirit-stone-cost: 50
+    ingredients:
+      - material: IRON_INGOT
+        amount: 3
+      - material: STICK
+        amount: 1
+
+  iron_axe:
+    name: "§7凡品铁斧"
+    description: "厚重的铁斧，攻击力强"
+    equipment-type: AXE
+    quality: "凡品"
+    element: "金"
+    success-rate: 90
+    spirit-stone-cost: 50
+    ingredients:
+      - material: IRON_INGOT
+        amount: 3
+      - material: STICK
+        amount: 2
+
+  # 灵品武器配方
+  spirit_sword:
+    name: "§b灵品灵剑"
+    description: "蕴含灵气的宝剑"
+    equipment-type: SWORD
+    quality: "灵品"
+    element: "金"
+    success-rate: 75
+    spirit-stone-cost: 100
+    ingredients:
+      - material: DIAMOND
+        amount: 2
+      - material: GOLD_INGOT
+        amount: 1
+      - material: STICK
+        amount: 1
+
+  spirit_bow:
+    name: "§b灵品灵弓"
+    description: "灵气凝聚的神弓"
+    equipment-type: BOW
+    quality: "灵品"
+    element: "木"
+    success-rate: 75
+    spirit-stone-cost: 100
+    ingredients:
+      - material: DIAMOND
+        amount: 1
+      - material: STRING
+        amount: 3
+      - material: STICK
+        amount: 2
+
+  # 宝品武器配方
+  treasure_sword:
+    name: "§5宝品宝剑"
+    description: "珍贵的宝剑，削铁如泥"
+    equipment-type: SWORD
+    quality: "宝品"
+    element: "金"
+    success-rate: 60
+    spirit-stone-cost: 200
+    ingredients:
+      - material: DIAMOND
+        amount: 4
+      - material: EMERALD
+        amount: 2
+      - material: GOLD_INGOT
+        amount: 2
+
+  # 护甲配方
+  iron_helmet:
+    name: "§7凡品铁盔"
+    description: "基础的铁制头盔"
+    equipment-type: HELMET
+    quality: "凡品"
+    element: "土"
+    success-rate: 90
+    spirit-stone-cost: 50
+    ingredients:
+      - material: IRON_INGOT
+        amount: 5
+
+  iron_chestplate:
+    name: "§7凡品铁甲"
+    description: "基础的铁制胸甲"
+    equipment-type: CHESTPLATE
+    quality: "凡品"
+    element: "土"
+    success-rate: 90
+    spirit-stone-cost: 80
+    ingredients:
+      - material: IRON_INGOT
+        amount: 8
+
+  spirit_helmet:
+    name: "§b灵品灵盔"
+    description: "蕴含灵气的头盔"
+    equipment-type: HELMET
+    quality: "灵品"
+    element: "土"
+    success-rate: 75
+    spirit-stone-cost: 100
+    ingredients:
+      - material: DIAMOND
+        amount: 3
+      - material: IRON_INGOT
+        amount: 2
+
+  # 仙品装备配方
+  celestial_sword:
+    name: "§6§l仙品仙剑"
+    description: "仙人所用之剑，威力无穷"
+    equipment-type: SWORD
+    quality: "仙品"
+    element: "金"
+    success-rate: 40
+    spirit-stone-cost: 500
+    ingredients:
+      - material: NETHERITE_INGOT
+        amount: 2
+      - material: DIAMOND
+        amount: 3
+      - material: EMERALD
+        amount: 2
+      - material: GOLD_INGOT
+        amount: 1
+
+  # 饰品配方
+  spirit_ring:
+    name: "§b灵品灵戒"
+    description: "蕴含灵气的戒指"
+    equipment-type: RING
+    quality: "灵品"
+    element: "火"
+    success-rate: 70
+    spirit-stone-cost: 150
+    ingredients:
+      - material: GOLD_INGOT
+        amount: 2
+      - material: DIAMOND
+        amount: 1
+
+  treasure_necklace:
+    name: "§5宝品宝链"
+    description: "珍贵的项链，增强灵力"
+    equipment-type: NECKLACE
+    quality: "宝品"
+    element: "水"
+    success-rate: 55
+    spirit-stone-cost: 250
+    ingredients:
+      - material: EMERALD
+        amount: 3
+      - material: GOLD_INGOT
+        amount: 2
+      - material: STRING
+        amount: 1
+
+  # 神品装备配方（极难）
+  divine_sword:
+    name: "§d§l神品神剑"
+    description: "神器级别的宝剑，可开天辟地"
+    equipment-type: SWORD
+    quality: "神品"
+    element: "雷"
+    success-rate: 20
+    spirit-stone-cost: 1000
+    ingredients:
+      - material: NETHERITE_INGOT
+        amount: 4
+      - material: DIAMOND
+        amount: 8
+      - material: EMERALD
+        amount: 4
+      - material: GOLD_INGOT
+        amount: 2
+
+  # ========== 完整护甲套装配方 ==========
+
+  # 凡品护甲套装
+  iron_leggings:
+    name: "§7凡品铁裤"
+    description: "基础的铁制护腿"
+    equipment-type: LEGGINGS
+    quality: "凡品"
+    element: "土"
+    success-rate: 90
+    spirit-stone-cost: 70
+    ingredients:
+      - material: IRON_INGOT
+        amount: 7
+
+  iron_boots:
+    name: "§7凡品铁靴"
+    description: "基础的铁制靴子"
+    equipment-type: BOOTS
+    quality: "凡品"
+    element: "土"
+    success-rate: 90
+    spirit-stone-cost: 40
+    ingredients:
+      - material: IRON_INGOT
+        amount: 4
+
+  # 灵品护甲套装
+  spirit_chestplate:
+    name: "§b灵品灵甲"
+    description: "蕴含灵气的胸甲"
+    equipment-type: CHESTPLATE
+    quality: "灵品"
+    element: "土"
+    success-rate: 75
+    spirit-stone-cost: 150
+    ingredients:
+      - material: DIAMOND
+        amount: 5
+      - material: IRON_INGOT
+        amount: 3
+
+  spirit_leggings:
+    name: "§b灵品灵裤"
+    description: "蕴含灵气的护腿"
+    equipment-type: LEGGINGS
+    quality: "灵品"
+    element: "土"
+    success-rate: 75
+    spirit-stone-cost: 130
+    ingredients:
+      - material: DIAMOND
+        amount: 4
+      - material: IRON_INGOT
+        amount: 3
+
+  spirit_boots:
+    name: "§b灵品灵靴"
+    description: "蕴含灵气的靴子"
+    equipment-type: BOOTS
+    quality: "灵品"
+    element: "土"
+    success-rate: 75
+    spirit-stone-cost: 80
+    ingredients:
+      - material: DIAMOND
+        amount: 2
+      - material: IRON_INGOT
+        amount: 2
+
+  # 宝品护甲套装
+  treasure_helmet:
+    name: "§5宝品宝盔"
+    description: "珍贵的头盔，防御力强"
+    equipment-type: HELMET
+    quality: "宝品"
+    element: "土"
+    success-rate: 60
+    spirit-stone-cost: 200
+    ingredients:
+      - material: DIAMOND
+        amount: 5
+      - material: EMERALD
+        amount: 2
+      - material: GOLD_INGOT
+        amount: 1
+
+  treasure_chestplate:
+    name: "§5宝品宝甲"
+    description: "珍贵的胸甲，坚不可摧"
+    equipment-type: CHESTPLATE
+    quality: "宝品"
+    element: "土"
+    success-rate: 60
+    spirit-stone-cost: 300
+    ingredients:
+      - material: DIAMOND
+        amount: 8
+      - material: EMERALD
+        amount: 3
+      - material: GOLD_INGOT
+        amount: 2
+
+  treasure_leggings:
+    name: "§5宝品宝裤"
+    description: "珍贵的护腿"
+    equipment-type: LEGGINGS
+    quality: "宝品"
+    element: "土"
+    success-rate: 60
+    spirit-stone-cost: 260
+    ingredients:
+      - material: DIAMOND
+        amount: 7
+      - material: EMERALD
+        amount: 2
+      - material: GOLD_INGOT
+        amount: 2
+
+  treasure_boots:
+    name: "§5宝品宝靴"
+    description: "珍贵的靴子，健步如飞"
+    equipment-type: BOOTS
+    quality: "宝品"
+    element: "土"
+    success-rate: 60
+    spirit-stone-cost: 180
+    ingredients:
+      - material: DIAMOND
+        amount: 4
+      - material: EMERALD
+        amount: 1
+      - material: GOLD_INGOT
+        amount: 1
+
+  # 仙品护甲套装
+  celestial_helmet:
+    name: "§6§l仙品仙盔"
+    description: "仙人所用头盔，护体神光"
+    equipment-type: HELMET
+    quality: "仙品"
+    element: "土"
+    success-rate: 40
+    spirit-stone-cost: 450
+    ingredients:
+      - material: NETHERITE_INGOT
+        amount: 2
+      - material: DIAMOND
+        amount: 4
+      - material: EMERALD
+        amount: 2
+
+  celestial_chestplate:
+    name: "§6§l仙品仙甲"
+    description: "仙人所用胸甲，金光护体"
+    equipment-type: CHESTPLATE
+    quality: "仙品"
+    element: "土"
+    success-rate: 40
+    spirit-stone-cost: 600
+    ingredients:
+      - material: NETHERITE_INGOT
+        amount: 3
+      - material: DIAMOND
+        amount: 6
+      - material: EMERALD
+        amount: 3
+
+  # ========== 更多武器配方 ==========
+
+  # 法杖系列
+  iron_staff:
+    name: "§7凡品铁杖"
+    description: "基础的法杖，可引导灵气"
+    equipment-type: STAFF
+    quality: "凡品"
+    element: "木"
+    success-rate: 90
+    spirit-stone-cost: 60
+    ingredients:
+      - material: IRON_INGOT
+        amount: 2
+      - material: STICK
+        amount: 3
+
+  spirit_staff:
+    name: "§b灵品灵杖"
+    description: "蕴含灵气的法杖"
+    equipment-type: STAFF
+    quality: "灵品"
+    element: "木"
+    success-rate: 75
+    spirit-stone-cost: 120
+    ingredients:
+      - material: DIAMOND
+        amount: 2
+      - material: EMERALD
+        amount: 1
+      - material: STICK
+        amount: 2
+
+  treasure_staff:
+    name: "§5宝品宝杖"
+    description: "珍贵的法杖，法力增幅"
+    equipment-type: STAFF
+    quality: "宝品"
+    element: "木"
+    success-rate: 60
+    spirit-stone-cost: 280
+    ingredients:
+      - material: DIAMOND
+        amount: 4
+      - material: EMERALD
+        amount: 3
+      - material: GOLD_INGOT
+        amount: 1
+
+  celestial_staff:
+    name: "§6§l仙品仙杖"
+    description: "仙人法杖，可御万法"
+    equipment-type: STAFF
+    quality: "仙品"
+    element: "木"
+    success-rate: 40
+    spirit-stone-cost: 520
+    ingredients:
+      - material: NETHERITE_INGOT
+        amount: 1
+      - material: DIAMOND
+        amount: 4
+      - material: EMERALD
+        amount: 3
+      - material: STICK
+        amount: 1
+
+  # 匕首系列
+  iron_dagger:
+    name: "§7凡品铁刃"
+    description: "轻巧的匕首，攻速快"
+    equipment-type: DAGGER
+    quality: "凡品"
+    element: "金"
+    success-rate: 90
+    spirit-stone-cost: 40
+    ingredients:
+      - material: IRON_INGOT
+        amount: 2
+
+  spirit_dagger:
+    name: "§b灵品灵刃"
+    description: "灵气凝聚的匕首"
+    equipment-type: DAGGER
+    quality: "灵品"
+    element: "金"
+    success-rate: 75
+    spirit-stone-cost: 90
+    ingredients:
+      - material: DIAMOND
+        amount: 2
+      - material: GOLD_INGOT
+        amount: 1
+
+  treasure_dagger:
+    name: "§5宝品宝刃"
+    description: "削金断玉的匕首"
+    equipment-type: DAGGER
+    quality: "宝品"
+    element: "金"
+    success-rate: 60
+    spirit-stone-cost: 220
+    ingredients:
+      - material: DIAMOND
+        amount: 3
+      - material: EMERALD
+        amount: 2
+
+  # 弓箭系列补充
+  treasure_bow:
+    name: "§5宝品宝弓"
+    description: "珍贵的神弓，百步穿杨"
+    equipment-type: BOW
+    quality: "宝品"
+    element: "木"
+    success-rate: 60
+    spirit-stone-cost: 240
+    ingredients:
+      - material: DIAMOND
+        amount: 3
+      - material: EMERALD
+        amount: 2
+      - material: STRING
+        amount: 2
+
+  celestial_bow:
+    name: "§6§l仙品仙弓"
+    description: "仙人神弓，可射日月"
+    equipment-type: BOW
+    quality: "仙品"
+    element: "木"
+    success-rate: 40
+    spirit-stone-cost: 480
+    ingredients:
+      - material: NETHERITE_INGOT
+        amount: 1
+      - material: DIAMOND
+        amount: 3
+      - material: EMERALD
+        amount: 2
+      - material: STRING
+        amount: 3
+
+  # 斧头系列补充
+  spirit_axe:
+    name: "§b灵品灵斧"
+    description: "蕴含灵气的战斧"
+    equipment-type: AXE
+    quality: "灵品"
+    element: "金"
+    success-rate: 75
+    spirit-stone-cost: 110
+    ingredients:
+      - material: DIAMOND
+        amount: 3
+      - material: GOLD_INGOT
+        amount: 1
+      - material: STICK
+        amount: 2
+
+  treasure_axe:
+    name: "§5宝品宝斧"
+    description: "力劈山岳的巨斧"
+    equipment-type: AXE
+    quality: "宝品"
+    element: "金"
+    success-rate: 60
+    spirit-stone-cost: 260
+    ingredients:
+      - material: DIAMOND
+        amount: 5
+      - material: EMERALD
+        amount: 2
+      - material: STICK
+        amount: 2
+
+  # ========== 更多饰品配方 ==========
+
+  # 戒指系列
+  iron_ring:
+    name: "§7凡品铁环"
+    description: "基础的铁戒指"
+    equipment-type: RING
+    quality: "凡品"
+    element: "火"
+    success-rate: 90
+    spirit-stone-cost: 30
+    ingredients:
+      - material: IRON_INGOT
+        amount: 1
+
+  treasure_ring:
+    name: "§5宝品宝戒"
+    description: "珍贵的戒指，灵力流转"
+    equipment-type: RING
+    quality: "宝品"
+    element: "火"
+    success-rate: 60
+    spirit-stone-cost: 200
+    ingredients:
+      - material: EMERALD
+        amount: 2
+      - material: GOLD_INGOT
+        amount: 2
+
+  celestial_ring:
+    name: "§6§l仙品仙戒"
+    description: "仙人戒指，储物纳灵"
+    equipment-type: RING
+    quality: "仙品"
+    element: "火"
+    success-rate: 40
+    spirit-stone-cost: 420
+    ingredients:
+      - material: NETHERITE_INGOT
+        amount: 1
+      - material: DIAMOND
+        amount: 2
+      - material: EMERALD
+        amount: 2
+
+  divine_ring:
+    name: "§d§l神品神戒"
+    description: "神器级戒指，法力无边"
+    equipment-type: RING
+    quality: "神品"
+    element: "火"
+    success-rate: 20
+    spirit-stone-cost: 900
+    ingredients:
+      - material: NETHERITE_INGOT
+        amount: 2
+      - material: DIAMOND
+        amount: 4
+      - material: EMERALD
+        amount: 3
+
+  # 项链系列
+  spirit_necklace:
+    name: "§b灵品灵链"
+    description: "蕴含灵气的项链"
+    equipment-type: NECKLACE
+    quality: "灵品"
+    element: "水"
+    success-rate: 75
+    spirit-stone-cost: 140
+    ingredients:
+      - material: DIAMOND
+        amount: 2
+      - material: GOLD_INGOT
+        amount: 2
+      - material: STRING
+        amount: 1
+
+  celestial_necklace:
+    name: "§6§l仙品仙链"
+    description: "仙人项链，护主神光"
+    equipment-type: NECKLACE
+    quality: "仙品"
+    element: "水"
+    success-rate: 40
+    spirit-stone-cost: 460
+    ingredients:
+      - material: NETHERITE_INGOT
+        amount: 1
+      - material: DIAMOND
+        amount: 3
+      - material: EMERALD
+        amount: 2
+      - material: GOLD_INGOT
+        amount: 1
+
+  # 护身符系列
+  spirit_talisman:
+    name: "§b灵品灵符"
+    description: "蕴含灵气的护身符"
+    equipment-type: TALISMAN
+    quality: "灵品"
+    element: "雷"
+    success-rate: 70
+    spirit-stone-cost: 160
+    ingredients:
+      - material: DIAMOND
+        amount: 1
+      - material: EMERALD
+        amount: 1
+      - material: GOLD_INGOT
+        amount: 2
+
+  treasure_talisman:
+    name: "§5宝品宝符"
+    description: "珍贵的护身符，辟邪驱魔"
+    equipment-type: TALISMAN
+    quality: "宝品"
+    element: "雷"
+    success-rate: 55
+    spirit-stone-cost: 270
+    ingredients:
+      - material: DIAMOND
+        amount: 2
+      - material: EMERALD
+        amount: 3
+      - material: GOLD_INGOT
+        amount: 1
+
+  celestial_talisman:
+    name: "§6§l仙品仙符"
+    description: "仙人符箓，护体金光"
+    equipment-type: TALISMAN
+    quality: "仙品"
+    element: "雷"
+    success-rate: 40
+    spirit-stone-cost: 500
+    ingredients:
+      - material: NETHERITE_INGOT
+        amount: 1
+      - material: DIAMOND
+        amount: 3
+      - material: EMERALD
+        amount: 3
+
+  divine_talisman:
+    name: "§d§l神品神符"
+    description: "神级符箓，万法不侵"
+    equipment-type: TALISMAN
+    quality: "神品"
+    element: "雷"
+    success-rate: 20
+    spirit-stone-cost: 950
+    ingredients:
+      - material: NETHERITE_INGOT
+        amount: 3
+      - material: DIAMOND
+        amount: 5
+      - material: EMERALD
+        amount: 4
+
+  # ========== 特殊五行配方 ==========
+
+  # 火系武器
+  flame_sword:
+    name: "§c烈焰剑"
+    description: "蕴含火焰之力的宝剑"
+    equipment-type: SWORD
+    quality: "宝品"
+    element: "火"
+    success-rate: 55
+    spirit-stone-cost: 290
+    ingredients:
+      - material: DIAMOND
+        amount: 4
+      - material: GOLD_INGOT
+        amount: 3
+      - material: NETHERITE_INGOT
+        amount: 1
+
+  # 水系武器
+  frost_staff:
+    name: "§b冰霜杖"
+    description: "凝聚寒冰之力的法杖"
+    equipment-type: STAFF
+    quality: "宝品"
+    element: "水"
+    success-rate: 55
+    spirit-stone-cost: 285
+    ingredients:
+      - material: DIAMOND
+        amount: 4
+      - material: EMERALD
+        amount: 2
+      - material: STICK
+        amount: 2
+
+  # 雷系武器
+  thunder_bow:
+    name: "§e惊雷弓"
+    description: "掌控雷霆之力的神弓"
+    equipment-type: BOW
+    quality: "仙品"
+    element: "雷"
+    success-rate: 35
+    spirit-stone-cost: 510
+    ingredients:
+      - material: NETHERITE_INGOT
+        amount: 2
+      - material: DIAMOND
+        amount: 3
+      - material: EMERALD
+        amount: 2
+      - material: STRING
+        amount: 2
+

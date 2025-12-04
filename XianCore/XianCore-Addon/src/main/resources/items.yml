@@ -1,0 +1,106 @@
+# ========================================
+#         道具使用次数限制配置
+# ========================================
+
+items:
+  # ==================== 洗髓丹系列 ====================
+  SPIRITUAL_ROOT_PILL_COMMON:
+    name: "洗髓丹[普通]"
+    max-usage: 3
+    cooldown: 300
+    broadcast: false
+    unique: false
+
+  SPIRITUAL_ROOT_PILL_RARE:
+    name: "洗髓丹[上品]"
+    max-usage: 2
+    cooldown: 300
+    broadcast: false
+    unique: false
+
+  SPIRITUAL_ROOT_PILL_EPIC:
+    name: "洗髓丹[极品]"
+    max-usage: 1
+    cooldown: 600
+    broadcast: false
+    unique: false
+
+  SPIRITUAL_ROOT_PILL_LEGENDARY:
+    name: "洗髓丹[天品]"
+    max-usage: 1
+    cooldown: 3600
+    broadcast: true
+    unique: true
+
+  # ==================== 悟道茶系列 ====================
+  COMPREHENSION_TEA_COMMON:
+    name: "悟道茶[普通]"
+    max-usage: 3
+    cooldown: 300
+    broadcast: false
+    unique: false
+
+  COMPREHENSION_TEA_RARE:
+    name: "悟道茶[上品]"
+    max-usage: 2
+    cooldown: 300
+    broadcast: false
+    unique: false
+
+  COMPREHENSION_TEA_EPIC:
+    name: "悟道茶[极品]"
+    max-usage: 1
+    cooldown: 600
+    broadcast: false
+    unique: false
+
+  COMPREHENSION_TEA_LEGENDARY:
+    name: "悟道茶[天品]"
+    max-usage: 1
+    cooldown: 3600
+    broadcast: true
+    unique: true
+
+  # ==================== 化灵丹系列 ====================
+  TECHNIQUE_ADAPTATION_PILL_COMMON:
+    name: "化灵丹[普通]"
+    max-usage: 5
+    cooldown: 180
+    broadcast: false
+    unique: false
+
+  TECHNIQUE_ADAPTATION_PILL_RARE:
+    name: "化灵丹[上品]"
+    max-usage: 3
+    cooldown: 300
+    broadcast: false
+    unique: false
+
+  TECHNIQUE_ADAPTATION_PILL_EPIC:
+    name: "化灵丹[极品]"
+    max-usage: 1
+    cooldown: 600
+    broadcast: false
+    unique: false
+
+  # ==================== 特殊道具 ====================
+  HUNYUAN_PILL:
+    name: "混元丹"
+    max-usage: 1
+    cooldown: 7200
+    broadcast: true
+    unique: true
+
+  TIANDAO_FRUIT:
+    name: "天道果"
+    max-usage: 3
+    cooldown: 1800
+    broadcast: false
+    unique: false
+
+  POJING_PILL:
+    name: "破境丹"
+    max-usage: 999
+    cooldown: 0
+    broadcast: false
+    unique: false

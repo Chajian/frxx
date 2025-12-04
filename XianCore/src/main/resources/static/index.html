@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XianCore Boss管理系统</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部导航 -->
+        <header class="navbar">
+            <div class="navbar-brand">
+                <h1>⚔️ XianCore Boss管理系统</h1>
+            </div>
+            <nav class="navbar-nav">
+                <ul>
+                    <li><a href="#dashboard" class="nav-link active" onclick="showSection('dashboard')">仪表板</a></li>
+                    <li><a href="#bosses" class="nav-link" onclick="showSection('bosses')">Boss管理</a></li>
+                    <li><a href="#stats" class="nav-link" onclick="showSection('stats')">统计分析</a></li>
+                    <li><a href="#config" class="nav-link" onclick="showSection('config')">配置管理</a></li>
+                    <li><a href="#health" class="nav-link" onclick="showSection('health')">系统状态</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main class="content">
+            <!-- 仪表板 -->
+            <section id="dashboard" class="section active">
+                <h2>系统仪表板</h2>
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <h3>总生成数</h3>
+                        <p class="stat-value" id="total-spawned">1,234</p>
+                        <p class="stat-unit">个Boss</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>总击杀数</h3>
+                        <p class="stat-value" id="total-killed">987</p>
+                        <p class="stat-unit">个Boss</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>当前活跃</h3>
+                        <p class="stat-value" id="active-bosses">5</p>
+                        <p class="stat-unit">个Boss</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>参与玩家</h3>
+                        <p class="stat-value" id="total-players">48</p>
+                        <p class="stat-unit">位玩家</p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-box">
+                        <h3>最近7天击杀统计</h3>
+                        <canvas id="killChart"></canvas>
+                    </div>
+                    <div class="chart-box">
+                        <h3>Boss类型分布</h3>
+                        <canvas id="bossTypeChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Boss管理 -->
+            <section id="bosses" class="section">
+                <h2>Boss管理</h2>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="loadBosses()">刷新列表</button>
+                    <button class="btn btn-success" onclick="showCreateBossForm()">创建Boss</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>类型</th>
+                            <th>世界</th>
+                            <th>坐标</th>
+                            <th>Tier</th>
+                            <th>血量</th>
+                            <th>状态</th>
+                            <th>生成时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bosses-list">
+                        <tr>
+                            <td colspan="9" style="text-align: center;">加载中...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- 统计分析 -->
+            <section id="stats" class="section">
+                <h2>统计分析</h2>
+                <div class="controls">
+                    <label>排名类型:
+                        <select id="rank-type" onchange="loadRankings()">
+                            <option value="kills">击杀数</option>
+                            <option value="damage">总伤害</option>
+                        </select>
+                    </label>
+                    <button class="btn btn-primary" onclick="loadRankings()">刷新排名</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>玩家名</th>
+                            <th>击杀数</th>
+                            <th>总伤害</th>
+                            <th>平均伤害</th>
+                            <th>最后击杀时间</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rankings-list">
+                        <tr>
+                            <td colspan="6" style="text-align: center;">加载中...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- 配置管理 -->
+            <section id="config" class="section">
+                <h2>配置管理</h2>
+                <div class="config-form">
+                    <div class="form-group">
+                        <label>最大同时活跃Boss:</label>
+                        <input type="number" id="max-active-bosses" min="1" max="100" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label>最小在线玩家数:</label>
+                        <input type="number" id="min-online-players" min="1" value="3">
+                    </div>
+                    <div class="form-group">
+                        <label>检查周期(秒):</label>
+                        <input type="number" id="check-interval" min="5" value="30">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="enable-rewards" checked>
+                            启用奖励分发
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="enable-damage-tracking" checked>
+                            启用伤害追踪
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-success" onclick="saveConfig()">保存配置</button>
+                        <button class="btn btn-warning" onclick="validateConfig()">验证配置</button>
+                        <button class="btn btn-danger" onclick="resetConfig()">重置配置</button>
+                    </div>
+                </div>
+                <div id="config-message" class="message"></div>
+            </section>
+
+            <!-- 系统状态 -->
+            <section id="health" class="section">
+                <h2>系统状态</h2>
+                <div class="health-container">
+                    <div class="health-card">
+                        <h3>系统状态</h3>
+                        <p id="system-status" class="status-healthy">🟢 正常</p>
+                    </div>
+                    <div class="health-card">
+                        <h3>CPU使用率</h3>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="cpu-usage" style="width: 35%;"></div>
+                        </div>
+                        <p id="cpu-text">35.2%</p>
+                    </div>
+                    <div class="health-card">
+                        <h3>内存使用率</h3>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="memory-usage" style="width: 48%;"></div>
+                        </div>
+                        <p id="memory-text">48.5%</p>
+                    </div>
+                    <div class="health-card">
+                        <h3>活跃线程</h3>
+                        <p id="active-threads" class="stat-value">24</p>
+                        <p class="stat-unit">个线程</p>
+                    </div>
+                    <div class="health-card">
+                        <h3>数据库连接</h3>
+                        <p id="database-status" class="status-connected">✅ 已连接</p>
+                    </div>
+                    <div class="health-card">
+                        <h3>WebSocket连接</h3>
+                        <p id="websocket-status" class="status-connected">✅ 已连接</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- WebSocket库 -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>

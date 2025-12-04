@@ -1,0 +1,98 @@
+# ========================================
+#       XianCore-Addon 主配置文件
+#       版本: 1.0.0
+# ========================================
+
+# 数据库设置
+database:
+  # 数据库类型: sqlite 或 mysql
+  type: sqlite
+
+  # SQLite 设置
+  sqlite:
+    file: "database.db"
+
+  # MySQL 设置 (如果 type 为 mysql)
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "xiancore"
+    username: "root"
+    password: "password"
+    pool-size: 10
+    connection-timeout: 10000
+
+# 备份设置
+backup:
+  enabled: true
+  # 自动备份间隔（秒）
+  interval: 3600
+  # 保留备份天数
+  keep-days: 7
+  # 备份路径
+  path: "backups/"
+
+# 功能开关
+features:
+  # 使用次数限制
+  usage-limit: true
+  # 临时Buff系统
+  buff-system: true
+  # 传说道具全服广播
+  broadcast-legendary: true
+  # 审计日志
+  audit-log: true
+  # 道具冷却系统
+  cooldown-system: true
+  # 防止道具复制
+  anti-duplicate: true
+
+# 属性设置
+attributes:
+  # 属性上限
+  max-values:
+    spiritual_root: 1.0
+    comprehension: 1.0
+    technique_adaptation: 1.0
+    active_qi: 10000.0
+    skill_points: 999.0
+
+  # 默认属性值
+  default-values:
+    spiritual_root: 0.5
+    comprehension: 0.5
+    technique_adaptation: 0.5
+    active_qi: 0
+    skill_points: 0
+
+# Buff 显示设置
+buff-display:
+  # ActionBar 更新间隔（tick）
+  update-interval: 20
+  # 显示格式
+  format: "&5⚡ 破境加持: %time% &8| &a灵根+%sr% &d悟性+%cp% &e功法适配+%ta%"
+  # Buff过期提醒
+  expire-warning:
+    enabled: true
+    seconds-before: 60
+    message: "&7[提醒] 破境加持还剩 &e%time% &7秒"
+
+# 道具效果增强（可选）
+item-effects:
+  # 粒子效果倍率
+  particle-multiplier: 1.0
+  # 音效音量
+  sound-volume: 1.0
+  # Title 显示时长（tick）
+  title-duration: 60
+
+# 调试模式
+debug:
+  enabled: false
+  # 记录详细日志
+  verbose-logging: false
+  # 性能监控
+  performance-monitoring: false
+
+# 语言设置
+language: "zh_CN"

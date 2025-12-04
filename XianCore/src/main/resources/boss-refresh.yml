@@ -1,0 +1,560 @@
+# ========================================
+# Boss系统 - 刷新点配置文件
+# Boss Refresh System - Configuration File
+# ========================================
+# 版本: 1.0.0
+# 最后更新: 2025-11-13
+# 说明: 此文件定义所有Boss刷新点的配置信息
+# Description: This file defines all Boss spawn point configurations
+
+# ========================================
+# [全局配置] Global Configuration
+# ========================================
+global:
+  # 是否启用Boss刷新系统
+  # Enable Boss refresh system
+  enabled: true
+
+  # Boss检查周期 (秒) - 每隔多久检查一次是否需要刷新Boss
+  # Boss check interval (seconds) - How often to check if bosses need spawning
+  check-interval: 30
+
+  # 健康监控周期 (秒) - 每隔多久检查一次Boss血量
+  # Health monitoring interval (seconds)
+  health-check-interval: 1
+
+  # 最大同时活跃Boss数量
+  # Maximum simultaneous active bosses
+  max-active-bosses: 10
+
+  # 最小在线玩家数 (少于此数量时不刷新Boss)
+  # Minimum online players (bosses won't spawn if player count is below this)
+  min-online-players: 3
+
+  # Boss活动监控 - 记录所有Boss事件
+  # Boss activity monitoring - Log all boss events
+  log-events: true
+
+  # Boss自然消失超时时间 (分钟) - 超过此时间无人伤害则自动消失
+  # Boss natural despawn timeout (minutes) - Auto despawn if no damage within this time
+  despawn-timeout-minutes: 30
+
+  # Boss消失警告 (血量%) - 血量降到此值以下时给予警告
+  # Boss warning threshold (health %) - Warn when health drops below this value
+  warning-health-threshold: 20
+
+  # 开启奖励计算
+  # Enable reward calculation
+  enable-rewards: true
+
+  # 开启伤害统计
+  # Enable damage statistics
+  enable-damage-tracking: true
+
+  # 开启公告广播
+  # Enable announcement broadcast
+  enable-announcements: true
+
+# ========================================
+# [刷新点配置] Spawn Points Configuration
+# ========================================
+spawn-points:
+
+  # ========================================
+  # 刷新点1: 新手村 (等级1 普通Boss)
+  # Spawn Point 1: Beginner Village (Tier 1 - Normal Boss)
+  # ========================================
+  spawn-beginner-village:
+    # 刷新点显示名称
+    # Spawn point display name
+    name: "新手村Boss刷新点"
+    description: "适合新手玩家挑战的普通Boss刷新点"
+
+    # 位置配置
+    # Location configuration
+    location:
+      world: "world"
+      x: 100
+      y: 64
+      z: 100
+
+    # Boss类型配置
+    # Boss type configuration
+    mob-types:
+      - "SkeletonKing"      # 骷髅王
+      - "GhoulBeast"        # 食尸鬼兽
+
+    # 默认Boss类型 (如果未指定则从mob-types中随机选择)
+    # Default boss type (random from mob-types if not specified)
+    default-mob-type: null
+
+    # Boss等级 (1=普通, 2=精英, 3=世界Boss, 4=传奇)
+    # Boss tier (1=NORMAL, 2=ELITE, 3=BOSS, 4=LEGENDARY)
+    tier: 1
+
+    # 刷新冷却时间 (秒) - Boss被击杀后多久重新刷新
+    # Respawn cooldown (seconds) - How long before boss respawns after being killed
+    cooldown-seconds: 7200  # 2小时
+
+    # 最大同时活跃Boss数量 (此刷新点)
+    # Maximum active bosses at this spawn point
+    max-active-count: 2
+
+    # 随机生成位置 (true=在半径内随机, false=固定位置)
+    # Random spawn location (true=random within radius, false=fixed position)
+    random-location: false
+
+    # 生成范围半径 (当random-location为true时有效, 单位:格子)
+    # Spawn radius for random location (when random-location is true, in blocks)
+    spawn-radius: 50
+
+    # 是否启用此刷新点
+    # Enable this spawn point
+    enabled: true
+
+    # 生成前的警告时间 (秒) - Boss生成前提前X秒通知
+    # Pre-spawn warning time (seconds)
+    pre-spawn-warning-seconds: 30
+
+    # 生成消息
+    # Spawn message
+    spawn-message: "§6§l═══════════════════════════════════\n§e新手村出现了 §6§l普通Boss§e！\n§fBoss: §7骷髅王\n§f位置: §7新手村 (100, 64, 100)\n§f难度: §c★☆☆☆\n§6§l═══════════════════════════════════"
+
+    # 击杀消息
+    # Kill message
+    kill-message: "§6§l═══════════════════════════════════\n§e恭喜！成功击杀普通Boss！\n§f击杀者: §a{killer}\n§f最大伤害: §a{top-damager}\n§f总伤害: §a{total-damage}\n§6§l═══════════════════════════════════"
+
+  # ========================================
+  # 刷新点2: 沙漠城堡 (等级2 精英Boss)
+  # Spawn Point 2: Desert Castle (Tier 2 - Elite Boss)
+  # ========================================
+  spawn-desert-castle:
+    name: "沙漠城堡Boss刷新点"
+    description: "适合小队玩家(3-5人)挑战的精英Boss刷新点"
+
+    location:
+      world: "world"
+      x: 500
+      y: 70
+      z: -300
+
+    mob-types:
+      - "FrostGiant"        # 冰巨人
+      - "SandWraith"        # 沙漠幽灵
+
+    default-mob-type: null
+
+    tier: 2
+
+    cooldown-seconds: 14400  # 4小时
+
+    max-active-count: 2
+
+    random-location: true
+
+    spawn-radius: 100
+
+    enabled: true
+
+    pre-spawn-warning-seconds: 60
+
+    spawn-message: "§6§l═══════════════════════════════════\n§c沙漠城堡出现了 §6§l精英Boss§c！\n§fBoss: §7冰巨人\n§f位置: §7沙漠城堡 (500, 70, -300)\n§f难度: §c★★☆☆\n§f建议: §e组队(3-5人)\n§6§l═══════════════════════════════════"
+
+    kill-message: "§6§l═══════════════════════════════════\n§e恭喜！成功击杀精英Boss！\n§f击杀者: §a{killer}\n§f参与人数: §a{participant-count}\n§f最大伤害: §a{top-damager}\n§f总伤害: §a{total-damage}\n§f存活时间: §a{alive-duration}\n§6§l═══════════════════════════════════"
+
+  # ========================================
+  # 刷新点3: 龙之山脉 (等级3 世界Boss)
+  # Spawn Point 3: Dragon Mountains (Tier 3 - World Boss)
+  # ========================================
+  spawn-dragon-mountains:
+    name: "龙之山脉Boss刷新点"
+    description: "适合团队玩家(5-10人)挑战的世界级Boss刷新点"
+
+    location:
+      world: "world"
+      x: 1000
+      y: 200
+      z: 1000
+
+    mob-types:
+      - "SkywingDragon"     # 天翼龙
+      - "IcePhoenix"        # 冰凤凰
+      - "ThunderElemental"  # 雷元素
+
+    default-mob-type: null
+
+    tier: 3
+
+    # 每日固定时间刷新 (暂时用冷却时间表示)
+    cooldown-seconds: 86400  # 24小时
+
+    max-active-count: 1
+
+    # 固定位置生成
+    random-location: false
+
+    spawn-radius: 200
+
+    enabled: true
+
+    pre-spawn-warning-seconds: 120
+
+    spawn-message: "§6§l════════════════════════════════════════\n§c§l！！！ 世界Boss警报 ！！！\n§f龙之山脉出现了 §4§l世界Boss§f！\n§fBoss: §c天翼龙\n§f位置: §c龙之山脉 (1000, 200, 1000)\n§f难度: §c★★★☆ 极端危险\n§f建议: §e组队(5-10人) 充分准备\n§6§l════════════════════════════════════════"
+
+    kill-message: "§6§l════════════════════════════════════════\n§e§l*** 世界Boss已被击杀 ***\n§f击杀团队: §a{killer}\n§f参与人数: §a{participant-count}\n§f最强伤害: §a{top-damager}\n§f总伤害: §a{total-damage}\n§f存活时间: §a{alive-duration}\n§f难度指数: §a{difficulty-index}\n§6§l════════════════════════════════════════"
+
+  # ========================================
+  # 刷新点4: 深渊之门 (等级4 传奇Boss)
+  # Spawn Point 4: Abyss Gate (Tier 4 - Legendary Boss)
+  # ========================================
+  spawn-abyss-gate:
+    name: "深渊之门Boss刷新点"
+    description: "最强传奇Boss刷新点，需要多个团队联手挑战"
+
+    location:
+      world: "world"
+      x: -2000
+      y: 50
+      z: 2000
+
+    mob-types:
+      - "AbyssDemon"        # 深渊恶魔
+      - "ShadowLord"        # 暗影领主
+      - "TitanBeast"        # 泰坦巨兽
+
+    default-mob-type: null
+
+    tier: 4
+
+    # 每周刷新一次
+    cooldown-seconds: 604800  # 7天
+
+    max-active-count: 1
+
+    # 固定位置生成
+    random-location: false
+
+    spawn-radius: 300
+
+    enabled: true
+
+    pre-spawn-warning-seconds: 300  # 5分钟警告
+
+    spawn-message: "§c§l════════════════════════════════════════════════════\n§c§l！！！ 传奇Boss降临 ！！！\n§4深渊之门开启，§c传奇Boss§4现身！\n§fBoss: §c深渊恶魔\n§f位置: §c深渊之门 (-2000, 50, 2000)\n§f难度: §c★★★★ 绝望级别\n§f建议: §c多个团队(20+人) 全力准备\n§4此战将决定服务器的命运...\n§c§l════════════════════════════════════════════════════"
+
+    kill-message: "§c§l════════════════════════════════════════════════════\n§4§l*** 传奇Boss已被击杀 ***\n§c服务器历史将被改写！\n§f击杀团队: §a{killer}\n§f参与人数: §a{participant-count}\n§f最强伤害: §a{top-damager}\n§f总伤害: §a{total-damage}\n§f存活时间: §a{alive-duration}\n§f难度指数: §a{difficulty-index}\n§f击杀时间: §a{kill-timestamp}\n§c§l════════════════════════════════════════════════════"
+
+  # ========================================
+  # 刷新点5: 森林秘境 (等级1 普通Boss - 随机位置)
+  # Spawn Point 5: Forest Mystery (Tier 1 - Normal Boss - Random Location)
+  # ========================================
+  spawn-forest-mystery:
+    name: "森林秘境Boss刷新点"
+    description: "随机位置刷新的普通Boss，增加探险难度"
+
+    location:
+      world: "world"
+      x: -500
+      y: 65
+      z: 500
+
+    mob-types:
+      - "WoodGolem"         # 木系傀儡
+      - "WildBeast"         # 野兽
+
+    default-mob-type: null
+
+    tier: 1
+
+    cooldown-seconds: 5400  # 1.5小时
+
+    max-active-count: 3
+
+    # 启用随机位置
+    random-location: true
+
+    # 随机范围半径
+    spawn-radius: 150
+
+    enabled: true
+
+    pre-spawn-warning-seconds: 20
+
+    spawn-message: "§2§l═════════════════════════════════════\n§a森林秘境中传来异响！\n§2§l普通Boss§a正在某处现身...\n§f难度: §c★☆☆☆\n§f提示: §e在半径150格范围内寻找Boss\n§2§l═════════════════════════════════════"
+
+    kill-message: "§a§l═════════════════════════════════════\n§a恭喜！成功击杀隐藏的Boss！\n§f击杀者: §a{killer}\n§f最大伤害: §a{top-damager}\n§f总伤害: §a{total-damage}\n§a§l═════════════════════════════════════"
+
+  # ========================================
+  # 刷新点6: 火山岛屿 (等级2 精英Boss)
+  # Spawn Point 6: Volcano Island (Tier 2 - Elite Boss)
+  # ========================================
+  spawn-volcano-island:
+    name: "火山岛屿Boss刷新点"
+    description: "烈火环境中的精英Boss刷新点"
+
+    location:
+      world: "world"
+      x: 1500
+      y: 100
+      z: -1500
+
+    mob-types:
+      - "FireTitan"         # 火焰泰坦
+      - "LavaWyrm"          # 岩浆龙
+
+    default-mob-type: "FireTitan"
+
+    tier: 2
+
+    cooldown-seconds: 10800  # 3小时
+
+    max-active-count: 2
+
+    random-location: false
+
+    spawn-radius: 80
+
+    enabled: true
+
+    pre-spawn-warning-seconds: 45
+
+    spawn-message: "§6§l═════════════════════════════════════\n§c火山岛屿火光冲天！\n§6§l精英Boss§c在火焰中现身！\n§fBoss: §7火焰泰坦\n§f位置: §7火山岛屿 (1500, 100, -1500)\n§f难度: §c★★☆☆\n§f建议: §e小队(3-5人)\n§6§l═════════════════════════════════════"
+
+    kill-message: "§6§l═════════════════════════════════════\n§e成功击杀精英Boss！\n§f击杀者: §a{killer}\n§f参与人数: §a{participant-count}\n§f最大伤害: §a{top-damager}\n§f存活时间: §a{alive-duration}\n§6§l═════════════════════════════════════"
+
+# ========================================
+# [难度配置] Difficulty Configuration
+# ========================================
+difficulty:
+  # Boss血量倍数 (相对于MythicMobs定义)
+  # Boss health multiplier (relative to MythicMobs definition)
+  health-multiplier: 1.0
+
+  # Boss伤害倍数
+  # Boss damage multiplier
+  damage-multiplier: 1.0
+
+  # 玩家在线人数多时的伤害倍数调整
+  # Damage multiplier adjustment based on online player count
+  # 格式: 在线人数 -> 伤害倍数
+  # Format: online-players -> damage-multiplier
+  player-count-scaling:
+    1-3: 0.5      # 1-3人在线时，Boss伤害为50%
+    4-6: 0.8      # 4-6人在线时
+    7-10: 1.0     # 7-10人在线时
+    11-15: 1.3    # 11-15人在线时
+    16+: 1.5      # 16人或以上
+
+# ========================================
+# [奖励配置] Reward Configuration
+# ========================================
+rewards:
+  # 击杀奖励基数 (将根据等级乘以倍数)
+  # Kill reward base (will be multiplied by tier multiplier)
+  base-experience: 500
+
+  base-spirit-stone: 100
+
+  # 等级倍数
+  # Tier multipliers
+  tier-multipliers:
+    1: 1.0        # 普通Boss倍数
+    2: 2.0        # 精英Boss倍数
+    3: 3.0        # 世界Boss倍数
+    4: 5.0        # 传奇Boss倍数
+
+  # 伤害奖励计算
+  # Damage-based reward calculation
+  # true: 按伤害百分比分配 (推荐)
+  # false: 平均分配给所有参与者
+  damage-based-distribution: true
+
+  # 最后一击奖励加成 (%)
+  # Final blow bonus (%)
+  final-blow-bonus-percentage: 20
+
+  # 最高伤害奖励加成 (%)
+  # Highest damage bonus (%)
+  highest-damage-bonus-percentage: 15
+
+  # 小队配合加成 (%) - 参与人数越多加成越大
+  # Team bonus (%) - More participants = more bonus
+  team-bonus-percentage: 10
+
+  # 队伍多样性加成 (%) - 不同职业/公会等
+  # Diversity bonus (%) - Different professions/guilds
+  diversity-bonus-percentage: 5
+
+# ========================================
+# [事件配置] Event Configuration
+# ========================================
+events:
+  # Boss生成时的事件
+  # Events when boss spawns
+  on-spawn:
+    # 是否广播
+    broadcast: true
+    # 广播范围 (格子) 0=全服
+    broadcast-radius: 0
+    # 播放音效
+    play-sound: true
+    # 创建粒子效果
+    spawn-particles: true
+
+  # Boss受到伤害时的事件
+  # Events when boss takes damage
+  on-damage:
+    # 是否更新血量显示
+    update-health-display: true
+    # 血量提示阈值 (%)
+    health-warning-threshold: 50
+
+  # Boss被击杀时的事件
+  # Events when boss is killed
+  on-kill:
+    broadcast: true
+    broadcast-radius: 0
+    play-sound: true
+    spawn-particles: true
+    create-loot-explosion: true
+
+  # Boss自然消失时的事件
+  # Events when boss despawns naturally
+  on-despawn:
+    broadcast: true
+    broadcast-radius: 0
+
+# ========================================
+# [高级配置] Advanced Configuration
+# ========================================
+advanced:
+  # 是否启用Boss属性动态调整
+  # Enable dynamic boss attribute adjustment
+  dynamic-attributes: true
+
+  # Boss遭遇战力调整
+  # 当玩家总战力太高时，提高Boss属性
+  strength-scaling:
+    enabled: true
+    # 每100战力提升的百分比
+    per-100-strength-multiplier: 0.05
+
+  # Boss逃离机制
+  # Boss可能会逃离战场
+  escape-mechanism:
+    enabled: false
+    escape-health-threshold: 10  # 血量低于10%时可能逃离
+
+  # 防止Boss卡顿
+  # Prevent boss getting stuck
+  anti-stuck:
+    enabled: true
+    # 检查间隔 (秒)
+    check-interval: 5
+    # 传送回生成点的移动距离 (格子)
+    max-distance-from-spawn: 500
+
+  # Boss血量恢复机制
+  # Boss health regeneration
+  health-regeneration:
+    enabled: false
+    # 多久后开始恢复 (秒)
+    start-after-seconds: 60
+    # 每秒恢复的血量百分比
+    regeneration-per-second: 0.01
+
+  # 玩家伤害上限
+  # Player damage cap per hit
+  damage-cap:
+    enabled: false
+    # 单次伤害上限 (相对于Boss最大血量的百分比)
+    cap-percentage: 10
+
+# ========================================
+# [数据库配置] Database Configuration
+# ========================================
+database:
+  # 是否保存Boss历史记录
+  # Save boss spawn history
+  save-history: true
+
+  # 历史记录保留天数
+  # History retention days
+  history-retention-days: 90
+
+  # 是否保存伤害统计
+  # Save damage statistics
+  save-damage-stats: true
+
+  # 是否保存击杀记录
+  # Save kill records
+  save-kill-records: true
+
+# ========================================
+# [日志配置] Logging Configuration
+# ========================================
+logging:
+  # 日志级别 (DEBUG, INFO, WARN, ERROR)
+  # Log level
+  level: INFO
+
+  # 是否记录所有伤害事件
+  # Log all damage events
+  log-damage-events: false
+
+  # 是否记录刷新检查
+  # Log refresh checks
+  log-refresh-checks: false
+
+  # 是否记录冷却时间到期
+  # Log cooldown expiration
+  log-cooldown-expiration: true
+
+  # 是否记录Boss生成
+  # Log boss spawning
+  log-boss-spawn: true
+
+  # 是否记录Boss击杀
+  # Log boss kills
+  log-boss-kill: true
+
+  # 是否记录Boss消失
+  # Log boss despawn
+  log-boss-despawn: true
+
+# ========================================
+# [调试配置] Debug Configuration
+# ========================================
+debug:
+  # 是否启用调试模式
+  # Enable debug mode
+  enabled: false
+
+  # 显示详细信息
+  # Show detailed information
+  verbose: false
+
+  # 测试模式 - 所有冷却时间变为10秒
+  # Test mode - All cooldowns become 10 seconds
+  test-mode: false
+
+  # 实时显示Boss状态
+  # Display boss status in real-time
+  display-real-time-stats: false
+
+# ========================================
+# 配置完成 Configuration Complete
+# ========================================
+# 说明:
+# 1. 所有时间单位都是秒，除非另外说明
+# 2. 所有坐标都是固定坐标，随机坐标由random-location控制
+# 3. 所有百分比都用0-1之间的小数表示 (例: 0.5 = 50%)
+# 4. 配置文件支持热重载，可使用命令重新加载
+# 5. 更详细的使用说明请参考文档
+#
+# Notes:
+# 1. All time units are in seconds unless otherwise stated
+# 2. All coordinates are fixed coordinates, randomization controlled by random-location
+# 3. All percentages use decimals between 0-1 (e.g. 0.5 = 50%)
+# 4. Config file supports hot-reload, use commands to reload
+# 5. For more detailed usage information, please refer to documentation

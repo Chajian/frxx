@@ -1,0 +1,308 @@
+# ========================================
+# Boss系统 - 付费传送配置
+# ========================================
+# 管理玩家传送到Boss位置的功能
+# 包括：费用计算、安全检测、冷却机制等
+
+# 全局配置
+global:
+  # 是否启用传送功能
+  enabled: true
+  
+  # 是否需要权限
+  require-permission: false
+  
+  # 传送权限节点
+  permission: "boss.teleport"
+  
+  # 是否显示传送动画
+  animation-enabled: true
+  
+  # 传送延迟（秒，防止战斗中传送）
+  teleport-delay: 3
+
+# 费用配置
+cost:
+  # 基础费用（灵石）
+  base: 100
+  
+  # 等级加成
+  tier-multiplier:
+    1: 0      # Tier 1: +0灵石
+    2: 100    # Tier 2: +100灵石
+    3: 300    # Tier 3: +300灵石
+    4: 900    # Tier 4: +900灵石
+  
+  # 距离加成
+  distance:
+    # 是否启用距离加成
+    enabled: true
+    
+    # 每N格增加费用
+    per-blocks: 100
+    
+    # 每N格增加的费用
+    cost-per-step: 10
+    
+    # 最大距离加成（灵石）
+    max-additional: 500
+  
+  # 玩家等级折扣
+  level-discount:
+    enabled: false
+    # 每N级减少1%费用
+    per-levels: 10
+    # 最大折扣百分比
+    max-discount: 50
+  
+  # VIP折扣
+  vip-discount:
+    enabled: false
+    # VIP等级 -> 折扣百分比
+    vip1: 10
+    vip2: 20
+    vip3: 30
+    vip4: 50
+
+# 冷却配置
+cooldown:
+  # 全局冷却（秒）
+  global: 10
+  
+  # 同一Boss冷却（秒）
+  same-boss: 60
+  
+  # 同一位置冷却（秒）
+  same-location: 30
+  
+  # 是否对管理员启用冷却
+  apply-to-admin: false
+  
+  # 绕过冷却的权限节点
+  bypass-permission: "boss.teleport.bypass"
+
+# 安全检测配置
+safety:
+  # 是否启用安全检测
+  enabled: true
+  
+  # 搜索半径（格，寻找安全位置）
+  search-radius: 10
+  
+  # 最大搜索次数
+  max-attempts: 50
+  
+  # 高度限制
+  height:
+    min: 0
+    max: 256
+  
+  # 避免的方块类型
+  avoid-blocks:
+    - "LAVA"
+    - "WATER"
+    - "FIRE"
+    - "MAGMA_BLOCK"
+    - "CACTUS"
+    - "SWEET_BERRY_BUSH"
+  
+  # 需要的站立面类型（为空则不限制）
+  required-ground: []
+  
+  # 是否检查头顶空间
+  check-headroom: true
+  
+  # 头顶需要的空气方块数
+  headroom-blocks: 2
+
+# 限制条件
+restrictions:
+  # PVP区域限制
+  pvp-zone:
+    # 是否允许在PVP区域传送
+    allow: true
+    
+    # 是否允许传送到PVP区域
+    allow-to: true
+  
+  # 战斗状态限制
+  combat:
+    # 是否禁止战斗中传送
+    deny-in-combat: true
+    
+    # 战斗状态持续时间（秒）
+    combat-duration: 10
+  
+  # 世界限制
+  world:
+    # 是否启用世界白名单
+    whitelist-enabled: false
+    
+    # 允许传送的世界列表
+    whitelist: []
+    
+    # 是否启用世界黑名单
+    blacklist-enabled: false
+    
+    # 禁止传送的世界列表
+    blacklist: []
+  
+  # Boss状态限制
+  boss-state:
+    # 是否允许传送到已死亡的Boss
+    allow-dead: false
+    
+    # 是否允许传送到即将消失的Boss（剩余时间<N秒）
+    allow-despawning: false
+    despawn-threshold: 60
+  
+  # 距离限制
+  distance:
+    # 最小传送距离（格，太近不允许传送）
+    minimum: 50
+    
+    # 最大传送距离（格，太远不允许传送，-1=无限制）
+    maximum: -1
+
+# 传送点配置
+spawn-point:
+  # 传送点模式
+  mode: "BOSS_LOCATION"  # BOSS_LOCATION | NEAR_BOSS | SAFE_AREA
+  
+  # NEAR_BOSS模式：距离Boss的距离
+  near-distance:
+    min: 20
+    max: 50
+  
+  # 传送点偏好
+  prefer:
+    # 偏好的生物群系（为空则不限制）
+    biomes: []
+    
+    # 偏好开阔地形
+    open-terrain: true
+    
+    # 避免高危地形
+    avoid-danger: true
+
+# 传送动画配置
+animation:
+  # 动画类型
+  type: "PARTICLES"  # PARTICLES | LIGHTNING | NONE
+  
+  # 粒子效果
+  particles:
+    # 传送前粒子
+    before:
+      type: "PORTAL"
+      count: 50
+      speed: 0.1
+    
+    # 传送后粒子
+    after:
+      type: "CLOUD"
+      count: 30
+      speed: 0.05
+  
+  # 音效
+  sound:
+    # 传送前音效
+    before:
+      type: "ENTITY_ENDERMAN_TELEPORT"
+      volume: 1.0
+      pitch: 1.0
+    
+    # 传送后音效
+    after:
+      type: "ENTITY_PLAYER_LEVELUP"
+      volume: 0.5
+      pitch: 1.5
+  
+  # 闪电效果
+  lightning:
+    enabled: false
+    damage: false
+
+# 消息配置
+messages:
+  # 传送成功
+  success: "&a成功传送到Boss位置！"
+  
+  # 费用扣除
+  cost-deducted: "&e已扣除 &f{cost} &e灵石"
+  
+  # 余额不足
+  insufficient-funds: "&c灵石不足！需要 &f{cost} &c灵石，你只有 &f{balance} &c灵石"
+  
+  # 冷却中
+  cooldown: "&c传送冷却中！请等待 &f{time} &c秒"
+  
+  # Boss不存在
+  boss-not-found: "&cBoss不存在或已消失！"
+  
+  # Boss已死亡
+  boss-dead: "&c该Boss已被击杀！"
+  
+  # Boss即将消失
+  boss-despawning: "&c该Boss即将消失（剩余{time}秒），无法传送！"
+  
+  # 安全位置未找到
+  no-safe-location: "&c未找到安全的传送位置！"
+  
+  # 战斗中
+  in-combat: "&c战斗中无法传送！"
+  
+  # PVP区域
+  in-pvp-zone: "&c当前在PVP区域，无法传送！"
+  
+  # 世界限制
+  world-restricted: "&c当前世界不允许传送！"
+  
+  # 距离限制
+  too-close: "&c距离Boss太近，无法传送！（最小距离{min}格）"
+  too-far: "&c距离Boss太远，无法传送！（最大距离{max}格）"
+  
+  # 权限不足
+  no-permission: "&c你没有权限使用传送功能！"
+  
+  # 传送准备
+  preparing: "&e正在准备传送，请等待 &f{delay} &e秒..."
+  
+  # 传送取消
+  cancelled: "&c传送已取消！（移动或受到伤害）"
+
+# 传送记录配置
+logging:
+  # 是否记录传送
+  enabled: true
+  
+  # 记录到控制台
+  console: true
+  
+  # 记录到文件
+  file: true
+  
+  # 记录格式
+  format: "[{time}] {player} 传送到 {boss} (费用: {cost})"
+
+# 高级选项
+advanced:
+  # 是否允许跨维度传送
+  cross-dimension: true
+  
+  # 传送失败时是否退款
+  refund-on-fail: true
+  
+  # 传送队列（同时传送人数限制）
+  queue:
+    enabled: false
+    max-concurrent: 5
+    wait-message: "&e当前传送队列中，你的位置：&f{position}"
+  
+  # 传送历史记录
+  history:
+    # 保存天数
+    keep-days: 7
+    
+    # 每个玩家最多记录数
+    max-records: 100

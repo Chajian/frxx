@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn dependency:tree:*)",
+      "Bash(mvn clean compile:*)",
+      "Read(//d/workspace/java/mc/Quests/**)",
+      "Read(//d/workspace/java/mc/frxx/document/**)",
+      "Bash(find:*)",
+      "Bash(dir:*)",
+      "Bash(jar:*)",
+      "Bash(javap:*)",
+      "Bash(cat:*)",
+      "Read(//d/workspace/java/mc/**)",
+      "Bash(javac:*)",
+      "Read(//c/Users/KSG/.m2/repository/**)",
+      "Read(//c/Users/KSG/**)",
+      "Bash(mvn clean package:*)",
+      "Bash(mkdir:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -1,0 +1,107 @@
+# 修为奖励系统配置文件
+# 基于怪物境界的修为分配机制
+
+# 基础修为奖励（每个境界等级）
+base-rewards:
+  炼气期: 50      # 炼气期怪物基础奖励: 50修为
+  筑基期: 150     # 筑基期怪物基础奖励: 150修为  
+  结丹期: 400     # 结丹期怪物基础奖励: 400修为
+  元婴期: 1000    # 元婴期怪物基础奖励: 1000修为
+  化神期: 2500    # 化神期怪物基础奖励: 2500修为
+  炼虚期: 6000    # 炼虚期怪物基础奖励: 6000修为
+  合体期: 15000   # 合体期怪物基础奖励: 15000修为
+  大乘期: 40000   # 大乘期怪物基础奖励: 40000修为
+
+# 境界差距乘数（玩家境界相对于怪物境界）
+realm-gap-multipliers:
+  # 玩家境界低于怪物境界时（挑战高境界有额外奖励）
+  one-higher: 1.5      # 怪物高1个境界: 150%
+  two-higher: 2.0      # 怪物高2个境界: 200%
+  three-higher: 2.5    # 怪物高3个境界: 250%
+  four-or-more: 3.0    # 怪物高4+个境界: 300%
+  
+  # 玩家境界等于怪物境界时
+  same-realm: 1.0      # 同境界: 100%
+  
+  # 玩家境界高于怪物境界时（欺负低境界有惩罚）
+  one-lower: 0.7       # 怪物低1个境界: 70%
+  two-lower: 0.4       # 怪物低2个境界: 40%
+  three-lower: 0.2     # 怪物低3个境界: 20%
+  four-or-more: 0.1    # 怪物低4+个境界: 10%
+
+# 特殊修饰符
+special-multipliers:
+  boss-multiplier: 3.0        # Boss怪物乘数: 300%
+  elite-multiplier: 2.0       # 精英怪物乘数: 200%
+  mythic-multiplier: 1.5      # MythicMobs怪物乘数: 150%
+  group-kill-penalty: 0.8     # 组队击杀惩罚: 80%
+  
+# 防刷机制配置
+anti-exploit:
+  # 击杀冷却时间（秒）- 同一玩家击杀同境界怪物的最短间隔
+  kill-cooldowns:
+    炼气期: 5       # 炼气期怪物: 5秒冷却
+    筑基期: 10      # 筑基期怪物: 10秒冷却
+    结丹期: 20      # 结丹期怪物: 20秒冷却
+    元婴期: 30      # 元婴期怪物: 30秒冷却
+    化神期: 60      # 化神期怪物: 60秒冷却
+    炼虚期: 120     # 炼虚期怪物: 120秒冷却
+    合体期: 300     # 合体期怪物: 300秒冷却
+    大乘期: 600     # 大乘期怪物: 600秒冷却
+    
+  # 每日击杀修为获得上限（按玩家境界）
+  daily-limits:
+    炼气期: 1000     # 炼气期玩家每日上限: 1000修为
+    筑基期: 3000     # 筑基期玩家每日上限: 3000修为
+    结丹期: 8000     # 结丹期玩家每日上限: 8000修为
+    元婴期: 20000    # 元婴期玩家每日上限: 20000修为
+    化神期: 50000    # 化神期玩家每日上限: 50000修为
+    炼虚期: 100000   # 炼虚期玩家每日上限: 100000修为
+    合体期: 200000   # 合体期玩家每日上限: 200000修为
+    大乘期: 500000   # 大乘期玩家每日上限: 500000修为
+    
+  # 区域递减奖励 - 防止在同一区域短时间内刷太多怪
+  area-diminishing:
+    enabled: true
+    time-window: 300          # 时间窗口: 5分钟
+    same-chunk-penalty: 0.5   # 同区块内重复击杀惩罚: 50%
+    max-kills-per-chunk: 10   # 每个区块在时间窗口内的最大有效击杀数
+
+# 备用奖励（当怪物没有境界信息时使用）
+fallback-rewards:
+  enabled: true
+  base-reward: 10              # 基础奖励: 10修为
+  health-based-bonus: true     # 是否启用基于血量的额外奖励
+  health-bonus-ratio: 0.5      # 血量奖励比例: 每点血量提供0.5修为
+  max-fallback-reward: 100     # 备用奖励上限: 100修为
+
+# 消息配置
+messages:
+  # 击杀奖励消息
+  reward-message: "&a[修为] &f击败了 &e{mob_name} &f获得 &b+{qi_amount}修为"
+  reward-with-bonus: "&a[修为] &f击败了 &e{mob_name} &f获得 &b+{qi_amount}修为 &7({bonus_info})"
+  
+  # 防刷提示消息
+  cooldown-message: "&e[修为] &7击败{realm}怪物冷却中，剩余 {remaining}秒"
+  daily-limit-message: "&e[修为] &7今日击杀修为已达上限 ({current}/{limit})"
+  area-penalty-message: "&e[修为] &7区域内重复击杀，奖励减半"
+  
+  # 调试消息（仅调试模式显示）
+  debug-calculation: "&7[调试] 基础:{base} × 境界:{realm_gap} × 特殊:{special} = {final}"
+
+# 调试配置
+debug:
+  enabled: false               # 是否启用调试模式
+  log-all-kills: false        # 是否记录所有击杀事件
+  show-calculation: false     # 是否向玩家显示计算过程
+  verbose-logging: false      # 是否启用详细日志
+
+
+
+
+
+
+
+
+
+

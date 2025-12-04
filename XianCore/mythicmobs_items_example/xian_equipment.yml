@@ -1,0 +1,302 @@
+# ==========================================
+# 仙家装备 MythicMobs 物品模板
+# 路径: MythicMobs/Items/xian_equipment.yml
+# ==========================================
+
+# ========== 武器类 ==========
+
+# 凡品剑
+xian_sword_common_lv0:
+  Id: DIAMOND_SWORD
+  Display: "&f凡品仙剑"
+  Lore:
+    - "&7品质: &f凡品"
+    - "&7五行: 金"
+    - ""
+    - "&c⚔ 攻击力: +10"
+    - "&b✦ 灵力值: +20"
+  Options:
+    Unbreakable: true
+  Attributes:
+    MainHand:
+      Damage: 10
+  Enchantments:
+    - SHARPNESS:1
+
+# 灵品剑
+xian_sword_spiritual_lv0:
+  Id: DIAMOND_SWORD
+  Display: "&b灵品仙剑"
+  Lore:
+    - "&7品质: &b灵品"
+    - "&7五行: 金"
+    - ""
+    - "&c⚔ 攻击力: +20"
+    - "&b✦ 灵力值: +40"
+  Options:
+    Unbreakable: true
+  Attributes:
+    MainHand:
+      Damage: 20
+  Enchantments:
+    - SHARPNESS:2
+
+# 宝品剑
+xian_sword_treasure_lv0:
+  Id: DIAMOND_SWORD
+  Display: "&5宝品仙剑"
+  Lore:
+    - "&7品质: &5宝品"
+    - "&7五行: 金"
+    - ""
+    - "&c⚔ 攻击力: +35"
+    - "&b✦ 灵力值: +70"
+  Options:
+    Unbreakable: true
+  Attributes:
+    MainHand:
+      Damage: 35
+  Enchantments:
+    - SHARPNESS:3
+
+# 仙品剑
+xian_sword_celestial_lv0:
+  Id: NETHERITE_SWORD
+  Display: "&6&l仙品仙剑"
+  Lore:
+    - "&7品质: &6仙品"
+    - "&7五行: 金"
+    - ""
+    - "&c⚔ 攻击力: +60"
+    - "&b✦ 灵力值: +120"
+  Options:
+    Unbreakable: true
+  Attributes:
+    MainHand:
+      Damage: 60
+  Enchantments:
+    - SHARPNESS:5
+
+# 神品剑
+xian_sword_divine_lv0:
+  Id: NETHERITE_SWORD
+  Display: "&d&l神品仙剑"
+  Lore:
+    - "&7品质: &d神品"
+    - "&7五行: 金"
+    - ""
+    - "&c⚔ 攻击力: +100"
+    - "&b✦ 灵力值: +200"
+  Options:
+    Unbreakable: true
+  Attributes:
+    MainHand:
+      Damage: 100
+  Enchantments:
+    - SHARPNESS:7
+
+# ========== 护甲类 ==========
+
+# 灵品头盔
+xian_helmet_spiritual_lv0:
+  Id: DIAMOND_HELMET
+  Display: "&b灵品仙盔"
+  Lore:
+    - "&7品质: &b灵品"
+    - "&7五行: 土"
+    - ""
+    - "&9◈ 防御力: +15"
+    - "&a❤ 生命值: +40"
+  Options:
+    Unbreakable: true
+  Attributes:
+    Head:
+      Armor: 15
+      MaxHealth: 4
+  Enchantments:
+    - PROTECTION:2
+
+# 宝品胸甲
+xian_chestplate_treasure_lv0:
+  Id: DIAMOND_CHESTPLATE
+  Display: "&5宝品仙甲"
+  Lore:
+    - "&7品质: &5宝品"
+    - "&7五行: 土"
+    - ""
+    - "&9◈ 防御力: +25"
+    - "&a❤ 生命值: +80"
+  Options:
+    Unbreakable: true
+  Attributes:
+    Chest:
+      Armor: 25
+      MaxHealth: 8
+  Enchantments:
+    - PROTECTION:3
+
+# 仙品护腿
+xian_leggings_celestial_lv0:
+  Id: NETHERITE_LEGGINGS
+  Display: "&6&l仙品仙裤"
+  Lore:
+    - "&7品质: &6仙品"
+    - "&7五行: 土"
+    - ""
+    - "&9◈ 防御力: +40"
+    - "&a❤ 生命值: +120"
+  Options:
+    Unbreakable: true
+  Attributes:
+    Legs:
+      Armor: 40
+      MaxHealth: 12
+  Enchantments:
+    - PROTECTION:5
+
+# ========== 饰品类（无原生属性槽，需监听器） ==========
+
+# 灵品戒指
+xian_ring_spiritual_lv0:
+  Id: GOLD_INGOT
+  Display: "&b灵品灵戒"
+  Lore:
+    - "&7品质: &b灵品"
+    - "&7五行: 火"
+    - "&7类型: 饰品-戒指"
+    - ""
+    - "&c⚔ 攻击力: +8"
+    - "&9◈ 防御力: +5"
+    - "&a❤ 生命值: +20"
+    - "&b✦ 灵力值: +30"
+    - ""
+    - "&7§o需手持或佩戴饰品栏生效"
+  Options:
+    Unbreakable: true
+
+# 宝品项链
+xian_necklace_treasure_lv0:
+  Id: CHAIN
+  Display: "&5宝品宝链"
+  Lore:
+    - "&7品质: &5宝品"
+    - "&7五行: 水"
+    - "&7类型: 饰品-项链"
+    - ""
+    - "&c⚔ 攻击力: +12"
+    - "&9◈ 防御力: +8"
+    - "&a❤ 生命值: +40"
+    - "&b✦ 灵力值: +60"
+    - ""
+    - "&7§o需手持或佩戴饰品栏生效"
+  Options:
+    Unbreakable: true
+
+# 仙品法宝
+xian_talisman_celestial_lv0:
+  Id: TOTEM_OF_UNDYING
+  Display: "&6&l仙品仙符"
+  Lore:
+    - "&7品质: &6仙品"
+    - "&7五行: 雷"
+    - "&7类型: 饰品-法宝"
+    - ""
+    - "&c⚔ 攻击力: +20"
+    - "&9◈ 防御力: +15"
+    - "&a❤ 生命值: +80"
+    - "&b✦ 灵力值: +120"
+    - ""
+    - "&7§o需手持或佩戴饰品栏生效"
+  Options:
+    Unbreakable: true
+
+# ========== 强化等级变体（示例） ==========
+
+# 灵品剑 +5
+xian_sword_spiritual_lv5:
+  Id: DIAMOND_SWORD
+  Display: "&b灵品仙剑 &6+5"
+  Lore:
+    - "&7品质: &b灵品"
+    - "&7五行: 金"
+    - "&b强化等级: &6+5"
+    - ""
+    - "&c⚔ 攻击力: +25 &a(+5)"
+    - "&b✦ 灵力值: +50 &a(+10)"
+  Options:
+    Unbreakable: true
+  Attributes:
+    MainHand:
+      Damage: 25
+  Enchantments:
+    - SHARPNESS:3
+
+# 灵品剑 +10
+xian_sword_spiritual_lv10:
+  Id: DIAMOND_SWORD
+  Display: "&b灵品仙剑 &6+10"
+  Lore:
+    - "&7品质: &b灵品"
+    - "&7五行: 金"
+    - "&b强化等级: &6+10"
+    - ""
+    - "&c⚔ 攻击力: +30 &a(+10)"
+    - "&b✦ 灵力值: +60 &a(+20)"
+  Options:
+    Unbreakable: true
+  Attributes:
+    MainHand:
+      Damage: 30
+  Enchantments:
+    - SHARPNESS:4
+
+# ========== 五行变体示例 ==========
+
+# 火系宝品剑
+xian_sword_treasure_fire_lv0:
+  Id: DIAMOND_SWORD
+  Display: "&c烈焰宝剑"
+  Lore:
+    - "&7品质: &5宝品"
+    - "&7五行: &c火"
+    - ""
+    - "&c⚔ 攻击力: +35"
+    - "&b✦ 灵力值: +70"
+    - ""
+    - "&c◆ 火焰之力: 攻击附带燃烧"
+  Options:
+    Unbreakable: true
+  Attributes:
+    MainHand:
+      Damage: 35
+  Enchantments:
+    - SHARPNESS:3
+    - FIRE_ASPECT:2
+
+# 水系宝品剑
+xian_sword_treasure_water_lv0:
+  Id: DIAMOND_SWORD
+  Display: "&9冰霜宝剑"
+  Lore:
+    - "&7品质: &5宝品"
+    - "&7五行: &9水"
+    - ""
+    - "&c⚔ 攻击力: +35"
+    - "&b✦ 灵力值: +70"
+    - ""
+    - "&9◆ 寒冰之力: 攻击减速敌人"
+  Options:
+    Unbreakable: true
+  Attributes:
+    MainHand:
+      Damage: 35
+  Enchantments:
+    - SHARPNESS:3
+# ========== 模板注释 ==========
+# 命名规则: xian_{type}_{quality}_{element}_{levelSuffix}
+# type: sword/helmet/chestplate/leggings/boots/ring/necklace/talisman
+# quality: common/spiritual/treasure/celestial/divine
+# element: 可选，fire/water/wood/metal/earth/thunder/ice/wind
+# levelSuffix: lv0/lv5/lv10/lv15/lv20
+
+

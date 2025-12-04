@@ -1,0 +1,248 @@
+# 功法系统配置
+# XianCore 功法系统支持两种模式：
+# 1. use-mythic: true  - 使用 MythicMobs 技能（推荐，效果丰富）
+# 2. use-mythic: false - 使用 XianCore 内置效果（简单）
+
+skills:
+  # 火球术 - 远程攻击
+  fireball:
+    name: "§c§l火球术"
+    description: "凝聚火焰之力，发射火球攻击敌人"
+    type: ATTACK
+    element: FIRE
+
+    # MythicMobs 技能配置
+    mythic-skill-id: "XianFireball"
+    use-mythic: true
+
+    # 学习需求
+    required:
+      realm: "筑基期"
+      level: 10
+      skills: []
+
+    # 消耗
+    cost:
+      qi: 100
+      cooldown: 10
+
+    # 效果（用于等级计算，MythicMobs 会使用这些基础值）
+    effect:
+      damage: 50
+      range: 20
+
+    # 升级
+    upgrade:
+      cost: 1000
+      skill-points: 1
+
+    # 显示
+    max-level: 10
+
+  # 治疗术 - 恢复生命
+  heal:
+    name: "§a§l回春术"
+    description: "运转灵气，恢复自身或队友生命值"
+    type: HEAL
+    element: WOOD
+
+    mythic-skill-id: "XianHeal"
+    use-mythic: true
+
+    required:
+      realm: "筑基期"
+      level: 15
+
+    cost:
+      qi: 80
+      cooldown: 15
+
+    effect:
+      healing: 40
+      range: 10
+
+    upgrade:
+      cost: 800
+      skill-points: 1
+
+    max-level: 10
+
+  # 御剑飞行 - 移动技能
+  yujian:
+    name: "§e§l御剑飞行"
+    description: "御剑于空，飞行移动"
+    type: MOVEMENT
+    element: METAL
+
+    mythic-skill-id: "XianYujian"
+    use-mythic: true
+
+    required:
+      realm: "结丹期"
+      level: 30
+      skills: ["fireball"]
+
+    cost:
+      qi: 500
+      cooldown: 60
+
+    effect:
+      duration: 10
+      range: 0
+
+    upgrade:
+      cost: 5000
+      skill-points: 3
+
+    max-level: 5
+
+  # 雷龙召唤 - AOE 攻击
+  thunder_dragon:
+    name: "§b§l惊雷龙吟"
+    description: "召唤雷龙，对范围内敌人造成雷电伤害"
+    type: AOE_ATTACK
+    element: METAL
+
+    mythic-skill-id: "XianThunderDragon"
+    use-mythic: true
+
+    required:
+      realm: "元婴期"
+      level: 50
+      skills: ["fireball"]
+
+    cost:
+      qi: 300
+      cooldown: 30
+
+    effect:
+      damage: 100
+      range: 8
+
+    upgrade:
+      cost: 10000
+      skill-points: 5
+
+    max-level: 10
+
+  # 剑气斩 - 近战技能
+  sword_strike:
+    name: "§f§l剑气纵横"
+    description: "剑气纵横，斩断一切"
+    type: ATTACK
+    element: METAL
+
+    mythic-skill-id: "XianSwordStrike"
+    use-mythic: true
+
+    required:
+      realm: "筑基期"
+      level: 20
+
+    cost:
+      qi: 120
+      cooldown: 8
+
+    effect:
+      damage: 60
+      range: 5
+
+    upgrade:
+      cost: 1500
+      skill-points: 2
+
+    max-level: 10
+
+  # 灵盾术 - 防护技能
+  spirit_shield:
+    name: "§b§l灵气护盾"
+    description: "凝聚灵气形成护盾，吸收伤害"
+    type: BUFF
+    element: EARTH
+
+    mythic-skill-id: "XianSpiritShield"
+    use-mythic: true
+
+    required:
+      realm: "筑基期"
+      level: 12
+
+    cost:
+      qi: 150
+      cooldown: 20
+
+    effect:
+      duration: 10
+      range: 0
+
+    upgrade:
+      cost: 1200
+      skill-points: 2
+
+    max-level: 10
+
+  # 冰封术 - 控制技能
+  ice_prison:
+    name: "§b§l寒冰牢笼"
+    description: "寒冰封锁目标，使其无法移动"
+    type: CONTROL
+    element: WATER
+
+    mythic-skill-id: "XianIcePrison"
+    use-mythic: true
+
+    required:
+      realm: "结丹期"
+      level: 25
+
+    cost:
+      qi: 200
+      cooldown: 25
+
+    effect:
+      duration: 5
+      range: 15
+
+    upgrade:
+      cost: 3000
+      skill-points: 3
+
+    max-level: 8
+
+  # 生命汲取 - 吸血技能
+  life_drain:
+    name: "§c§l生命汲取"
+    description: "汲取目标生命力转化为自身生命"
+    type: DEBUFF
+    element: WOOD
+
+    mythic-skill-id: "XianLifeDrain"
+    use-mythic: true
+
+    required:
+      realm: "结丹期"
+      level: 28
+
+    cost:
+      qi: 180
+      cooldown: 18
+
+    effect:
+      damage: 40
+      healing: 30
+      range: 12
+
+    upgrade:
+      cost: 3500
+      skill-points: 3
+
+    max-level: 10
+
+# 功法点获取方式配置
+skill-points:
+  # 每次突破获得的功法点
+  breakthrough: 5
+  # 每 N 级获得 1 功法点
+  level-interval: 10
+  # 宗门贡献兑换（1000贡献 = 1功法点）
+  contribution-exchange: 1000

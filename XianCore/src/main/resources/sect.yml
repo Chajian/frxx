@@ -1,0 +1,11 @@
+# 宗门系统配置
+sect-levels:
+  1:
+    max-members: 10
+    qi-pool: 10000
+  2:
+    max-members: 20
+    qi-pool: 50000
+  3:
+    max-members: 30
+    qi-pool: 100000

@@ -1,0 +1,71 @@
+# ========================================
+#           消息配置文件
+# ========================================
+
+prefix: "&6[XianCore] "
+
+# 通用消息
+general:
+  no-permission: "&c你没有权限执行此操作！"
+  player-not-found: "&c玩家 %player% 不存在或不在线！"
+  invalid-arguments: "&c参数错误！用法: %usage%"
+  reload-success: "&a配置文件已重载！"
+  command-disabled: "&c该命令已被禁用！"
+
+# 道具使用消息
+item:
+  usage-limit-reached: "&c该道具已达使用上限！(%current%/%max%)"
+  on-cooldown: "&c该道具冷却中，请等待 %time% 秒！"
+  attribute-max: "&c%attribute% 已达上限，无法继续提升！"
+  use-success: "&a成功使用 %item%！"
+
+# 属性变化消息
+attribute:
+  spiritual-root-increased: "&b灵根 &7提升了 &a+%value% &7→ &e%new%"
+  comprehension-increased: "&d悟性 &7提升了 &a+%value% &7→ &e%new%"
+  technique-adaptation-increased: "&e功法适配度 &7提升了 &a+%value% &7→ &e%new%"
+  active-qi-increased: "&a活跃灵气 &7+%value%"
+  skill-points-increased: "&5功法点 &7+%value%"
+
+# Buff 消息
+buff:
+  added: "&5[破境丹] &a你的修行属性临时提升了！效果持续 %duration% 分钟。"
+  expired: "&7[提示] 破境加持效果已消失。"
+  warning: "&7[提醒] 破境加持还剩 &e%time% &7秒！"
+  removed: "&a已移除你的 %buff% 效果。"
+
+# 广播消息
+broadcast:
+  legendary-pill: "&6&l⭐ &e玩家 &f%player% &e服用了传说 %item%，根骨大成！"
+  hunyuan-pill: "&6&l&n⭐⭐⭐ &e玩家 &f%player% &e服用了传说混元丹，修为大增！&6&l&n⭐⭐⭐"
+
+# 天道果消息
+tiandao-fruit:
+  spiritual-root: "&b[天道果] &a灵根 提升了 &e%.3f&a！"
+  comprehension: "&d[天道果] &a悟性 提升了 &e%.3f&a！"
+  technique-adaptation: "&e[天道果] &a功法适配度 提升了 &e%.3f&a！"
+
+# 管理命令消息
+admin:
+  reset-success: "&a已重置玩家 %player% 的道具 %item% 使用次数！"
+  reset-all-success: "&a已重置玩家 %player% 的所有道具使用次数！"
+  give-success: "&a已给予玩家 %player% 道具 %item% x%amount%！"
+  backup-success: "&a数据库备份成功！文件: %file%"
+  database-optimized: "&a数据库已优化！"
+
+# 查询消息
+query:
+  usage-history-header: "&6===== 道具使用记录 ====="
+  usage-history-item: "&7%item%: &e%current%/%max%次 &8(最后使用: %time%)"
+  usage-history-empty: "&7你还没有使用过任何道具。"
+  attribute-info: "&7%attribute%: &e%value% &8(上限: %max%)"
+  buff-list-header: "&6===== 当前Buff列表 ====="
+  buff-list-item: "&7%buff%: &a+%value% &8(剩余: %time%)"
+  buff-list-empty: "&7当前没有活跃的Buff。"
+
+# 错误消息
+error:
+  database-error: "&c数据库错误！请联系管理员。"
+  attribute-error: "&c设置属性失败！请联系管理员。"
+  item-not-found: "&c未找到道具配置: %item%"
+  internal-error: "&c内部错误: %message%"

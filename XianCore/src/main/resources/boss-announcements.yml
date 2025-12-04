@@ -1,0 +1,317 @@
+# ========================================
+# Boss系统 - 全服公告配置
+# ========================================
+# 管理Boss事件的公告发送
+# 包括：生成、击杀、稀有掉落、里程碑等
+
+# 全局配置
+global:
+  # 是否启用公告系统
+  enabled: true
+  
+  # 公告前缀
+  prefix: "&6&l[世界Boss]&r"
+  
+  # 是否在聊天栏显示
+  chat-enabled: true
+  
+  # 是否发送Title标题
+  title-enabled: true
+  
+  # 是否播放音效
+  sound-enabled: true
+  
+  # 是否在ActionBar显示
+  actionbar-enabled: false
+
+# Boss生成公告
+spawn:
+  # 是否启用
+  enabled: true
+  
+  # 公告冷却时间（秒）
+  cooldown: 120
+  
+  # 聊天栏消息模板
+  message:
+    - "&8&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    - " &6&l⚔ 世界Boss已降临 ⚔"
+    - ""
+    - "  &e▸ Boss名称: &f{boss_name}"
+    - "  &e▸ Boss等级: &f{boss_tier}"
+    - "  &e▸ 所在世界: &f{world}"
+    - "  &e▸ 坐标: &f{x}, {y}, {z}"
+    - "  &e▸ 附近玩家: &f{player_count}人"
+    - ""
+    - "  &7使用 &f/boss tp {boss_name} &7传送到Boss位置"
+    - "&8&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  
+  # Title标题
+  title:
+    main: "&c&l⚔ Boss降临 ⚔"
+    sub: "&e{boss_name} &7已在 &f{world} &7出现"
+    fade-in: 10
+    stay: 60
+    fade-out: 20
+  
+  # 音效
+  sound:
+    type: "ENTITY_ENDER_DRAGON_GROWL"
+    volume: 1.0
+    pitch: 1.0
+  
+  # 重复通知间隔（秒，0=不重复）
+  repeat-interval: 0
+  
+  # 通知范围（米，-1=全服）
+  range: -1
+
+# Boss击杀公告
+killed:
+  # 是否启用
+  enabled: true
+  
+  # 公告冷却时间（秒）
+  cooldown: 60
+  
+  # 聊天栏消息模板
+  message:
+    - "&8&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    - " &c&l✦ Boss已被击杀 ✦"
+    - ""
+    - "  &e▸ Boss名称: &f{boss_name}"
+    - "  &e▸ Boss等级: &f{boss_tier}"
+    - "  &e▸ 击杀者: &f{killer_name}"
+    - "  &e▸ 战斗时长: &f{duration}秒"
+    - "  &e▸ 品质评分: &f{quality_score} &7({quality_level})"
+    - "  &e▸ 获得经验: &f{experience_reward}"
+    - ""
+    - "  &7前三名输出:"
+    - "  &f1. {top1_name} &7- &f{top1_damage}"
+    - "  &f2. {top2_name} &7- &f{top2_damage}"
+    - "  &f3. {top3_name} &7- &f{top3_damage}"
+    - "&8&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  
+  # Title标题
+  title:
+    main: "&c&l✦ Boss被击败 ✦"
+    sub: "&e{killer_name} &7击杀了 &f{boss_name}"
+    fade-in: 10
+    stay: 40
+    fade-out: 20
+  
+  # 音效
+  sound:
+    type: "UI_TOAST_CHALLENGE_COMPLETE"
+    volume: 1.0
+    pitch: 1.0
+  
+  # 通知范围（米，-1=全服）
+  range: -1
+
+# Boss消失警告
+despawn-warning:
+  # 是否启用
+  enabled: true
+  
+  # 警告时间点（秒，Boss生命周期结束前）
+  warning-times:
+    - 300  # 5分钟前
+    - 60   # 1分钟前
+    - 30   # 30秒前
+  
+  # 聊天栏消息模板
+  message:
+    - "&8&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    - " &e&l⚠ Boss即将消失 ⚠"
+    - ""
+    - "  &e▸ Boss名称: &f{boss_name}"
+    - "  &e▸ 剩余时间: &c{time_left}秒"
+    - ""
+    - "  &7请抓紧时间击杀!"
+    - "&8&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  
+  # 音效
+  sound:
+    type: "BLOCK_NOTE_BLOCK_PLING"
+    volume: 0.8
+    pitch: 1.2
+  
+  # 通知范围（米，-1=全服）
+  range: 200
+
+# 稀有掉落公告
+rare-drop:
+  # 是否启用
+  enabled: true
+  
+  # 公告冷却时间（秒）
+  cooldown: 30
+  
+  # 聊天栏消息模板
+  message:
+    - "&8&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    - " &d&l★ 稀有掉落 ★"
+    - ""
+    - "  &e▸ 玩家: &f{player_name}"
+    - "  &e▸ 从Boss: &f{boss_name}"
+    - "  &e▸ 获得: &d{item_name} &7x{amount}"
+    - "&8&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  
+  # Title标题
+  title:
+    main: "&d&l★ 稀有掉落 ★"
+    sub: "&f{player_name} &7获得了 &d{item_name}"
+    fade-in: 10
+    stay: 40
+    fade-out: 20
+  
+  # 音效
+  sound:
+    type: "ENTITY_PLAYER_LEVELUP"
+    volume: 1.0
+    pitch: 1.5
+  
+  # 通知范围（米，-1=全服）
+  range: -1
+
+# 每日排行榜公告
+daily-leaderboard:
+  # 是否启用
+  enabled: true
+  
+  # 公告时间（HH:mm格式）
+  announce-times:
+    - "12:00"  # 中午12点
+    - "20:00"  # 晚上8点
+  
+  # 显示前N名
+  top-count: 5
+  
+  # 聊天栏消息模板
+  message:
+    - "&8&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    - " &6&l◆ 今日Boss击杀排行榜 ◆"
+    - ""
+    - "  &e1. &f{rank1_name} &7- &f{rank1_kills}击杀"
+    - "  &e2. &f{rank2_name} &7- &f{rank2_kills}击杀"
+    - "  &e3. &f{rank3_name} &7- &f{rank3_kills}击杀"
+    - "  &74. &f{rank4_name} &7- &f{rank4_kills}击杀"
+    - "  &75. &f{rank5_name} &7- &f{rank5_kills}击杀"
+    - ""
+    - "  &7使用 &f/boss stats &7查看个人统计"
+    - "&8&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  
+  # 音效
+  sound:
+    type: "BLOCK_NOTE_BLOCK_HARP"
+    volume: 0.8
+    pitch: 1.0
+
+# 周排行榜公告
+weekly-leaderboard:
+  # 是否启用
+  enabled: true
+  
+  # 公告时间（每周日 HH:mm）
+  announce-time: "21:00"
+  
+  # 显示前N名
+  top-count: 10
+  
+  # 聊天栏消息模板
+  message:
+    - "&8&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    - " &5&l◆ 本周Boss击杀排行榜 ◆"
+    - ""
+    - "  &e&l前三名："
+    - "  &e1. &f{rank1_name} &7- &f{rank1_kills}击杀 &7| &f{rank1_damage}伤害"
+    - "  &e2. &f{rank2_name} &7- &f{rank2_kills}击杀 &7| &f{rank2_damage}伤害"
+    - "  &e3. &f{rank3_name} &7- &f{rank3_kills}击杀 &7| &f{rank3_damage}伤害"
+    - ""
+    - "  &7其他排名..."
+    - "  &74-10. 使用 &f/boss leaderboard &7查看完整榜单"
+    - "&8&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  
+  # 音效
+  sound:
+    type: "UI_TOAST_CHALLENGE_COMPLETE"
+    volume: 1.0
+    pitch: 1.2
+
+# 里程碑公告（首杀、累计击杀等）
+milestone:
+  # 是否启用
+  enabled: true
+  
+  # 公告冷却时间（秒）
+  cooldown: 300
+  
+  # 里程碑类型
+  types:
+    # 首次击杀某类Boss
+    first-kill:
+      enabled: true
+      message:
+        - "&8&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        - " &b&l▲ 首次击杀成就 ▲"
+        - ""
+        - "  &e▸ 玩家: &f{player_name}"
+        - "  &e▸ 首次击杀: &f{boss_name}"
+        - "&8&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+      sound:
+        type: "ENTITY_PLAYER_LEVELUP"
+        volume: 1.0
+        pitch: 1.0
+    
+    # 累计击杀里程碑
+    total-kills:
+      enabled: true
+      milestones: [ 10, 50, 100, 500, 1000 ]
+      message:
+        - "&8&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        - " &a&l▲ 击杀里程碑 ▲"
+        - ""
+        - "  &e▸ 玩家: &f{player_name}"
+        - "  &e▸ 累计击杀: &f{total_kills}个Boss"
+        - "&8&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+      sound:
+        type: "ENTITY_PLAYER_LEVELUP"
+        volume: 1.0
+        pitch: 1.2
+
+# 跨服广播配置（可选，需要WorldEventBridge支持）
+cross-server:
+  # 是否启用跨服广播
+  enabled: false
+  
+  # Redis频道名称
+  channel: "xiancore:boss:announcements"
+  
+  # 跨服广播的公告类型
+  broadcast-types:
+    - "SPAWN"
+    - "KILLED"
+    - "RARE_DROP"
+    - "MILESTONE"
+
+# 消息格式化选项
+formatting:
+  # 时间格式
+  time-format: "mm:ss"
+  
+  # 数字格式（伤害、经验等）
+  number-format:
+    # 是否使用简化格式 (1.2k, 3.5m)
+    use-short: true
+    # 小数位数
+    decimal-places: 1
+  
+  # 颜色主题
+  colors:
+    primary: "&6"
+    secondary: "&e"
+    accent: "&f"
+    warning: "&c"
+    success: "&a"
+    info: "&b"

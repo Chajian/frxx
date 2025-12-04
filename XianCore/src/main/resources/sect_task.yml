@@ -1,0 +1,506 @@
+# ========================================
+# XianCore 宗门任务配置文件
+# Version: 1.0
+# Author: Olivia Diaz
+# 编码: UTF-8
+# ========================================
+
+# 配置版本（用于兼容性检查）
+config-version: "1.0"
+
+# ==================== 全局设置 ====================
+settings:
+  # 任务数量配置
+  task-counts:
+    daily: 3 # 每日任务数量
+    weekly: 2 # 每周任务数量
+    special: 1 # 特殊任务数量
+
+  # 难度调整系数
+  difficulty:
+    target-multiplier: 0.1 # 目标数量境界系数（每级+10%）
+    reward-multiplier: 0.2 # 奖励境界系数（每级+20%）
+
+  # 刷新时间配置
+  refresh-times:
+    daily: "06:00" # 每日刷新时间（HH:MM）
+    weekly: "MON 06:00" # 每周刷新时间（星期 HH:MM）
+    timezone: "Asia/Shanghai" # 时区设置
+
+  # 任务过期时间（小时）
+  expire-hours:
+    daily: 24 # 日常任务24小时过期
+    weekly: 168 # 周常任务7天过期
+    special: -1 # 特殊任务不过期
+
+  # 刷新策略配置
+  refresh-strategy:
+    auto-refresh: true # 是否启用自动刷新
+    protect-high-progress: true # 保护高进度任务
+    progress-threshold: 80 # 保护阈值（百分比）
+    protect-completed: true # 保护已完成未领奖的任务
+    enable-compensation: true # 启用补偿机制
+    compensation-rate: 0.5 # 补偿比例（0.5 = 50%）
+    batch-size: 50 # 分批刷新大小
+    batch-delay-ticks: 20 # 批次间隔（ticks）
+    async-refresh: true # 异步刷新
+
+  # 通知配置
+  refresh-notifications:
+    enabled: true # 启用刷新通知
+    warn-before-minutes: # 提前警告时间（分钟）
+      - 10
+      - 5
+      - 1
+    broadcast-refresh: true # 全服广播刷新消息
+    sound-effect: true # 音效提示
+
+  # 调试选项
+  refresh-debug:
+    log-refresh-details: true # 记录详细日志
+    test-mode: false # 测试模式（缩短刷新间隔）
+    test-interval-minutes: 5 # 测试模式间隔（分钟）
+
+# ==================== 境界配置 ====================
+realms:
+  - name: "炼气期"
+    level: 1
+  - name: "筑基期"
+    level: 2
+  - name: "结丹期"
+    level: 3
+  - name: "元婴期"
+    level: 4
+  - name: "化神期"
+    level: 5
+  - name: "炼虚期"
+    level: 6
+  - name: "合体期"
+    level: 7
+  - name: "大乘期"
+    level: 8
+
+# ==================== 任务模板 ====================
+templates:
+  # ========== 日常任务模板 ==========
+  daily:
+    # 击杀怪物任务
+    kill_zombie_001:
+      name: "除魔卫道"
+      description: "击杀一定数量的僵尸，维护宗门周边安全"
+      objective: KILL_MOB_TYPE
+      target: "僵尸"
+      base-amount: 20
+      min-realm: 1 # 最低境界等级
+      enabled: true # 是否启用
+      weight: 10 # 权重（生成概率）
+      rewards:
+        contribution: 10
+        spirit-stone: 50
+        activity: 5
+        sect-exp: 10
+
+    kill_skeleton_001:
+      name: "斩妖除怪"
+      description: "击杀一定数量的骷髅弓手"
+      objective: KILL_MOB_TYPE
+      target: "骷髅"
+      base-amount: 20
+      min-realm: 1
+      enabled: true
+      weight: 10
+      rewards:
+        contribution: 10
+        spirit-stone: 50
+        activity: 5
+        sect-exp: 10
+
+    kill_spider_001:
+      name: "清理蜘蛛巢穴"
+      description: "清除洞穴中的蜘蛛"
+      objective: KILL_MOB_TYPE
+      target: "蜘蛛"
+      base-amount: 15
+      min-realm: 1
+      enabled: true
+      weight: 10
+      rewards:
+        contribution: 10
+        spirit-stone: 50
+        activity: 5
+        sect-exp: 10
+
+    kill_creeper_001:
+      name: "炸药清除"
+      description: "消灭危险的苦力怕"
+      objective: KILL_MOB_TYPE
+      target: "苦力怕"
+      base-amount: 10
+      min-realm: 1
+      enabled: true
+      weight: 8
+      rewards:
+        contribution: 12
+        spirit-stone: 60
+        activity: 6
+        sect-exp: 12
+
+    # 收集物品任务
+    collect_wheat_001:
+      name: "采集灵草"
+      description: "收集小麦用于宗门炼丹"
+      objective: COLLECT_ITEM
+      target: "WHEAT"
+      base-amount: 30
+      min-realm: 1
+      enabled: true
+      weight: 10
+      rewards:
+        contribution: 15
+        spirit-stone: 30
+        activity: 10
+        sect-exp: 5
+
+    collect_iron_ore_001:
+      name: "收集矿石"
+      description: "收集铁矿石用于炼器"
+      objective: COLLECT_ITEM
+      target: "IRON_ORE"
+      base-amount: 20
+      min-realm: 2
+      enabled: true
+      weight: 10
+      rewards:
+        contribution: 15
+        spirit-stone: 40
+        activity: 10
+        sect-exp: 8
+
+    collect_oak_log_001:
+      name: "采集木材"
+      description: "收集橡木用于建设宗门"
+      objective: COLLECT_ITEM
+      target: "OAK_LOG"
+      base-amount: 40
+      min-realm: 1
+      enabled: true
+      weight: 10
+      rewards:
+        contribution: 10
+        spirit-stone: 20
+        activity: 8
+        sect-exp: 5
+
+    collect_diamond_001:
+      name: "寻找灵晶"
+      description: "寻找稀有的钻石矿石"
+      objective: COLLECT_ITEM
+      target: "DIAMOND"
+      base-amount: 5
+      min-realm: 3
+      enabled: true
+      weight: 5
+      rewards:
+        contribution: 25
+        spirit-stone: 100
+        activity: 15
+        sect-exp: 20
+
+    # 修炼任务
+    cultivate_001:
+      name: "日常修炼"
+      description: "进行日常修炼，提升修为"
+      objective: CULTIVATE
+      target: ""
+      base-amount: 30 # 分钟
+      min-realm: 1
+      enabled: true
+      weight: 10
+      rewards:
+        contribution: 20
+        spirit-stone: 0
+        activity: 15
+        sect-exp: 15
+
+    # 在线时长任务
+    online_time_001:
+      name: "勤修苦练"
+      description: "在线一定时间，增加宗门活跃度"
+      objective: ONLINE_TIME
+      target: ""
+      base-amount: 60 # 分钟
+      min-realm: 1
+      enabled: true
+      weight: 10
+      rewards:
+        contribution: 15
+        spirit-stone: 0
+        activity: 20
+        sect-exp: 10
+
+    # 捐献任务
+    donate_spirit_stone_001:
+      name: "为宗门添砖加瓦"
+      description: "向宗门捐献灵石"
+      objective: DONATE_SPIRIT_STONE
+      target: ""
+      base-amount: 100
+      min-realm: 2
+      enabled: true
+      weight: 8
+      rewards:
+        contribution: 30
+        spirit-stone: 0
+        activity: 10
+        sect-exp: 20
+
+    # 使用功法任务
+    use_skill_001:
+      name: "磨砺功法"
+      description: "多次使用功法，提升熟练度"
+      objective: USE_SKILL
+      target: ""
+      base-amount: 10
+      min-realm: 2
+      enabled: true
+      weight: 8
+      rewards:
+        contribution: 15
+        spirit-stone: 0
+        activity: 10
+        sect-exp: 10
+
+  # ========== 周常任务模板 ==========
+  weekly:
+    # 击杀怪物任务（高数量）
+    kill_zombie_week_001:
+      name: "妖魔猎手"
+      description: "本周击杀大量僵尸"
+      objective: KILL_MOB_TYPE
+      target: "僵尸"
+      base-amount: 100
+      min-realm: 1
+      enabled: true
+      weight: 10
+      rewards:
+        contribution: 50
+        spirit-stone: 200
+        activity: 30
+        sect-exp: 50
+
+    kill_skeleton_week_001:
+      name: "骷髅克星"
+      description: "本周击杀大量骷髅"
+      objective: KILL_MOB_TYPE
+      target: "骷髅"
+      base-amount: 100
+      min-realm: 1
+      enabled: true
+      weight: 10
+      rewards:
+        contribution: 50
+        spirit-stone: 200
+        activity: 30
+        sect-exp: 50
+
+    # 收集物品任务（高数量）
+    collect_diamond_week_001:
+      name: "灵材大师"
+      description: "本周收集大量钻石"
+      objective: COLLECT_ITEM
+      target: "DIAMOND"
+      base-amount: 20
+      min-realm: 3
+      enabled: true
+      weight: 8
+      rewards:
+        contribution: 60
+        spirit-stone: 300
+        activity: 40
+        sect-exp: 60
+
+    collect_gold_ingot_week_001:
+      name: "矿石富翁"
+      description: "本周收集大量金锭"
+      objective: COLLECT_ITEM
+      target: "GOLD_INGOT"
+      base-amount: 50
+      min-realm: 2
+      enabled: true
+      weight: 10
+      rewards:
+        contribution: 50
+        spirit-stone: 250
+        activity: 35
+        sect-exp: 55
+
+    # 修炼任务
+    cultivate_week_001:
+      name: "周修炼"
+      description: "本周进行长时间修炼"
+      objective: CULTIVATE
+      target: ""
+      base-amount: 180 # 分钟
+      min-realm: 1
+      enabled: true
+      weight: 10
+      rewards:
+        contribution: 80
+        spirit-stone: 0
+        activity: 60
+        sect-exp: 70
+
+    # 炼制装备任务
+    forge_equipment_week_001:
+      name: "炼器大师"
+      description: "本周炼制多件装备"
+      objective: FORGE_EQUIPMENT
+      target: ""
+      base-amount: 10
+      min-realm: 3
+      enabled: true
+      weight: 8
+      rewards:
+        contribution: 70
+        spirit-stone: 200
+        activity: 50
+        sect-exp: 60
+
+    # 完成任务
+    complete_quest_week_001:
+      name: "任务达人"
+      description: "本周完成多个任务"
+      objective: COMPLETE_QUEST
+      target: ""
+      base-amount: 5
+      min-realm: 2
+      enabled: true
+      weight: 10
+      rewards:
+        contribution: 60
+        spirit-stone: 100
+        activity: 40
+        sect-exp: 50
+
+    # 参与宗门活动
+    attend_event_week_001:
+      name: "积极分子"
+      description: "本周多次参与宗门活动"
+      objective: ATTEND_EVENT
+      target: ""
+      base-amount: 3
+      min-realm: 1
+      enabled: true
+      weight: 10
+      rewards:
+        contribution: 50
+        spirit-stone: 0
+        activity: 50
+        sect-exp: 40
+
+  # ========== 特殊任务模板 ==========
+  special:
+    # 境界突破
+    breakthrough_001:
+      name: "突破瓶颈"
+      description: "完成一次境界突破"
+      objective: BREAKTHROUGH
+      target: ""
+      base-amount: 1
+      min-realm: 1
+      enabled: true
+      weight: 10
+      rewards:
+        contribution: 100
+        spirit-stone: 500
+        activity: 50
+        sect-exp: 100
+
+    # 组队副本
+    team_dungeon_001:
+      name: "协同作战"
+      description: "与宗门成员组队完成副本"
+      objective: TEAM_DUNGEON
+      target: ""
+      base-amount: 3
+      min-realm: 4
+      enabled: true
+      weight: 8
+      rewards:
+        contribution: 80
+        spirit-stone: 300
+        activity: 60
+        sect-exp: 80
+
+    # 击杀BOSS（MythicMobs）
+    kill_boss_001:
+      name: "挑战BOSS"
+      description: "击杀强大的僵尸王BOSS"
+      objective: KILL_MOB
+      target: "xian_boss_qi_rare_zombie_king"
+      base-amount: 1
+      min-realm: 3
+      enabled: true
+      weight: 5
+      rewards:
+        contribution: 150
+        spirit-stone: 1000
+        activity: 100
+        sect-exp: 150
+
+    # 高级炼制
+    forge_advanced_001:
+      name: "神兵出世"
+      description: "炼制高品质装备"
+      objective: FORGE_EQUIPMENT
+      target: ""
+      base-amount: 5
+      min-realm: 5
+      enabled: true
+      weight: 6
+      rewards:
+        contribution: 120
+        spirit-stone: 500
+        activity: 80
+        sect-exp: 120
+
+    # 高级捐献
+    donate_large_001:
+      name: "慷慨解囊"
+      description: "向宗门捐献大量灵石"
+      objective: DONATE_SPIRIT_STONE
+      target: ""
+      base-amount: 1000
+      min-realm: 4
+      enabled: true
+      weight: 7
+      rewards:
+        contribution: 200
+        spirit-stone: 0
+        activity: 100
+        sect-exp: 200
+
+# ==================== 任务描述模板 ====================
+# 用于自定义任务描述文本
+description-templates:
+  KILL_MOB: "击杀 {amount} 个 {target}"
+  KILL_MOB_TYPE: "击杀 {amount} 个 {target}"
+  COLLECT_ITEM: "收集 {amount} 个 {target}"
+  DONATE_SPIRIT_STONE: "向宗门捐献 {amount} 灵石"
+  BREAKTHROUGH: "完成 {amount} 次境界突破"
+  ATTEND_EVENT: "参与 {amount} 次宗门活动"
+  COMPLETE_QUEST: "完成 {amount} 个任务"
+  CULTIVATE: "修炼 {amount} 分钟"
+  FORGE_EQUIPMENT: "炼制 {amount} 件装备"
+  USE_SKILL: "使用功法 {amount} 次"
+  TEAM_DUNGEON: "完成 {amount} 次组队副本"
+  ONLINE_TIME: "在线 {amount} 分钟"
+
+# ==================== 调试选项 ====================
+debug:
+  # 是否显示详细加载日志
+  verbose-loading: false
+  # 是否验证所有任务模板
+  validate-templates: true
+  # 是否允许禁用的模板
+  allow-disabled: false

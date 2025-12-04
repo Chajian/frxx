@@ -1,0 +1,17 @@
+# 修炼系统配置
+realms:
+  炼气期:
+    difficulty: 1.0
+    next: 筑基期
+  筑基期:
+    difficulty: 2.0
+    next: 结丹期
+  结丹期:
+    difficulty: 5.0
+    next: 元婴期
+  元婴期:
+    difficulty: 10.0
+    next: 化神期
+  化神期:
+    difficulty: 20.0
+    next: 炼虚期

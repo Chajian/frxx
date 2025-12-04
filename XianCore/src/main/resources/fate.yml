@@ -1,0 +1,235 @@
+# ========================================
+# 奇遇系统配置文件
+# XianCore 修仙体系插件
+# ========================================
+#
+# 配置说明:
+# - weight: 奇遇类型的权重（仅供参考，实际概率在代码中定义）
+# - broadcast: 是否全服广播（true=全服公告, false=仅玩家可见）
+# - rewards: 奖励列表（可包含多个奖励）
+#
+# 奖励类型:
+# 1. 数值奖励 (qi, spirit-stones, skill-points, contribution, active-qi, level)
+# 2. 物品奖励 (item)
+# 3. 功法书奖励 (skill-book)
+# 4. 装备奖励 (equipment)
+# 5. 命令奖励 (command)
+#
+# 通用字段:
+# - type: 奖励类型（必需）
+# - chance: 触发概率 0.0-1.0（可选，默认1.0=100%）
+#
+# ========================================
+
+fate-types:
+  # ==================== 小奇遇 (70%概率) ====================
+  small:
+    weight: 70
+    broadcast: false
+    rewards:
+      # 修为奖励 (100%概率)
+      - type: qi
+        amount: "5000-10000" # 支持格式: "最小-最大" 或 固定值
+        chance: 1.0
+
+      # 灵石奖励 (100%概率)
+      - type: spirit-stones
+        amount: "50-100"
+        chance: 1.0
+
+      # 基础材料 (40%概率) - 物品奖励示例
+      - type: item
+        material: IRON_INGOT # Minecraft材质名称
+        amount: 5
+        display-name: "§7铁矿石"
+        lore: # 物品描述（可选）
+          - "§7来自奇遇的馈赠"
+        chance: 0.4
+
+      # 稀有材料 (30%概率)
+      - type: item
+        material: GOLD_INGOT
+        amount: 3
+        display-name: "§e金矿石"
+        chance: 0.3
+
+  # ==================== 中奇遇 (25%概率) ====================
+  medium:
+    weight: 25
+    broadcast: false
+    rewards:
+      # 修为奖励
+      - type: qi
+        amount: "15000-30000"
+        chance: 1.0
+
+      # 灵石奖励
+      - type: spirit-stones
+        amount: "150-300"
+        chance: 1.0
+
+      # 功法点奖励
+      - type: skill-points
+        amount: "5-10"
+        chance: 1.0
+
+      # 稀有材料 (50%概率)
+      - type: item
+        material: DIAMOND
+        amount: 3
+        display-name: "§b钻石"
+        lore:
+          - "§7稀有材料"
+          - "§7可用于炼器"
+        chance: 0.5
+
+      # 功法书奖励 (30%概率) - 从功法池随机
+      # 注意: 请确保skill-pool中的功法ID在系统中存在
+      # 使用 /xiancore debug fate listskills 查看所有可用功法ID
+      # - type: skill-book
+      #   skill-pool:             # 从池中随机选择一个
+      #     - "fireball_basic"
+      #     - "ice_shard"
+      #     - "wind_blade"
+      #   level: 1                # 功法等级
+      #   chance: 0.3
+
+  # ==================== 大奇遇 (4.5%概率) ====================
+  large:
+    weight: 4.5
+    broadcast: false
+    rewards:
+      # 修为奖励
+      - type: qi
+        amount: "50000-100000"
+        chance: 1.0
+
+      # 灵石奖励
+      - type: spirit-stones
+        amount: "500-1000"
+        chance: 1.0
+
+      # 功法点奖励
+      - type: skill-points
+        amount: "20-30"
+        chance: 1.0
+
+      # 贡献点奖励
+      - type: contribution
+        amount: "100-200"
+        chance: 1.0
+
+      # 高级功法书 (50%概率) - 固定功法
+      # 注意: 请将skill-id改为实际存在的功法ID
+      # - type: skill-book
+      #   skill-id: "thunder_strike"  # 固定功法
+      #   level: 2
+      #   chance: 0.5
+
+      # 稀有装备 (30%概率)
+      # - type: equipment
+      #   quality: "灵品"         # 品质: 凡品/灵品/宝品/仙品/神品/random
+      #   level: "10-20"          # 强化等级范围
+      #   chance: 0.3
+
+  # ==================== 命运奇遇 (0.5%概率) ====================
+  destiny:
+    weight: 0.5
+    broadcast: true # 全服广播
+    rewards:
+      # 海量修为
+      - type: qi
+        amount: "200000-400000"
+        chance: 1.0
+
+      # 海量灵石
+      - type: spirit-stones
+        amount: "2000-4000"
+        chance: 1.0
+
+      # 大量功法点
+      - type: skill-points
+        amount: "50-100"
+        chance: 1.0
+
+      # 大量贡献点
+      - type: contribution
+        amount: "500-1000"
+        chance: 1.0
+
+      # 等级奖励
+      - type: level
+        amount: "5-10"
+        chance: 1.0
+
+      # 活跃灵气
+      - type: active-qi
+        amount: 100
+        chance: 1.0
+
+      # 传说级功法书 (100%概率)
+      # - type: skill-book
+      #   skill-pool:
+      #     - "divine_sword"
+      #     - "celestial_fire"
+      #     - "void_destruction"
+      #   level: 3
+      #   chance: 1.0
+
+      # 传说级装备 (100%概率)
+      # - type: equipment
+      #   quality: "神品"
+      #   level: "30-50"
+      #   chance: 1.0
+
+      # 特殊称号 (100%概率) - 命令奖励示例
+      # 需要LuckPerms插件支持
+      # - type: command
+      #   command: "lp user {player} meta addprefix 100 §c§l[天命之子]§r "
+      #   chance: 1.0
+# ========================================
+# 配置示例和注释
+# ========================================
+#
+# 数值奖励格式:
+# - type: qi                    # 奖励类型
+#   amount: 100                 # 固定值
+#   amount: "50-100"            # 范围（随机）
+#   min-amount: 50              # 或者分别指定
+#   max-amount: 100
+#   chance: 1.0                 # 概率（可选）
+#
+# 物品奖励格式:
+# - type: item
+#   material: DIAMOND           # Minecraft材质（大写）
+#   amount: 10                  # 数量（1-64）
+#   display-name: "§b钻石"      # 自定义名称（可选）
+#   lore:                       # 物品描述（可选）
+#     - "§7第一行"
+#     - "§7第二行"
+#   chance: 0.5                 # 50%概率
+#
+# 功法书奖励格式:
+# - type: skill-book
+#   skill-id: "fireball"        # 固定功法ID
+#   或
+#   skill-pool:                 # 功法池（随机选择）
+#     - "fireball"
+#     - "ice_shard"
+#   level: 1                    # 功法等级（1-10）
+#   chance: 0.3
+#
+# 装备奖励格式:
+# - type: equipment
+#   quality: "灵品"             # 品质或"random"
+#   equipment-type: SWORD       # 装备类型（可选，留空随机）
+#   level: 10                   # 固定强化等级
+#   level: "10-20"              # 强化等级范围
+#   chance: 0.8
+#
+# 命令奖励格式:
+# - type: command
+#   command: "give {player} diamond 10"  # 支持变量: {player}, {uuid}, {world}
+#   chance: 1.0
+#
+# ========================================

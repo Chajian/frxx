@@ -1,0 +1,257 @@
+name: XianCore
+version: ${project.version}
+main: com.xiancore.XianCore
+author: Olivia Diaz
+api-version: 1.20
+description: 修仙体系插件 - 基于凡人修仙传世界观
+website: https://github.com/your-repo/XianCore
+
+# 软依赖
+softdepend:
+  - MythicMobs
+  - Vault
+  - PlaceholderAPI
+  - Lands
+  - Towny
+  - Residence
+
+# 加载时机：POSTWORLD 确保世界加载完成后再加载
+load: POSTWORLD
+
+# 命令定义
+commands:
+  xiancore:
+    description: XianCore 主命令
+    aliases: [xc, 修仙]
+    usage: /<command> [help|reload|info]
+    permission: xiancore.admin
+    permission-message: "§c你没有权限使用此命令!"
+
+  cultivation:
+    description: 修炼相关命令
+    aliases: [xiulian, 修炼]
+    usage: /<command> [info|breakthrough|progress]
+    permission: xiancore.cultivation.use
+
+  forge:
+    description: 炼器相关命令
+    aliases: [lianqi, 炼器]
+    usage: /<command> [craft|enhance|fuse]
+    permission: xiancore.forge.use
+
+  sect:
+    description: 宗门相关命令
+    aliases: [zongmen, 宗门]
+    usage: /<command> [create|join|leave|info]
+    permission: xiancore.sect.use
+
+  skill:
+    description: 功法相关命令
+    aliases: [gongfa, 功法]
+    usage: /<command> [list|learn|upgrade]
+    permission: xiancore.skill.use
+
+  skilldebug:
+    description: 功法系统调试命令
+    aliases: [skilldbg, 功法调试]
+    usage: /<command> [slots|element|cooldown|cache|test]
+    permission: xiancore.admin
+
+  qireward:
+    description: 修为奖励系统调试命令
+    aliases: [qidebug, 修为调试]
+    usage: /<command> [reload|test|simulate|realm|target|config|stats]
+    permission: xiancore.admin
+
+  tribulation:
+    description: 天劫相关命令
+    aliases: [tianjie, 天劫, tj]
+    usage: /<command> [start|progress|cancel|info]
+    permission: xiancore.tribulation.use
+
+  boss:
+    description: Boss 系统命令
+    aliases: [bosses, b]
+    usage: /<command> [list|gui|help]
+    permission: xiancore.boss.use
+
+# 权限定义
+permissions:
+  # 管理员权限
+  xiancore.admin:
+    description: XianCore 管理员权限
+    default: op
+    children:
+      xiancore.reload: true
+      xiancore.debug: true
+      xiancore.give: true
+
+  # 重载权限
+  xiancore.reload:
+    description: 重载配置权限
+    default: op
+
+  # 调试权限
+  xiancore.debug:
+    description: 调试模式权限
+    default: op
+
+  # 给予物品权限
+  xiancore.give:
+    description: 给予物品权限
+    default: op
+
+  # 修炼系统权限
+  xiancore.cultivation:
+    description: 修炼系统完整权限
+    default: true
+    children:
+      xiancore.cultivation.use: true
+      xiancore.cultivation.breakthrough: true
+
+  xiancore.cultivation.use:
+    description: 使用修炼系统
+    default: true
+
+  xiancore.cultivation.breakthrough:
+    description: 突破境界
+    default: true
+
+  # 炼器系统权限
+  xiancore.forge:
+    description: 炼器系统完整权限
+    default: true
+    children:
+      xiancore.forge.use: true
+      xiancore.forge.craft: true
+      xiancore.forge.refine: true
+      xiancore.forge.make: true
+      xiancore.forge.enhance: true
+      xiancore.forge.fuse: true
+
+  xiancore.forge.use:
+    description: 使用炼器系统
+    default: true
+
+  xiancore.forge.craft:
+    description: 炼制胚胎
+    default: true
+
+  xiancore.forge.refine:
+    description: 精炼装备（从胚胎炼制装备）
+    default: true
+
+  xiancore.forge.make:
+    description: 制作装备（使用配方）
+    default: true
+
+  xiancore.forge.enhance:
+    description: 强化装备
+    default: true
+
+  xiancore.forge.fuse:
+    description: 融合装备
+    default: true
+
+  # 宗门系统权限
+  xiancore.sect:
+    description: 宗门系统完整权限
+    default: true
+    children:
+      xiancore.sect.use: true
+      xiancore.sect.create: true
+      xiancore.sect.manage: true
+      xiancore.sect.land: true
+
+  xiancore.sect.use:
+    description: 使用宗门系统
+    default: true
+
+  xiancore.sect.create:
+    description: 创建宗门
+    default: true
+
+  xiancore.sect.manage:
+    description: 管理宗门
+    default: true
+
+  xiancore.sect.land:
+    description: 宗门领地系统
+    default: true
+    children:
+      xiancore.sect.land.claim: true
+      xiancore.sect.land.expand: true
+      xiancore.sect.land.delete: true
+
+  # 功法系统权限
+  xiancore.skill:
+    description: 功法系统完整权限
+    default: true
+    children:
+      xiancore.skill.use: true
+      xiancore.skill.learn: true
+      xiancore.skill.upgrade: true
+      xiancore.skill.bind: true
+
+  xiancore.skill.use:
+    description: 使用功法系统
+    default: true
+
+  xiancore.skill.learn:
+    description: 学习功法
+    default: true
+
+  xiancore.skill.upgrade:
+    description: 升级功法
+    default: true
+
+  xiancore.skill.bind:
+    description: 绑定功法快捷键
+    default: true
+
+  # 奇遇系统权限
+  xiancore.fate:
+    description: 奇遇系统权限
+    default: true
+
+  # 天劫系统权限
+  xiancore.tribulation:
+    description: 天劫系统完整权限
+    default: true
+    children:
+      xiancore.tribulation.use: true
+      xiancore.tribulation.start: true
+      xiancore.tribulation.admin: true
+
+  xiancore.tribulation.use:
+    description: 使用天劫系统
+    default: true
+
+  xiancore.tribulation.start:
+    description: 开始渡劫
+    default: true
+
+  xiancore.tribulation.admin:
+    description: 管理天劫（取消等）
+    default: op
+
+  # Boss 系统权限
+  xiancore.boss:
+    description: Boss 系统完整权限
+    default: true
+    children:
+      xiancore.boss.use: true
+      xiancore.boss.view: true
+
+  xiancore.boss.use:
+    description: 使用 Boss 系统
+    default: true
+
+  xiancore.boss.view:
+    description: 查看 Boss 信息
+    default: true
+
+  # VIP 权限（可选）
+  xiancore.vip:
+    description: VIP 玩家权限（提升奇遇概率等）
+    default: false

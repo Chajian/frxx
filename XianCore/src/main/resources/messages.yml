@@ -1,0 +1,11 @@
+# 消息配置
+prefix: "§b[修仙]§r "
+messages:
+  cultivation:
+    breakthrough-success: "§a突破成功! 恭喜进入 {realm}!"
+    breakthrough-fail: "§c突破失败! 修为受损..."
+  forge:
+    craft-success: "§a炼制成功!"
+    enhance-fail: "§c强化失败! 装备已损毁..."
+  fate:
+    triggered: "§e你触发了一次奇遇!"
