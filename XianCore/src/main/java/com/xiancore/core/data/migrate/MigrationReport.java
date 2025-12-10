@@ -1,4 +1,4 @@
-package com.xiancore.core.data;
+package com.xiancore.core.data.migrate;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

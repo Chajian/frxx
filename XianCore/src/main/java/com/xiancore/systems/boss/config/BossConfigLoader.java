@@ -8,7 +8,12 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -396,6 +401,277 @@ public class BossConfigLoader {
         } catch (IOException e) {
             logger.warning("✗ 生成默认配置失败: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    // ==================== MySQL持久化支持 ====================
+
+    /**
+     * 从MySQL数据库加载配置
+     *
+     * @param connection 数据库连接
+     * @return 加载的配置对象
+     */
+    public BossRefreshConfig loadConfigFromDatabase(Connection connection) {
+        try {
+            logger.info("✓ 从MySQL加载Boss配置...");
+
+            BossRefreshConfig config = new BossRefreshConfig();
+
+            // 1. 加载全局配置
+            loadGlobalSettingsFromDatabase(connection, config);
+
+            // 2. 加载所有刷新点
+            List<BossSpawnPoint> spawnPoints = loadSpawnPointsFromDatabase(connection);
+            config.setSpawnPoints(spawnPoints);
+
+            logger.info("✓ MySQL Boss配置已加载: " + spawnPoints.size() + " 个刷新点");
+            return config;
+
+        } catch (Exception e) {
+            logger.warning("✗ 从MySQL加载配置失败: " + e.getMessage());
+            e.printStackTrace();
+            return BossRefreshConfig.loadDefault();
+        }
+    }
+
+    /**
+     * 从MySQL加载全局配置
+     */
+    private void loadGlobalSettingsFromDatabase(Connection conn, BossRefreshConfig config) throws SQLException {
+        String sql = "SELECT * FROM xian_boss_refresh_config WHERE id = 1";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            if (rs.next()) {
+                config.setCheckIntervalSeconds(rs.getInt("check_interval_seconds"));
+                config.setMaxActiveBosses(rs.getInt("max_active_bosses"));
+                config.setMinOnlinePlayers(rs.getInt("min_online_players"));
+                config.setEnabled(rs.getBoolean("enabled"));
+
+                logger.info("✓ 全局设置已从MySQL加载");
+            } else {
+                logger.warning("未找到全局配置，使用默认值");
+            }
+        }
+    }
+
+    /**
+     * 从MySQL加载所有刷新点
+     */
+    private List<BossSpawnPoint> loadSpawnPointsFromDatabase(Connection conn) throws SQLException {
+        List<BossSpawnPoint> points = new ArrayList<>();
+
+        String sql = "SELECT * FROM xian_boss_spawn_points ORDER BY id";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                try {
+                    BossSpawnPoint point = loadSpawnPointFromResultSet(rs);
+                    if (point != null) {
+                        points.add(point);
+                        logger.info("✓ 加载刷新点: " + point.getId());
+                    }
+                } catch (Exception e) {
+                    logger.warning("✗ 加载刷新点失败: " + rs.getString("id") + " - " + e.getMessage());
+                }
+            }
+        }
+
+        return points;
+    }
+
+    /**
+     * 从ResultSet构建BossSpawnPoint对象
+     */
+    private BossSpawnPoint loadSpawnPointFromResultSet(ResultSet rs) throws SQLException {
+        String id = rs.getString("id");
+        String worldName = rs.getString("world_name");
+        double x = rs.getDouble("x");
+        double y = rs.getDouble("y");
+        double z = rs.getDouble("z");
+        String mythicMobId = rs.getString("mythic_mob_id");
+
+        BossSpawnPoint point = new BossSpawnPoint(id, worldName, (int)x, (int)y, (int)z, mythicMobId);
+
+        // 加载基本属性
+        point.setTier(rs.getInt("tier"));
+        point.setCooldownSeconds(rs.getLong("cooldown_seconds"));
+        point.setMaxCount(rs.getInt("max_count"));
+        point.setCurrentCount(rs.getInt("current_count"));
+        point.setLastSpawnTime(rs.getLong("last_spawn_time"));
+        point.setEnabled(rs.getBoolean("enabled"));
+
+        // 加载刷新模式相关
+        point.setSpawnMode(rs.getString("spawn_mode"));
+        point.setRandomRadius(rs.getInt("random_radius"));
+        point.setAutoFindGround(rs.getBoolean("auto_find_ground"));
+        point.setMinDistance(rs.getInt("min_distance"));
+        point.setMaxDistance(rs.getInt("max_distance"));
+
+        // 加载区域列表（JSON格式转List）
+        String regionsJson = rs.getString("regions");
+        if (regionsJson != null && !regionsJson.isEmpty()) {
+            // 简单JSON解析: ["region1","region2"] -> List
+            regionsJson = regionsJson.replace("[", "").replace("]", "").replace("\"", "");
+            if (!regionsJson.isEmpty()) {
+                point.setRegions(Arrays.asList(regionsJson.split(",")));
+            }
+        }
+
+        // 加载智能评分配置
+        point.setEnableSmartScoring(rs.getBoolean("enable_smart_scoring"));
+        if (point.isEnableSmartScoring()) {
+            // 加载偏好生物群系
+            String biomesJson = rs.getString("preferred_biomes");
+            if (biomesJson != null && !biomesJson.isEmpty()) {
+                biomesJson = biomesJson.replace("[", "").replace("]", "").replace("\"", "");
+                if (!biomesJson.isEmpty()) {
+                    point.setPreferredBiomes(Arrays.asList(biomesJson.split(",")));
+                }
+            }
+
+            // 加载权重
+            point.setBiomeWeight(rs.getDouble("biome_weight"));
+            point.setSpiritualEnergyWeight(rs.getDouble("spiritual_energy_weight"));
+            point.setPlayerDensityWeight(rs.getDouble("player_density_weight"));
+            point.setOpennessWeight(rs.getDouble("openness_weight"));
+            point.setMinScore(rs.getDouble("min_score"));
+        }
+
+        return point;
+    }
+
+    /**
+     * 保存配置到MySQL数据库
+     *
+     * @param config 要保存的配置
+     * @param connection 数据库连接
+     */
+    public void saveConfigToDatabase(BossRefreshConfig config, Connection connection) {
+        try {
+            logger.info("✓ 保存Boss配置到MySQL...");
+
+            // 1. 保存全局配置
+            saveGlobalSettingsToDatabase(config, connection);
+
+            // 2. 保存所有刷新点
+            saveSpawnPointsToDatabase(config.getSpawnPoints(), connection);
+
+            logger.info("✓ Boss配置已保存到MySQL");
+
+        } catch (Exception e) {
+            logger.warning("✗ 保存配置到MySQL失败: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 保存全局配置到MySQL
+     */
+    private void saveGlobalSettingsToDatabase(BossRefreshConfig config, Connection conn) throws SQLException {
+        String sql = """
+                INSERT INTO xian_boss_refresh_config (
+                    id, check_interval_seconds, max_active_bosses,
+                    min_online_players, enabled, updated_at
+                ) VALUES (1, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    check_interval_seconds = VALUES(check_interval_seconds),
+                    max_active_bosses = VALUES(max_active_bosses),
+                    min_online_players = VALUES(min_online_players),
+                    enabled = VALUES(enabled),
+                    updated_at = VALUES(updated_at)
+                """;
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, config.getCheckIntervalSeconds());
+            pstmt.setInt(2, config.getMaxActiveBosses());
+            pstmt.setInt(3, config.getMinOnlinePlayers());
+            pstmt.setBoolean(4, config.isEnabled());
+            pstmt.setLong(5, System.currentTimeMillis());
+
+            pstmt.executeUpdate();
+            logger.info("✓ 全局配置已保存到MySQL");
+        }
+    }
+
+    /**
+     * 保存所有刷新点到MySQL
+     */
+    private void saveSpawnPointsToDatabase(List<BossSpawnPoint> points, Connection conn) throws SQLException {
+        // 先删除所有旧数据
+        String deleteSql = "DELETE FROM xian_boss_spawn_points";
+        try (PreparedStatement pstmt = conn.prepareStatement(deleteSql)) {
+            pstmt.executeUpdate();
+        }
+
+        // 插入新数据
+        String insertSql = """
+                INSERT INTO xian_boss_spawn_points (
+                    id, world_name, x, y, z, mythic_mob_id, tier,
+                    cooldown_seconds, max_count, current_count, last_spawn_time, enabled,
+                    spawn_mode, random_radius, auto_find_ground,
+                    min_distance, max_distance, regions,
+                    enable_smart_scoring, preferred_biomes,
+                    biome_weight, spiritual_energy_weight, player_density_weight,
+                    openness_weight, min_score, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """;
+
+        try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+            for (BossSpawnPoint point : points) {
+                pstmt.setString(1, point.getId());
+                pstmt.setString(2, point.getWorld());
+                pstmt.setDouble(3, point.getX());
+                pstmt.setDouble(4, point.getY());
+                pstmt.setDouble(5, point.getZ());
+                pstmt.setString(6, point.getMythicMobId());
+                pstmt.setInt(7, point.getTier());
+                pstmt.setLong(8, point.getCooldownSeconds());
+                pstmt.setInt(9, point.getMaxCount());
+                pstmt.setInt(10, point.getCurrentCount());
+                pstmt.setLong(11, point.getLastSpawnTime());
+                pstmt.setBoolean(12, point.isEnabled());
+                pstmt.setString(13, point.getSpawnMode());
+                pstmt.setInt(14, point.getRandomRadius());
+                pstmt.setBoolean(15, point.isAutoFindGround());
+                pstmt.setInt(16, point.getMinDistance());
+                pstmt.setInt(17, point.getMaxDistance());
+
+                // 区域列表转JSON格式
+                List<String> regions = point.getRegions();
+                if (regions != null && !regions.isEmpty()) {
+                    pstmt.setString(18, "[\"" + String.join("\",\"", regions) + "\"]");
+                } else {
+                    pstmt.setString(18, null);
+                }
+
+                pstmt.setBoolean(19, point.isEnableSmartScoring());
+
+                // 偏好生物群系转JSON
+                List<String> biomes = point.getPreferredBiomes();
+                if (biomes != null && !biomes.isEmpty()) {
+                    pstmt.setString(20, "[\"" + String.join("\",\"", biomes) + "\"]");
+                } else {
+                    pstmt.setString(20, null);
+                }
+
+                pstmt.setDouble(21, point.getBiomeWeight());
+                pstmt.setDouble(22, point.getSpiritualEnergyWeight());
+                pstmt.setDouble(23, point.getPlayerDensityWeight());
+                pstmt.setDouble(24, point.getOpennessWeight());
+                pstmt.setDouble(25, point.getMinScore());
+                pstmt.setLong(26, System.currentTimeMillis());
+                pstmt.setLong(27, System.currentTimeMillis());
+
+                pstmt.addBatch();
+            }
+
+            pstmt.executeBatch();
+            logger.info("✓ 已保存 " + points.size() + " 个刷新点到MySQL");
         }
     }
 }

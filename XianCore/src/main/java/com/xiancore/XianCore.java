@@ -41,6 +41,7 @@ public class XianCore extends JavaPlugin {
     private ConfigManager configManager;
     private DataManager dataManager;
     private XianEventBus eventBus;
+    private com.xiancore.core.data.migrate.MigrationManager migrationManager;
 
     // MythicMobs 集成
     private MythicIntegration mythicIntegration;
@@ -195,6 +196,9 @@ public class XianCore extends JavaPlugin {
         // 数据管理器
         dataManager = new DataManager(this);
         dataManager.initialize();
+
+        // 迁移管理器
+        migrationManager = new com.xiancore.core.data.migrate.MigrationManager(this);
 
         // 核心引擎
         coreEngine = new XianCoreEngine(this);
@@ -570,5 +574,12 @@ public class XianCore extends JavaPlugin {
             getLogger().setLevel(Level.INFO);
             getLogger().info("§6[调试模式] 已禁用调试日志输出");
         }
+    }
+    
+    /**
+     * 获取迁移管理器
+     */
+    public com.xiancore.core.data.migrate.MigrationManager getMigrationManager() {
+        return migrationManager;
     }
 }

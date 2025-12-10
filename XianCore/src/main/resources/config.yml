@@ -173,3 +173,14 @@ debug:
   enabled: false
   # 是否显示详细日志
   verbose: false
+
+# Boss刷新系统配置
+boss-refresh:
+  # 配置存储方式：yaml 或 mysql
+  # yaml - 存储在 boss-refresh.yml 文件中（单服推荐）
+  # mysql - 存储在 MySQL 数据库中（多服推荐，实现配置共享）
+  storage-type: yaml
+
+  # 配置同步间隔（仅MySQL模式，秒）
+  # 多服务器环境下，定期从数据库同步最新配置
+  sync-interval: 60

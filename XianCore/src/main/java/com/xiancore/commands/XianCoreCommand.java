@@ -1006,9 +1006,12 @@ public class XianCoreCommand extends BaseCommand {
             return;
         }
 
-        // 创建迁移工具
-        com.xiancore.core.data.DataMigrationTool migrationTool = 
-            new com.xiancore.core.data.DataMigrationTool(plugin);
+        // 获取迁移管理器
+        com.xiancore.core.data.migrate.MigrationManager migrationManager = plugin.getMigrationManager();
+        if (migrationManager == null) {
+            sendError(sender, "迁移管理器未初始化！");
+            return;
+        }
 
         // 解析参数
         final boolean dryRun;
@@ -1030,7 +1033,7 @@ public class XianCoreCommand extends BaseCommand {
 
         // 显示信息模式
         if (showInfo) {
-            String summary = migrationTool.getPreMigrationSummary();
+            String summary = migrationManager.getPreMigrationSummary();
             for (String line : summary.split("\n")) {
                 sender.sendMessage(line);
             }
@@ -1059,17 +1062,39 @@ public class XianCoreCommand extends BaseCommand {
             sendWarning(sender, "§c§l正在执行真实迁移，请勿关闭服务器！");
         }
 
-        // 异步执行迁移
-        migrationTool.migrateAsync(dryRun).thenAccept(report -> {
+        // 异步执行所有迁移器
+        migrationManager.migrateAll(dryRun).thenAccept(reports -> {
             // 在主线程显示结果
             org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> {
-                String reportText = report.generateReport();
-                for (String line : reportText.split("\n")) {
-                    sender.sendMessage(line);
+                // 显示总结
+                sendInfo(sender, "§b========================================");
+                sendInfo(sender, "§e§l         迁移总结报告");
+                sendInfo(sender, "§b========================================");
+                sendInfo(sender, "");
+                
+                int totalSuccess = 0;
+                int totalFailed = 0;
+                int totalSkipped = 0;
+                
+                for (java.util.Map.Entry<String, com.xiancore.core.data.migrate.MigrationReport> entry : reports.entrySet()) {
+                    String type = entry.getKey();
+                    com.xiancore.core.data.migrate.MigrationReport report = entry.getValue();
+                    
+                    sender.sendMessage(String.format("§e%s: §a成功:%d §c失败:%d §7跳过:%d",
+                        type, report.getSuccessCount(), report.getFailedCount(), report.getSkippedCount()));
+                    
+                    totalSuccess += report.getSuccessCount();
+                    totalFailed += report.getFailedCount();
+                    totalSkipped += report.getSkippedCount();
                 }
+                
+                sendInfo(sender, "");
+                sendInfo(sender, String.format("§e总计: §a成功:%d §c失败:%d §7跳过:%d",
+                    totalSuccess, totalFailed, totalSkipped));
+                sendInfo(sender, "§b========================================");
 
                 // 如果是预览模式，提示如何执行真实迁移
-                if (dryRun && report.getSuccessCount() > 0) {
+                if (dryRun && totalSuccess > 0) {
                     sendInfo(sender, "");
                     sendSuccess(sender, "§a预览完成！使用以下命令执行真实迁移:");
                     sendInfo(sender, "§e/xiancore migrate confirm");

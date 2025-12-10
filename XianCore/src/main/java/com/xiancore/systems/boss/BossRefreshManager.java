@@ -703,15 +703,38 @@ public class BossRefreshManager {
     // ==================== 辅助方法 ====================
 
     /**
-     * 加载配置文件
+     * 加载配置文件（支持双模式：YAML或MySQL）
      */
     private void loadConfig() {
         try {
-            // 获取配置文件路径
-            File configFile = new File(plugin.getDataFolder(), "boss-refresh.yml");
+            // 读取存储类型配置
+            String storageType = plugin.getConfig().getString("boss-refresh.storage-type", "yaml");
+            plugin.getLogger().info("✓ Boss配置存储模式: " + storageType.toUpperCase());
 
-            // 使用BossConfigLoader加载配置
-            refreshConfig = configLoader.loadConfig(configFile);
+            // 根据配置选择加载方式
+            if ("mysql".equalsIgnoreCase(storageType)) {
+                // MySQL模式
+                if (plugin.getDataManager() != null && plugin.getDataManager().isUsingMySql()) {
+                    try (java.sql.Connection conn = plugin.getDataManager().getConnection()) {
+                        refreshConfig = configLoader.loadConfigFromDatabase(conn);
+                        plugin.getLogger().info("✓ 已从MySQL加载Boss配置");
+                    } catch (Exception e) {
+                        plugin.getLogger().warning("✗ MySQL加载失败，降级到YAML模式");
+                        e.printStackTrace();
+                        // 降级到YAML
+                        File configFile = new File(plugin.getDataFolder(), "boss-refresh.yml");
+                        refreshConfig = configLoader.loadConfig(configFile);
+                    }
+                } else {
+                    plugin.getLogger().warning("✗ MySQL未启用，降级到YAML模式");
+                    File configFile = new File(plugin.getDataFolder(), "boss-refresh.yml");
+                    refreshConfig = configLoader.loadConfig(configFile);
+                }
+            } else {
+                // YAML模式（默认）
+                File configFile = new File(plugin.getDataFolder(), "boss-refresh.yml");
+                refreshConfig = configLoader.loadConfig(configFile);
+            }
 
             // 应用全局配置
             checkIntervalTicks = refreshConfig.getCheckIntervalSeconds() * 20;  // 转换为tick (秒 * 20)
@@ -785,7 +808,7 @@ public class BossRefreshManager {
     // ==================== 配置保存 ====================
 
     /**
-     * 保存当前配置到文件
+     * 保存当前配置到文件或数据库（支持双模式）
      * 在命令修改后调用以持久化更改
      *
      * @return 是否保存成功
@@ -800,14 +823,33 @@ public class BossRefreshManager {
             // 更新refreshConfig中的刷新点列表（确保与内存中的一致）
             refreshConfig.setSpawnPoints(new ArrayList<>(spawnPoints.values()));
 
-            // 获取配置文件路径
-            File configFile = new File(plugin.getDataFolder(), "boss-refresh.yml");
+            // 读取存储类型配置
+            String storageType = plugin.getConfig().getString("boss-refresh.storage-type", "yaml");
 
-            // 使用BossConfigLoader保存配置
-            configLoader.saveConfig(refreshConfig, configFile);
-
-            plugin.getLogger().info("✓ Boss配置已保存到文件");
-            return true;
+            // 根据配置选择保存方式
+            if ("mysql".equalsIgnoreCase(storageType)) {
+                // MySQL模式
+                if (plugin.getDataManager() != null && plugin.getDataManager().isUsingMySql()) {
+                    try (java.sql.Connection conn = plugin.getDataManager().getConnection()) {
+                        configLoader.saveConfigToDatabase(refreshConfig, conn);
+                        plugin.getLogger().info("✓ Boss配置已保存到MySQL");
+                        return true;
+                    } catch (Exception e) {
+                        plugin.getLogger().severe("✗ 保存到MySQL失败: " + e.getMessage());
+                        e.printStackTrace();
+                        return false;
+                    }
+                } else {
+                    plugin.getLogger().warning("✗ MySQL未启用，无法保存到数据库");
+                    return false;
+                }
+            } else {
+                // YAML模式（默认）
+                File configFile = new File(plugin.getDataFolder(), "boss-refresh.yml");
+                configLoader.saveConfig(refreshConfig, configFile);
+                plugin.getLogger().info("✓ Boss配置已保存到YAML文件");
+                return true;
+            }
 
         } catch (Exception e) {
             plugin.getLogger().severe("✗ 保存Boss配置失败: " + e.getMessage());
