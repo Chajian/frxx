@@ -3,17 +3,17 @@ package com.xiancore.systems.boss.handler;
 import com.xiancore.XianCore;
 import com.xiancore.systems.boss.BossRefreshManager;
 import com.xiancore.systems.boss.entity.BossSpawnPoint;
-import com.xiancore.integration.mythic.MythicIntegration;
+import com.xiancore.systems.boss.spawner.MobSpawner;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 
 import java.util.logging.Logger;
 
 /**
- * Boss生成失败处理器 - 处理MythicIntegration生成失败的情况
+ * Boss生成失败处理器 - 处理生成失败的情况
  *
  * 职责:
- * - 检测MythicIntegration生成失败
+ * - 检测生成失败
  * - 记录失败原因
  * - 触发重试机制
  * - 降级处理（使用备用方案）
@@ -28,7 +28,7 @@ public class BossSpawnFailureHandler {
     private final XianCore plugin;
     private final Logger logger;
     private final BossRefreshManager bossManager;
-    private final MythicIntegration mythicIntegration;
+    private final MobSpawner mobSpawner;
 
     // 失败统计
     private volatile int totalSpawnAttempts = 0;
@@ -46,14 +46,14 @@ public class BossSpawnFailureHandler {
      *
      * @param plugin 插件实例
      * @param bossManager Boss管理器
-     * @param mythicIntegration MythicIntegration集成
+     * @param mobSpawner 怪物生成器
      */
     public BossSpawnFailureHandler(XianCore plugin, BossRefreshManager bossManager,
-                                   MythicIntegration mythicIntegration) {
+                                   MobSpawner mobSpawner) {
         this.plugin = plugin;
         this.logger = plugin.getLogger();
         this.bossManager = bossManager;
-        this.mythicIntegration = mythicIntegration;
+        this.mobSpawner = mobSpawner;
     }
 
     /**
@@ -74,7 +74,7 @@ public class BossSpawnFailureHandler {
         // 尝试最多MAX_RETRIES次
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
-                entity = mythicIntegration.spawnMythicMob(mobType, location);
+                entity = mobSpawner.spawn(mobType, location);
 
                 if (entity != null) {
                     // 生成成功，重置失败计数
@@ -174,12 +174,12 @@ public class BossSpawnFailureHandler {
     }
 
     /**
-     * 检查MythicIntegration是否可用
+     * 检查 MobSpawner 是否可用
      *
      * @return 是否可用
      */
     public boolean isMythicIntegrationAvailable() {
-        return mythicIntegration != null && mythicIntegration.isInitialized() && mythicIntegration.isEnabled();
+        return mobSpawner != null && mobSpawner.isAvailable();
     }
 
     /**
@@ -206,8 +206,8 @@ public class BossSpawnFailureHandler {
         }
 
         // 检查怪物类型是否存在
-        if (!mythicIntegration.hasMythicMobType(mobType)) {
-            logger.warning("✗ MythicMobs怪物类型不存在: " + mobType);
+        if (!mobSpawner.hasMobType(mobType)) {
+            logger.warning("✗ 怪物类型不存在: " + mobType);
             return false;
         }
 
