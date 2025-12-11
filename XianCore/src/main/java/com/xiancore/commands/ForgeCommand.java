@@ -2,6 +2,7 @@ package com.xiancore.commands;
 
 import com.xiancore.XianCore;
 import com.xiancore.core.data.PlayerData;
+import com.xiancore.core.utils.QualityUtils;
 import com.xiancore.gui.CraftingGUI;
 import com.xiancore.gui.EmbryoSelectionGUI;
 import com.xiancore.gui.EquipmentCraftGUI;
@@ -217,7 +218,7 @@ public class ForgeCommand extends BaseCommand {
             player.sendMessage("§7  - " + getMaterialName(entry.getKey()) + " x" + entry.getValue());
         }
         player.sendMessage("");
-        player.sendMessage("§e炼制品质: " + getQualityColor(targetQuality) + targetQuality);
+        player.sendMessage("§e炼制品质: " + QualityUtils.getColor(targetQuality) + targetQuality);
         player.sendMessage("§e成功率: §a" + finalSuccessRate + "%");
         if (forgeBoost > 0) {
             player.sendMessage("§a§l⚡ 活跃灵气加成: +3% 成功率!");
@@ -257,7 +258,7 @@ public class ForgeCommand extends BaseCommand {
             data.addActiveQi(activeQiGain);
 
             player.sendMessage("§a✓ 炼制成功!");
-            player.sendMessage("§e获得了 " + getQualityColor(targetQuality) + targetQuality + " §e品质的仙家胚胎!");
+            player.sendMessage("§e获得了 " + QualityUtils.getColor(targetQuality) + targetQuality + " §e品质的仙家胚胎!");
             player.sendMessage("§7UUID: " + embryo.getUuid());
             player.sendMessage("§7活跃灵气 +" + activeQiGain);
 
@@ -733,7 +734,7 @@ public class ForgeCommand extends BaseCommand {
         // 显示胚胎信息
         sendInfo(player, "§b========== 仙家胚胎信息 ==========");
         sendInfo(player, "§e名称: §f" + embryoName);
-        sendInfo(player, "§e品质: " + getQualityColor(quality) + quality);
+        sendInfo(player, "§e品质: " + QualityUtils.getColor(quality) + quality);
         sendInfo(player, "§e五行属性: §f" + element);
         sendInfo(player, "");
         sendInfo(player, "§e基础属性:");
@@ -742,19 +743,6 @@ public class ForgeCommand extends BaseCommand {
         sendInfo(player, "§a  生命值: " + hp);
         sendInfo(player, "§b  灵力值: " + qi);
         sendInfo(player, "§b=================================");
-    }
-
-    /**
-     * 获取品质颜色代码
-     */
-    private String getQualityColor(String quality) {
-        return switch (quality) {
-            case "神品" -> "§d§l";
-            case "仙品" -> "§6§l";
-            case "宝品" -> "§5";
-            case "灵品" -> "§b";
-            default -> "§f";
-        };
     }
 
     /**

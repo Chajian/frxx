@@ -6,6 +6,7 @@ import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import com.xiancore.XianCore;
 import com.xiancore.core.data.PlayerData;
+import com.xiancore.core.utils.QualityUtils;
 import com.xiancore.gui.utils.ItemBuilder;
 import com.xiancore.systems.forge.ForgeRecipe;
 import com.xiancore.systems.forge.items.Equipment;
@@ -156,7 +157,7 @@ public class CraftingGUI {
                     .lore(
                             "§7配方: §f" + matchedRecipe.getName(),
                             "§7装备类型: §f" + matchedRecipe.getEquipmentType().getDisplayName(),
-                            "§7品质: " + getQualityColor(matchedRecipe.getQuality()) + matchedRecipe.getQuality(),
+                            "§7品质: " + QualityUtils.getColor(matchedRecipe.getQuality()) + matchedRecipe.getQuality(),
                             "§7五行: §f" + matchedRecipe.getElement(),
                             "",
                             "§e成功率: §a" + matchedRecipe.calculateActualSuccessRate() + "%",
@@ -538,7 +539,7 @@ public class CraftingGUI {
             materialSlots.clear();
 
             player.sendMessage("§a✓ 炼制成功!");
-            player.sendMessage("§e获得了 " + getQualityColor(matchedRecipe.getQuality()) +
+            player.sendMessage("§e获得了 " + QualityUtils.getColor(matchedRecipe.getQuality()) +
                     matchedRecipe.getEquipmentType().getDisplayName() + " [" + matchedRecipe.getQuality() + "]");
             player.sendMessage("§7活跃灵气 +" + activeQiGain);
         } else {
@@ -570,19 +571,6 @@ public class CraftingGUI {
             case STRING -> "线";
             case LEATHER -> "皮革";
             default -> material.name();
-        };
-    }
-
-    /**
-     * 获取品质颜色
-     */
-    private String getQualityColor(String quality) {
-        return switch (quality) {
-            case "神品" -> "§d§l";
-            case "仙品" -> "§6§l";
-            case "宝品" -> "§5";
-            case "灵品" -> "§b";
-            default -> "§f";
         };
     }
 

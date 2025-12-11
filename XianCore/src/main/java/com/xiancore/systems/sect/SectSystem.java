@@ -136,8 +136,7 @@ public class SectSystem {
         // 注册仓库 GUI 事件
         plugin.getServer().getPluginManager().registerEvents(warehouseGUI, plugin);
 
-        // 注册商店 GUI 事件
-        plugin.getServer().getPluginManager().registerEvents(shopGUI, plugin);
+        // SectShopGUI 使用 IF Framework，不需要手动注册 Listener
 
         // 注册维护费 GUI 事件
         plugin.getServer().getPluginManager().registerEvents(maintenanceFeeGUI, plugin);

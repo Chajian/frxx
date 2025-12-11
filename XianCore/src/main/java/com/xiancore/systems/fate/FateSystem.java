@@ -49,9 +49,6 @@ public class FateSystem implements Listener {
         // 加载配置
         loadConfig();
 
-        // 注册到事件总线
-        registerEventBusHandlers();
-
         initialized = true;
         plugin.getLogger().info("  §a✓ 奇遇系统初始化完成");
     }
@@ -86,39 +83,6 @@ public class FateSystem implements Listener {
         // 初始化并加载奖励配置
         rewardConfig = new FateRewardConfig(plugin);
         rewardConfig.load();
-    }
-
-    /**
-     * 注册事件总线处理器
-     */
-    private void registerEventBusHandlers() {
-        // 注册玩家活动事件
-        plugin.getEventBus().registerEvent("PlayerActivity", (player, data) -> {
-            onPlayerActivity(player, (String) data);
-        });
-    }
-
-    /**
-     * 处理玩家活动
-     *
-     * @param player       玩家
-     * @param activityType 活动类型
-     */
-    private void onPlayerActivity(Player player, String activityType) {
-        PlayerData data = plugin.getDataManager().loadPlayerData(player.getUniqueId());
-
-        // 根据活动类型增加活跃灵气值
-        long qiGain = switch (activityType) {
-            case "DAILY_QUEST" -> 10;
-            case "KILL_BOSS" -> 25;
-            case "SECT_ACTIVITY" -> 15;
-            case "TRADE" -> 8;
-            case "DUNGEON" -> 12;
-            default -> 2;
-        };
-
-        data.addActiveQi(qiGain);
-        plugin.getDataManager().savePlayerData(data);
     }
 
     /**

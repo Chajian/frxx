@@ -6,6 +6,7 @@ import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import com.xiancore.XianCore;
 import com.xiancore.core.data.PlayerData;
+import com.xiancore.core.utils.QualityUtils;
 import com.xiancore.gui.utils.ItemBuilder;
 import com.xiancore.systems.forge.items.Equipment;
 import com.xiancore.systems.forge.items.EquipmentParser;
@@ -94,7 +95,7 @@ public class EnhanceGUI {
     private void displayEquipmentInfo(StaticPane pane) {
         if (equipment == null) return;
 
-        String qualityColor = getQualityColor(equipment.getQuality());
+        String qualityColor = QualityUtils.getColor(equipment.getQuality());
         
         ItemStack equipInfo = new ItemBuilder(equipment.getType().getMaterial())
                 .name(qualityColor + (equipment.getCustomName() != null ? equipment.getCustomName() : equipment.getType().getDisplayName()))
@@ -542,19 +543,6 @@ public class EnhanceGUI {
         String name2 = meta2.hasDisplayName() ? meta2.getDisplayName() : "";
         
         return name1.equals(name2);
-    }
-
-    /**
-     * 获取品质颜色
-     */
-    private String getQualityColor(String quality) {
-        return switch (quality) {
-            case "神品" -> "§d§l";
-            case "仙品" -> "§6§l";
-            case "宝品" -> "§5";
-            case "灵品" -> "§b";
-            default -> "§f";
-        };
     }
 
     /**

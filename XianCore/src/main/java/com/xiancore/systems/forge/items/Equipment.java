@@ -1,5 +1,6 @@
 package com.xiancore.systems.forge.items;
 
+import com.xiancore.core.utils.QualityUtils;
 import lombok.Data;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -108,9 +109,9 @@ public class Equipment {
             // 设置名称（优先使用自定义名称）
             String displayName;
             if (customName != null && !customName.isEmpty()) {
-                displayName = getQualityColor() + customName + " [" + quality + "]";
+                displayName = QualityUtils.getColor(quality) + customName + " [" + quality + "]";
             } else {
-                displayName = getQualityColor() + type.getDisplayName() + " [" + quality + "]";
+                displayName = QualityUtils.getColor(quality) + type.getDisplayName() + " [" + quality + "]";
             }
             meta.setDisplayName(displayName);
 
@@ -183,19 +184,6 @@ public class Equipment {
      */
     public int getCurrentQi() {
         return (int) (baseQi * (1 + enhanceLevel * 0.05));
-    }
-
-    /**
-     * 获取品质颜色
-     */
-    private String getQualityColor() {
-        return switch (quality) {
-            case "神品" -> "§d§l";
-            case "仙品" -> "§6§l";
-            case "宝品" -> "§5";
-            case "灵品" -> "§b";
-            default -> "§f";
-        };
     }
 
     /**

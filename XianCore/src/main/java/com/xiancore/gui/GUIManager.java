@@ -28,7 +28,7 @@ public class GUIManager {
         try {
             // 初始化活跃灵气商店 GUI
             activeQiShopGUI = new ActiveQiShopGUI(plugin);
-            plugin.getServer().getPluginManager().registerEvents(activeQiShopGUI, plugin);
+            // IF Framework 自动处理事件，不需要手动注册 Listener
 
             plugin.getLogger().info("§a✓ GUI 系统初始化完成 (IF Framework)");
         } catch (Exception e) {

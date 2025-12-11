@@ -6,6 +6,7 @@ import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import com.xiancore.XianCore;
 import com.xiancore.core.data.PlayerData;
+import com.xiancore.core.utils.QualityUtils;
 import com.xiancore.gui.utils.ItemBuilder;
 import com.xiancore.systems.forge.items.*;
 import org.bukkit.Material;
@@ -169,7 +170,7 @@ public class EquipmentCraftGUI {
             ItemStack typeButton = new ItemBuilder(type.getMaterial())
                     .name("§e" + type.getDisplayName())
                     .lore(
-                            "§7品质: " + getQualityColor(embryo.getQuality()) + embryo.getQuality(),
+                            "§7品质: " + QualityUtils.getColor(embryo.getQuality()) + embryo.getQuality(),
                             "§7五行: §f" + embryo.getElement(),
                             "",
                             "§a点击炼制"
@@ -240,7 +241,7 @@ public class EquipmentCraftGUI {
 
         player.closeInventory();
         player.sendMessage("§a✓ 炼制成功!");
-        player.sendMessage("§e获得了 " + getQualityColor(embryo.getQuality()) + type.getDisplayName() + " [" + embryo.getQuality() + "]");
+        player.sendMessage("§e获得了 " + QualityUtils.getColor(embryo.getQuality()) + type.getDisplayName() + " [" + embryo.getQuality() + "]");
         player.sendMessage("§7消耗了 " + cost + " 灵石");
     }
 
@@ -288,18 +289,5 @@ public class EquipmentCraftGUI {
         }
 
         return true;
-    }
-
-    /**
-     * 获取品质颜色
-     */
-    private String getQualityColor(String quality) {
-        return switch (quality) {
-            case "神品" -> "§d§l";
-            case "仙品" -> "§6§l";
-            case "宝品" -> "§5";
-            case "灵品" -> "§b";
-            default -> "§f";
-        };
     }
 }

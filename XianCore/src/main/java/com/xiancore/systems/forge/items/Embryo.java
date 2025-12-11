@@ -1,5 +1,6 @@
 package com.xiancore.systems.forge.items;
 
+import com.xiancore.core.utils.QualityUtils;
 import lombok.Data;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -36,7 +37,7 @@ public class Embryo {
         ItemMeta meta = item.getItemMeta();
 
         if (meta != null) {
-            meta.setDisplayName(getQualityColor() + "仙家胚胎 [" + quality + "]");
+            meta.setDisplayName(QualityUtils.getColor(quality) + "仙家胚胎 [" + quality + "]");
 
             List<String> lore = new ArrayList<>();
             lore.add("§7");
@@ -55,19 +56,6 @@ public class Embryo {
         }
 
         return item;
-    }
-
-    /**
-     * 获取品质颜色
-     */
-    private String getQualityColor() {
-        return switch (quality) {
-            case "神品" -> "§d§l";
-            case "仙品" -> "§6§l";
-            case "宝品" -> "§5";
-            case "灵品" -> "§b";
-            default -> "§f";
-        };
     }
 
     // ==================== 显式 Getter/Setter 方法 ====================
