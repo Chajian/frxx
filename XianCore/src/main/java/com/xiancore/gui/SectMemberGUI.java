@@ -2,10 +2,10 @@ package com.xiancore.gui;
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
-import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.PaginatedPane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import com.xiancore.XianCore;
+import com.xiancore.core.utils.GUIUtils;
 import com.xiancore.gui.utils.ItemBuilder;
 import com.xiancore.integration.residence.ResidencePermissionManager;
 import com.xiancore.systems.sect.Sect;
@@ -46,12 +46,7 @@ public class SectMemberGUI {
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
         // 背景边框
-        OutlinePane background = new OutlinePane(0, 0, 9, 6);
-        ItemStack border = new ItemBuilder(Material.GREEN_STAINED_GLASS_PANE).name("§7").build();
-        background.addItem(new GuiItem(border));
-        background.setRepeat(true);
-        background.setPriority(OutlinePane.Priority.LOWEST);
-        gui.addPane(background);
+        GUIUtils.addBackground(gui, 6, Material.GREEN_STAINED_GLASS_PANE);
 
         // 分页面板 - 显示成员列表
         PaginatedPane memberPane = new PaginatedPane(1, 1, 7, 4);

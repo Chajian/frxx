@@ -8,6 +8,7 @@ import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.PaginatedPane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import com.xiancore.XianCore;
+import com.xiancore.core.utils.GUIUtils;
 import com.xiancore.gui.utils.ItemBuilder;
 import com.xiancore.integration.residence.ResidencePermissionManager;
 import com.xiancore.systems.sect.Sect;
@@ -70,13 +71,7 @@ public class SectRolePermissionGUI {
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
         // ==================== 背景边框 ====================
-        OutlinePane background = new OutlinePane(0, 0, 9, 6);
-        ItemStack border = new ItemBuilder(Material.BLUE_STAINED_GLASS_PANE)
-            .name("§7").build();
-        background.addItem(new GuiItem(border));
-        background.setRepeat(true);
-        background.setPriority(OutlinePane.Priority.LOWEST);
-        gui.addPane(background);
+        GUIUtils.addBackground(gui, 6, Material.BLUE_STAINED_GLASS_PANE);
 
         // ==================== 标题和说明 ====================
         StaticPane headerPane = new StaticPane(1, 0, 7, 1);
@@ -214,12 +209,7 @@ public class SectRolePermissionGUI {
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
         // 背景
-        OutlinePane background = new OutlinePane(0, 0, 9, 6);
-        ItemStack border = new ItemBuilder(Material.ORANGE_STAINED_GLASS_PANE).name("§7").build();
-        background.addItem(new GuiItem(border));
-        background.setRepeat(true);
-        background.setPriority(OutlinePane.Priority.LOWEST);
-        gui.addPane(background);
+        GUIUtils.addBackground(gui, 6, Material.ORANGE_STAINED_GLASS_PANE);
 
         // 标题
         StaticPane titlePane = new StaticPane(1, 0, 7, 1);
@@ -308,12 +298,7 @@ public class SectRolePermissionGUI {
         ChestGui gui = new ChestGui(3, "§9权限预设 - " + rank.getDisplayName());
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
-        OutlinePane background = new OutlinePane(0, 0, 9, 3);
-        ItemStack border = new ItemBuilder(Material.PURPLE_STAINED_GLASS_PANE).name("§7").build();
-        background.addItem(new GuiItem(border));
-        background.setRepeat(true);
-        background.setPriority(OutlinePane.Priority.LOWEST);
-        gui.addPane(background);
+        GUIUtils.addBackground(gui, 3, Material.PURPLE_STAINED_GLASS_PANE);
 
         StaticPane presetPane = new StaticPane(1, 0, 7, 2);
 
@@ -392,12 +377,7 @@ public class SectRolePermissionGUI {
         ChestGui gui = new ChestGui(4, "§a权限详情 - " + rank.getDisplayName());
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
-        OutlinePane background = new OutlinePane(0, 0, 9, 4);
-        ItemStack border = new ItemBuilder(Material.GREEN_STAINED_GLASS_PANE).name("§7").build();
-        background.addItem(new GuiItem(border));
-        background.setRepeat(true);
-        background.setPriority(OutlinePane.Priority.LOWEST);
-        gui.addPane(background);
+        GUIUtils.addBackground(gui, 4, Material.GREEN_STAINED_GLASS_PANE);
 
         StaticPane detailPane = new StaticPane(1, 0, 7, 3);
 
@@ -450,12 +430,7 @@ public class SectRolePermissionGUI {
         ChestGui gui = new ChestGui(4, "§d权限统计报告");
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
-        OutlinePane background = new OutlinePane(0, 0, 9, 4);
-        ItemStack border = new ItemBuilder(Material.PURPLE_STAINED_GLASS_PANE).name("§7").build();
-        background.addItem(new GuiItem(border));
-        background.setRepeat(true);
-        background.setPriority(OutlinePane.Priority.LOWEST);
-        gui.addPane(background);
+        GUIUtils.addBackground(gui, 4, Material.PURPLE_STAINED_GLASS_PANE);
 
         StaticPane reportPane = new StaticPane(1, 0, 7, 3);
 

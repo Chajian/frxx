@@ -5,6 +5,7 @@ import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import com.xiancore.XianCore;
+import com.xiancore.core.utils.GUIUtils;
 import com.xiancore.gui.utils.ItemBuilder;
 import com.xiancore.integration.residence.SectRoleResidencePermissionWrapper;
 import com.xiancore.systems.sect.Sect;
@@ -60,12 +61,7 @@ public class SectRoleCompletePermissionGUIWithPagination {
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
         // 背景
-        OutlinePane background = new OutlinePane(0, 0, 9, 6);
-        ItemStack border = new ItemBuilder(Material.BLUE_STAINED_GLASS_PANE).name("§7").build();
-        background.addItem(new GuiItem(border));
-        background.setRepeat(true);
-        background.setPriority(OutlinePane.Priority.LOWEST);
-        gui.addPane(background);
+        GUIUtils.addBackground(gui, 6, Material.BLUE_STAINED_GLASS_PANE);
 
         // 标题
         StaticPane titlePane = new StaticPane(1, 0, 7, 1);
@@ -152,12 +148,7 @@ public class SectRoleCompletePermissionGUIWithPagination {
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
         // 背景
-        OutlinePane background = new OutlinePane(0, 0, 9, 6);
-        ItemStack border = new ItemBuilder(Material.ORANGE_STAINED_GLASS_PANE).name("§7").build();
-        background.addItem(new GuiItem(border));
-        background.setRepeat(true);
-        background.setPriority(OutlinePane.Priority.LOWEST);
-        gui.addPane(background);
+        GUIUtils.addBackground(gui, 6, Material.ORANGE_STAINED_GLASS_PANE);
 
         // 标题
         StaticPane titlePane = new StaticPane(1, 0, 7, 1);
@@ -320,12 +311,7 @@ public class SectRoleCompletePermissionGUIWithPagination {
         ChestGui gui = new ChestGui(4, "§d权限配置统计");
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
-        OutlinePane background = new OutlinePane(0, 0, 9, 4);
-        ItemStack border = new ItemBuilder(Material.PURPLE_STAINED_GLASS_PANE).name("§7").build();
-        background.addItem(new GuiItem(border));
-        background.setRepeat(true);
-        background.setPriority(OutlinePane.Priority.LOWEST);
-        gui.addPane(background);
+        GUIUtils.addBackground(gui, 4, Material.PURPLE_STAINED_GLASS_PANE);
 
         StaticPane statsPane = new StaticPane(1, 0, 7, 3);
 

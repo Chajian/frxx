@@ -6,6 +6,7 @@ import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import com.xiancore.XianCore;
 import com.xiancore.core.data.PlayerData;
+import com.xiancore.core.utils.GUIUtils;
 import com.xiancore.core.utils.QualityUtils;
 import com.xiancore.gui.utils.ItemBuilder;
 import com.xiancore.systems.forge.ForgeRecipe;
@@ -55,12 +56,7 @@ public class CraftingGUI {
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
         // 背景
-        OutlinePane background = new OutlinePane(0, 0, 9, 6);
-        ItemStack border = new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).name("§7").build();
-        background.addItem(new GuiItem(border));
-        background.setRepeat(true);
-        background.setPriority(OutlinePane.Priority.LOWEST);
-        gui.addPane(background);
+        GUIUtils.addGrayBackground(gui, 6);
 
         StaticPane contentPane = new StaticPane(0, 0, 9, 6);
 
@@ -269,12 +265,7 @@ public class CraftingGUI {
         selectionGui.setOnGlobalClick(event -> event.setCancelled(true));
 
         // 背景
-        OutlinePane background = new OutlinePane(0, 0, 9, 4);
-        ItemStack border = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§7").build();
-        background.addItem(new GuiItem(border));
-        background.setRepeat(true);
-        background.setPriority(OutlinePane.Priority.LOWEST);
-        selectionGui.addPane(background);
+        GUIUtils.addBackground(selectionGui, 4);
 
         StaticPane contentPane = new StaticPane(0, 0, 9, 4);
 

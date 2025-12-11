@@ -2,9 +2,9 @@ package com.xiancore.gui;
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
-import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import com.xiancore.XianCore;
+import com.xiancore.core.utils.GUIUtils;
 import com.xiancore.gui.utils.ItemBuilder;
 import com.xiancore.systems.forge.items.Embryo;
 import com.xiancore.systems.forge.items.EmbryoParser;
@@ -55,12 +55,7 @@ public class EmbryoSelectionGUI {
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
         // 背景
-        OutlinePane background = new OutlinePane(0, 0, 9, rows);
-        ItemStack border = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§7").build();
-        background.addItem(new GuiItem(border));
-        background.setRepeat(true);
-        background.setPriority(OutlinePane.Priority.LOWEST);
-        gui.addPane(background);
+        GUIUtils.addBackground(gui, rows);
 
         StaticPane contentPane = new StaticPane(0, 0, 9, rows);
 
@@ -152,12 +147,7 @@ public class EmbryoSelectionGUI {
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
         // 背景
-        OutlinePane background = new OutlinePane(0, 0, 9, 3);
-        ItemStack border = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§7").build();
-        background.addItem(new GuiItem(border));
-        background.setRepeat(true);
-        background.setPriority(OutlinePane.Priority.LOWEST);
-        gui.addPane(background);
+        GUIUtils.addBackground(gui, 3);
 
         StaticPane contentPane = new StaticPane(0, 0, 9, 3);
 

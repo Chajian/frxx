@@ -2,11 +2,11 @@ package com.xiancore.systems.skill.shop;
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
-import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.Pane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import com.xiancore.XianCore;
 import com.xiancore.core.data.PlayerData;
+import com.xiancore.core.utils.GUIUtils;
 import com.xiancore.systems.skill.Skill;
 import com.xiancore.systems.skill.items.SkillBookFactory;
 import org.bukkit.Material;
@@ -84,18 +84,7 @@ public class SkillShopGUI {
      * 添加背景
      */
     private void addBackground(ChestGui gui) {
-        OutlinePane background = new OutlinePane(0, 0, 9, gui.getRows(), Pane.Priority.LOWEST);
-        
-        ItemStack bgItem = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-        ItemMeta meta = bgItem.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName(" ");
-            bgItem.setItemMeta(meta);
-        }
-        
-        background.addItem(new GuiItem(bgItem));
-        background.setRepeat(true);
-        gui.addPane(background);
+        GUIUtils.addGrayBackground(gui, gui.getRows());
     }
 
     /**

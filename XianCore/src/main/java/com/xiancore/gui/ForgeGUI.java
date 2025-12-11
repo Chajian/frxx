@@ -2,9 +2,9 @@ package com.xiancore.gui;
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
-import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import com.xiancore.XianCore;
+import com.xiancore.core.utils.GUIUtils;
 import com.xiancore.core.data.PlayerData;
 import com.xiancore.gui.utils.ItemBuilder;
 import com.xiancore.systems.forge.items.Embryo;
@@ -41,12 +41,7 @@ public class ForgeGUI {
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
         // 创建边框面板
-        OutlinePane background = new OutlinePane(0, 0, 9, 5);
-        ItemStack border = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§7").build();
-        background.addItem(new GuiItem(border));
-        background.setRepeat(true);
-        background.setPriority(OutlinePane.Priority.LOWEST);
-        gui.addPane(background);
+        GUIUtils.addBackground(gui, 5);
 
         // 创建内容面板
         StaticPane contentPane = new StaticPane(0, 0, 9, 5);
