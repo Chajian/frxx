@@ -3,6 +3,7 @@ package com.xiancore.commands.sub.impl;
 import com.xiancore.XianCore;
 import com.xiancore.commands.sub.AbstractSubCommand;
 import com.xiancore.core.data.PlayerData;
+import com.xiancore.core.realm.Realm;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -102,37 +103,16 @@ public class FixLevelCommand extends AbstractSubCommand {
     /**
      * 根据境界和境界阶段计算应有的玩家等级
      *
-     * 等级计算规则：
-     * - 起始等级：1
-     * - 小境界突破（初→中，中→后）：+5级
-     * - 大境界突破（后→下一境界初）：+15级
-     *
-     * @param realm      境界
+     * @param realmName  境界名称
      * @param realmStage 境界阶段 (1=初期, 2=中期, 3=后期)
      * @return 应有的等级
      */
-    private int calculateLevelByRealm(String realm, int realmStage) {
-        // 基础等级 = 1
-        int level = 1;
-
-        // 计算大境界的等级
-        switch (realm) {
-            case "炼气期" -> level = 1;
-            case "筑基期" -> level = 1 + 5 + 5 + 15;      // 炼气初→中(+5)→后(+5)→筑基初(+15) = 26
-            case "结丹期" -> level = 26 + 5 + 5 + 15;     // +筑基中(+5)→后(+5)→结丹初(+15) = 51
-            case "元婴期" -> level = 51 + 5 + 5 + 15;     // +结丹中(+5)→后(+5)→元婴初(+15) = 76
-            case "化神期" -> level = 76 + 5 + 5 + 15;     // +元婴中(+5)→后(+5)→化神初(+15) = 101
-            case "炼虚期" -> level = 101 + 5 + 5 + 15;    // +化神中(+5)→后(+5)→炼虚初(+15) = 126
-            case "合体期" -> level = 126 + 5 + 5 + 15;    // +炼虚中(+5)→后(+5)→合体初(+15) = 151
-            case "大乘期" -> level = 151 + 5 + 5 + 15;    // +合体中(+5)→后(+5)→大乘初(+15) = 176
-            default -> level = 1;
+    private int calculateLevelByRealm(String realmName, int realmStage) {
+        Realm realm = plugin.getRealmRegistry().getByName(realmName);
+        if (realm == null) {
+            return 1;
         }
-
-        // 加上小境界阶段的等级
-        // 初期 = 0, 中期 = +5, 后期 = +10
-        level += (realmStage - 1) * 5;
-
-        return level;
+        return realm.calculateLevel(realmStage);
     }
 
     @Override

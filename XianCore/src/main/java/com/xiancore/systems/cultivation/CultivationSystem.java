@@ -2,6 +2,8 @@ package com.xiancore.systems.cultivation;
 
 import com.xiancore.XianCore;
 import com.xiancore.core.data.PlayerData;
+import com.xiancore.core.realm.Realm;
+import com.xiancore.core.realm.RealmRegistry;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.Bukkit;
@@ -310,15 +312,9 @@ public class CultivationSystem {
     /**
      * 获取境界难度系数
      */
-    private double getRealmDifficulty(String realm) {
-        return switch (realm) {
-            case "炼气期" -> 1.0;
-            case "筑基期" -> 2.0;
-            case "结丹期" -> 5.0;
-            case "元婴期" -> 10.0;
-            case "化神期" -> 20.0;
-            default -> 1.0;
-        };
+    private double getRealmDifficulty(String realmName) {
+        Realm realm = plugin.getRealmRegistry().getByName(realmName);
+        return realm != null ? realm.getDifficulty() : 1.0;
     }
 
     /**
@@ -326,20 +322,25 @@ public class CultivationSystem {
      */
     private void advanceRealm(PlayerData data) {
         int currentStage = data.getRealmStage();
+        RealmRegistry registry = plugin.getRealmRegistry();
+        Realm currentRealm = registry.getByName(data.getRealm());
+
+        if (currentRealm == null) {
+            plugin.getLogger().warning("未找到境界配置: " + data.getRealm());
+            return;
+        }
 
         if (currentStage < 3) {
             // 小境界突破（初期→中期，中期→后期）
             data.setRealmStage(currentStage + 1);
-            // 小境界突破增加5级
-            data.addLevel(5);
+            data.addLevel(currentRealm.getLevelGainSmall());
         } else {
             // 大境界突破（后期→下一个境界初期）
-            String nextRealm = getNextRealm(data.getRealm());
+            Realm nextRealm = registry.getNext(currentRealm);
             if (nextRealm != null) {
-                data.setRealm(nextRealm);
+                data.setRealm(nextRealm.getName());
                 data.setRealmStage(1);
-                // 大境界突破增加15级
-                data.addLevel(15);
+                data.addLevel(currentRealm.getLevelGainBig());
             }
         }
     }
@@ -348,16 +349,12 @@ public class CultivationSystem {
      * 获取下一个境界
      */
     private String getNextRealm(String currentRealm) {
-        return switch (currentRealm) {
-            case "炼气期" -> "筑基期";
-            case "筑基期" -> "结丹期";
-            case "结丹期" -> "元婴期";
-            case "元婴期" -> "化神期";
-            case "化神期" -> "炼虚期";
-            case "炼虚期" -> "合体期";
-            case "合体期" -> "大乘期";
-            default -> null;
-        };
+        Realm realm = plugin.getRealmRegistry().getByName(currentRealm);
+        if (realm == null) {
+            return null;
+        }
+        Realm next = plugin.getRealmRegistry().getNext(realm);
+        return next != null ? next.getName() : null;
     }
 
     /**
@@ -408,18 +405,9 @@ public class CultivationSystem {
     /**
      * 获取突破成功的功法点奖励
      */
-    private int getBreakthroughSkillPointReward(String realm) {
-        return switch (realm) {
-            case "炼气期" -> 0;
-            case "筑基期" -> 5;
-            case "结丹期" -> 10;
-            case "元婴期" -> 15;
-            case "化神期" -> 20;
-            case "炼虚期" -> 30;
-            case "合体期" -> 40;
-            case "大乘期" -> 50;
-            default -> 0;
-        };
+    private int getBreakthroughSkillPointReward(String realmName) {
+        Realm realm = plugin.getRealmRegistry().getByName(realmName);
+        return realm != null ? realm.getSkillPointReward() : 0;
     }
 
     /**

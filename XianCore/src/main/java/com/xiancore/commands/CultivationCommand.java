@@ -2,6 +2,7 @@ package com.xiancore.commands;
 
 import com.xiancore.XianCore;
 import com.xiancore.core.data.PlayerData;
+import com.xiancore.core.realm.Realm;
 import com.xiancore.gui.CultivationGUI;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -193,24 +194,16 @@ public class CultivationCommand extends BaseCommand {
      * 获取突破所需修为
      */
     private long getRequiredQi(PlayerData data) {
-        String realm = data.getRealm();
+        String realmName = data.getRealm();
         int stage = data.getRealmStage();
 
-        // 基础修为需求
-        long baseQi = switch (realm) {
-            case "炼气期" -> 1000L;
-            case "筑基期" -> 5000L;
-            case "结丹期" -> 50000L;
-            case "元婴期" -> 500000L;
-            case "化神期" -> 5000000L;
-            case "炼虚期" -> 50000000L;
-            case "合体期" -> 500000000L;
-            case "大乘期" -> 5000000000L;
-            default -> 1000L;
-        };
+        Realm realm = plugin.getRealmRegistry().getByName(realmName);
+        if (realm == null) {
+            return 1000L;
+        }
 
-        // 每个小境界增加50%
-        return (long) (baseQi * Math.pow(1.5, stage - 1));
+        // 从配置获取基础修为，然后根据阶段计算
+        return realm.getBreakthroughQiForStage(stage);
     }
 
     /**
@@ -231,18 +224,9 @@ public class CultivationCommand extends BaseCommand {
     /**
      * 获取境界难度
      */
-    private double getRealmDifficulty(String realm) {
-        return switch (realm) {
-            case "炼气期" -> 1.0;
-            case "筑基期" -> 2.0;
-            case "结丹期" -> 5.0;
-            case "元婴期" -> 10.0;
-            case "化神期" -> 20.0;
-            case "炼虚期" -> 40.0;
-            case "合体期" -> 80.0;
-            case "大乘期" -> 160.0;
-            default -> 1.0;
-        };
+    private double getRealmDifficulty(String realmName) {
+        Realm realm = plugin.getRealmRegistry().getByName(realmName);
+        return realm != null ? realm.getDifficulty() : 1.0;
     }
 
     /**

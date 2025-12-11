@@ -7,6 +7,8 @@ import com.xiancore.core.XianCoreEngine;
 import com.xiancore.core.config.ConfigManager;
 import com.xiancore.core.data.DataManager;
 import com.xiancore.core.event.XianEventBus;
+import com.xiancore.core.realm.RealmLoader;
+import com.xiancore.core.realm.RealmRegistry;
 import com.xiancore.integration.mythic.MythicIntegration;
 import com.xiancore.integration.placeholder.XianCorePlaceholderExpansion;
 import com.xiancore.systems.cultivation.CultivationSystem;
@@ -42,6 +44,7 @@ public class XianCore extends JavaPlugin {
     private DataManager dataManager;
     private XianEventBus eventBus;
     private com.xiancore.core.data.migrate.MigrationManager migrationManager;
+    private RealmRegistry realmRegistry;
 
     // MythicMobs 集成
     private MythicIntegration mythicIntegration;
@@ -199,6 +202,12 @@ public class XianCore extends JavaPlugin {
 
         // 迁移管理器
         migrationManager = new com.xiancore.core.data.migrate.MigrationManager(this);
+
+        // 境界注册器
+        realmRegistry = new RealmRegistry(getLogger());
+        RealmLoader realmLoader = new RealmLoader(this, realmRegistry);
+        int realmCount = realmLoader.load();
+        getLogger().info("  §a✓ 加载了 " + realmCount + " 个境界配置");
 
         // 核心引擎
         coreEngine = new XianCoreEngine(this);
