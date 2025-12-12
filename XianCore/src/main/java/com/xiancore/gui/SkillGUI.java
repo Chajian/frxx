@@ -7,6 +7,9 @@ import com.xiancore.XianCore;
 import com.xiancore.core.data.PlayerData;
 import com.xiancore.core.utils.GUIUtils;
 import com.xiancore.gui.utils.ItemBuilder;
+import com.xiancore.systems.skill.SkillDisplayService;
+import com.xiancore.systems.skill.SkillDisplayService.SkillDetailInfo;
+import com.xiancore.systems.skill.SkillDisplayService.SlotInfo;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -18,16 +21,19 @@ import java.util.Map;
 /**
  * 功法界面
  * 提供功法学习、升级、施放等功能
+ * 业务逻辑委托给 SkillDisplayService
  *
  * @author Olivia Diaz
- * @version 1.0.0
+ * @version 2.0.0 - 使用 Service 层分离业务逻辑
  */
 public class SkillGUI {
 
     private final XianCore plugin;
+    private final SkillDisplayService displayService;
 
     public SkillGUI(XianCore plugin) {
         this.plugin = plugin;
+        this.displayService = new SkillDisplayService(plugin);
     }
 
     /**
@@ -40,26 +46,17 @@ public class SkillGUI {
     private void show(Player player) {
         PlayerData data = plugin.getDataManager().loadPlayerData(player.getUniqueId());
 
-        // 创建6行的GUI
         ChestGui gui = new ChestGui(6, "§9§l功法系统");
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
-        // 创建边框面板
         GUIUtils.addBackground(gui, 6, Material.CYAN_STAINED_GLASS_PANE);
 
-        // 创建内容面板
         StaticPane contentPane = new StaticPane(0, 0, 9, 6);
 
-        // 显示玩家信息
         displayPlayerInfo(player, data, contentPane);
-
-        // 显示已学功法
         displayLearnedSkills(player, data, contentPane);
+        displayFunctionButtons(player, contentPane);
 
-        // 功能按钮
-        displayFunctionButtons(player, data, contentPane);
-
-        // 关闭按钮
         ItemStack closeButton = new ItemBuilder(Material.BARRIER).name("§c关闭").build();
         contentPane.addItem(new GuiItem(closeButton, event -> player.closeInventory()), 4, 5);
 
@@ -71,26 +68,14 @@ public class SkillGUI {
      * 显示玩家信息
      */
     private void displayPlayerInfo(Player player, PlayerData data, StaticPane pane) {
-        Map<String, Integer> skills = data.getSkills();
-        int skillCount = skills != null ? skills.size() : 0;
-
-        // 获取真实的槽位限制
-        int maxSlots = plugin.getSkillSystem().getMaxSkillSlots(player, data);
-        String slotInfo = "§e功法槽位: §f" + skillCount + "/" + maxSlots;
-
-        // 根据使用率改变颜色
-        if (skillCount >= maxSlots) {
-            slotInfo = "§e功法槽位: §c" + skillCount + "/" + maxSlots + " §c(已满)";
-        } else if (skillCount >= maxSlots * 0.8) {
-            slotInfo = "§e功法槽位: §e" + skillCount + "/" + maxSlots + " §e(接近上限)";
-        }
+        SlotInfo slotInfo = displayService.getSlotInfo(player, data);
 
         ItemStack infoItem = new ItemBuilder(Material.ENCHANTED_BOOK)
                 .name("§9§l我的功法")
                 .lore(
                         "§e境界: §f" + data.getFullRealmName(),
-                        "§e已学功法: §f" + skillCount + " 本",
-                        slotInfo,
+                        "§e已学功法: §f" + slotInfo.getCurrentCount() + " 本",
+                        slotInfo.getDisplayText(),
                         "",
                         "§7功法等级越高，威力越强",
                         "§7突破境界可解锁更多功法"
@@ -107,7 +92,6 @@ public class SkillGUI {
         Map<String, Integer> skills = data.getSkills();
 
         if (skills == null || skills.isEmpty()) {
-            // 没有学习任何功法
             ItemStack noSkillItem = new ItemBuilder(Material.PAPER)
                     .name("§7未学习功法")
                     .lore(
@@ -125,27 +109,23 @@ public class SkillGUI {
                 player.sendMessage("§e你还没有学习任何功法，通过奇遇、宗门或Boss掉落获取!");
             }), 4, 3);
         } else {
-            // 显示已学习的功法列表
             int slot = 0;
             int row = 2;
             int col = 1;
 
             for (Map.Entry<String, Integer> entry : skills.entrySet()) {
-                if (slot >= 7) break; // 最多显示7个
+                if (slot >= 7) break;
 
-                String skillName = entry.getKey();
+                String skillId = entry.getKey();
                 int level = entry.getValue();
 
-                ItemStack skillItem = createSkillItem(player, skillName, level);
+                ItemStack skillItem = createSkillItem(player, skillId, level);
                 pane.addItem(new GuiItem(skillItem, event -> {
                     if (event.isLeftClick()) {
-                        // 左键 - 查看详情（打开详情窗口，保持原GUI在后台）
-                        openSkillDetail(player, plugin, skillName, level);
+                        openSkillDetail(player, skillId, level);
                     } else if (event.isRightClick()) {
-                        // 右键 - 升级功法
-                        player.sendMessage("§e尝试升级功法 " + skillName + "...");
-                        // 升级逻辑可以通过命令或直接调用系统来实现
-                        plugin.getSkillSystem().upgradeSkill(player, skillName);
+                        player.sendMessage("§e尝试升级功法 " + skillId + "...");
+                        plugin.getSkillSystem().upgradeSkill(player, skillId);
                     }
                 }), col, row);
 
@@ -162,51 +142,27 @@ public class SkillGUI {
     /**
      * 创建功法物品
      */
-    private ItemStack createSkillItem(Player player, String skillName, int level) {
-        // 检查是否在冷却中
-        int remainingCooldown = plugin.getSkillSystem().getCooldownManager().getRemainingCooldown(player, skillName);
-        boolean isOnCooldown = remainingCooldown > 0;
+    private ItemStack createSkillItem(Player player, String skillId, int level) {
+        boolean isOnCooldown = displayService.isOnCooldown(player, skillId);
+        int remainingCooldown = displayService.getRemainingCooldown(player, skillId);
 
-        // 根据功法等级和冷却状态选择材料
-        Material material;
-        if (isOnCooldown) {
-            // 冷却中使用灰色玻璃板
-            material = Material.GRAY_STAINED_GLASS_PANE;
-        } else {
-            material = switch (level) {
-                case 1, 2 -> Material.BOOK;
-                case 3, 4 -> Material.ENCHANTED_BOOK;
-                case 5, 6 -> Material.WRITABLE_BOOK;
-                default -> Material.KNOWLEDGE_BOOK;
-            };
-        }
-
-        // 根据等级显示不同颜色
-        String color = switch (level) {
-            case 1, 2 -> "§f";
-            case 3, 4 -> "§a";
-            case 5, 6 -> "§b";
-            case 7, 8 -> "§d";
-            default -> "§6";
-        };
+        Material material = displayService.getSkillMaterial(level, isOnCooldown);
+        String color = displayService.getLevelColor(level);
 
         List<String> lore = new ArrayList<>();
         lore.add("§e等级: " + color + level + "/10");
-        lore.add("§e类型: §f" + getSkillType(skillName));
+        lore.add("§e类型: §f" + displayService.getSkillType(skillId));
         lore.add("");
-        lore.add("§7" + getSkillDescription(skillName));
+        lore.add("§7" + displayService.getSkillDescription(skillId));
         lore.add("");
 
-        // 显示冷却状态
         if (isOnCooldown) {
-            // 使用格式化方法
-            String formattedTime = formatCooldownTime(remainingCooldown);
-            lore.add("§c§l冷却中: §f" + formattedTime);
+            lore.add("§c§l冷却中: §f" + displayService.formatCooldownTime(remainingCooldown));
         } else {
-            lore.add("§e冷却时间: §f" + getSkillCooldown(skillName) + "秒");
+            lore.add("§e冷却时间: §f" + displayService.getSkillCooldown(skillId) + "秒");
         }
 
-        lore.add("§e消耗灵气: §f" + getSkillCost(skillName, level));
+        lore.add("§e消耗灵气: §f" + displayService.getSkillQiCost(skillId, level));
         lore.add("");
 
         if (level < 10) {
@@ -217,20 +173,13 @@ public class SkillGUI {
             lore.add("§a左键 §7- 查看详情");
         }
 
-        // 冷却状态提示
-        if (isOnCooldown) {
-            lore.add("");
-            lore.add("§c§l✗ 冷却中，无法使用");
-        } else {
-            lore.add("");
-            lore.add("§a§l✓ 准备就绪");
-        }
+        lore.add("");
+        lore.add(isOnCooldown ? "§c§l✗ 冷却中，无法使用" : "§a§l✓ 准备就绪");
 
         ItemBuilder builder = new ItemBuilder(material)
-                .name(color + "§l" + skillName)
+                .name(color + "§l" + skillId)
                 .lore(lore);
 
-        // 冷却中不发光，准备好时发光
         if (level >= 5 && !isOnCooldown) {
             builder.glow();
         }
@@ -239,78 +188,9 @@ public class SkillGUI {
     }
 
     /**
-     * 获取功法类型
-     */
-    private String getSkillType(String skillName) {
-        // 从功法系统获取实际类型
-        com.xiancore.systems.skill.Skill skill = plugin.getSkillSystem().getSkill(skillName);
-        if (skill != null) {
-            return skill.getType().name();
-        }
-
-        // 备用方案：根据名称推测
-        if (skillName.contains("剑")) return "剑诀";
-        if (skillName.contains("掌")) return "掌法";
-        if (skillName.contains("火")) return "火系法术";
-        if (skillName.contains("水")) return "水系法术";
-        if (skillName.contains("御")) return "防御术";
-        return "通用功法";
-    }
-
-    /**
-     * 获取功法描述
-     */
-    private String getSkillDescription(String skillName) {
-        // 从功法系统获取实际描述
-        com.xiancore.systems.skill.Skill skill = plugin.getSkillSystem().getSkill(skillName);
-        if (skill != null && skill.getDescription() != null && !skill.getDescription().isEmpty()) {
-            return skill.getDescription();
-        }
-        return "凝聚灵气施展强大的攻击";
-    }
-
-    /**
-     * 获取功法冷却时间
-     */
-    private int getSkillCooldown(String skillName) {
-        // 从功法系统获取实际冷却时间
-        com.xiancore.systems.skill.Skill skill = plugin.getSkillSystem().getSkill(skillName);
-        if (skill != null) {
-            return skill.getBaseCooldown();
-        }
-        return 10;
-    }
-
-    /**
-     * 获取功法消耗
-     */
-    private int getSkillCost(String skillName, int level) {
-        // 从功法系统获取实际消耗
-        com.xiancore.systems.skill.Skill skill = plugin.getSkillSystem().getSkill(skillName);
-        if (skill != null) {
-            return skill.calculateQiCost(level);
-        }
-        return 50 + level * 10;
-    }
-
-    /**
-     * 格式化冷却时间
-     */
-    private String formatCooldownTime(int seconds) {
-        if (seconds >= 60) {
-            int minutes = seconds / 60;
-            int secs = seconds % 60;
-            return String.format("%d分%d秒", minutes, secs);
-        }
-        return seconds + "秒";
-    }
-
-    /**
      * 显示功能按钮
      */
-    private void displayFunctionButtons(Player player, PlayerData data, StaticPane pane) {
-        // ========== 第一行按钮（第4行）==========
-        
+    private void displayFunctionButtons(Player player, StaticPane pane) {
         // 学习功法按钮
         ItemStack learnButton = new ItemBuilder(Material.WRITABLE_BOOK)
                 .name("§a§l学习功法")
@@ -333,7 +213,7 @@ public class SkillGUI {
             player.sendMessage("§7- 击败Boss掉落");
         }), 1, 4);
 
-        // 快捷键绑定按钮 ⭐ 新增
+        // 快捷键绑定按钮
         ItemStack bindButton = new ItemBuilder(Material.TRIPWIRE_HOOK)
                 .name("§e§l快捷键绑定")
                 .lore(
@@ -348,12 +228,11 @@ public class SkillGUI {
                         "",
                         "§e点击打开绑定界面"
                 )
-                .glow()  // 重要功能，加发光效果
+                .glow()
                 .build();
 
         pane.addItem(new GuiItem(bindButton, event -> {
             player.closeInventory();
-            // 延迟1tick打开，确保当前GUI完全关闭
             plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                 SkillBindGUI.open(player, plugin);
             }, 1L);
@@ -375,9 +254,8 @@ public class SkillGUI {
                 .build();
 
         pane.addItem(new GuiItem(shopButton, event -> {
-            // 打开功法商店
-            com.xiancore.systems.skill.shop.SkillShopGUI shopGUI = 
-                new com.xiancore.systems.skill.shop.SkillShopGUI(plugin);
+            com.xiancore.systems.skill.shop.SkillShopGUI shopGUI =
+                    new com.xiancore.systems.skill.shop.SkillShopGUI(plugin);
             shopGUI.open(player);
         }), 3, 4);
 
@@ -401,7 +279,7 @@ public class SkillGUI {
             player.sendMessage("§e功法传承功能正在建设中，敬请期待!");
         }), 5, 4);
 
-        // 遗忘功法按钮（引导到详情页面）
+        // 遗忘功法按钮
         ItemStack forgetButton = new ItemBuilder(Material.REDSTONE)
                 .name("§c§l遗忘功法")
                 .lore(
@@ -443,71 +321,61 @@ public class SkillGUI {
     /**
      * 打开功法详情界面
      */
-    public static void openSkillDetail(Player player, XianCore plugin, String skillName, int level) {
-        ChestGui gui = new ChestGui(4, "§9§l" + skillName + " - 详情");
+    private void openSkillDetail(Player player, String skillId, int level) {
+        SkillDetailInfo info = displayService.getSkillDetailInfo(skillId, level);
+
+        ChestGui gui = new ChestGui(4, "§9§l" + info.getName() + " - 详情");
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
-        // 创建边框
         GUIUtils.addBackground(gui, 4, Material.CYAN_STAINED_GLASS_PANE);
 
         StaticPane contentPane = new StaticPane(0, 0, 9, 4);
 
         // 功法详细信息
         ItemStack detailItem = new ItemBuilder(Material.ENCHANTED_BOOK)
-                .name("§9§l" + skillName)
+                .name("§9§l" + info.getName())
                 .lore(
-                        "§e等级: §f" + level + "/10",
-                        "§e类型: §f攻击类",
+                        "§e等级: §f" + info.getLevel() + "/" + info.getMaxLevel(),
+                        "§e类型: §f" + info.getType(),
                         "",
                         "§e效果:",
-                        "§7- 造成 §c" + (100 + level * 50) + " §7点伤害",
-                        "§7- 额外灼烧效果 §c" + (level * 2) + "秒",
-                        "§7- 攻击范围: §f" + (3 + level) + "格",
+                        "§7- 造成 §c" + info.getDamage() + " §7点伤害",
+                        "§7- 额外灼烧效果 §c" + info.getBurnDuration() + "秒",
+                        "§7- 攻击范围: §f" + info.getRange() + "格",
                         "",
-                        "§e消耗: §f" + (50 + level * 10) + " 灵气",
-                        "§e冷却: §f10秒",
+                        "§e消耗: §f" + info.getQiCost() + " 灵气",
+                        "§e冷却: §f" + info.getCooldown() + "秒",
                         "",
-                        "§6升级到 " + (level + 1) + " 级需要:",
-                        "§7- 灵石: §f" + (1000 * level),
-                        "§7- 功法点: §f" + (level * 5)
+                        "§6升级到 " + (info.getLevel() + 1) + " 级需要:",
+                        "§7- 灵石: §f" + info.getUpgradeSpiritStones(),
+                        "§7- 功法点: §f" + info.getUpgradeSkillPoints()
                 )
                 .glow()
                 .build();
         contentPane.addItem(new GuiItem(detailItem), 4, 1);
 
         // 升级按钮
-        if (level < 10) {
+        if (!info.isMaxLevel()) {
             ItemStack upgradeButton = new ItemBuilder(Material.EXPERIENCE_BOTTLE)
                     .name("§a§l升级功法")
-                    .lore(
-                            "§7提升功法等级",
-                            "",
-                            "§a点击升级"
-                    )
+                    .lore("§7提升功法等级", "", "§a点击升级")
                     .glow()
                     .build();
             contentPane.addItem(new GuiItem(upgradeButton, event -> {
-                player.sendMessage("§e尝试升级功法 " + skillName + "...");
-                plugin.getSkillSystem().upgradeSkill(player, skillName);
-                // 升级后更新详情界面
+                player.sendMessage("§e尝试升级功法 " + skillId + "...");
+                plugin.getSkillSystem().upgradeSkill(player, skillId);
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    openSkillDetail(player, plugin, skillName, level);
+                    openSkillDetail(player, skillId, level);
                 }, 1L);
             }), 2, 2);
         }
 
         // 返回按钮
-        ItemStack backButton = new ItemBuilder(Material.ARROW)
-                .name("§e返回")
-                .build();
-        contentPane.addItem(new GuiItem(backButton, event -> {
-            open(player, plugin);
-        }), 4, 2);
+        ItemStack backButton = new ItemBuilder(Material.ARROW).name("§e返回").build();
+        contentPane.addItem(new GuiItem(backButton, event -> show(player)), 4, 2);
 
         // 关闭按钮
-        ItemStack closeButton = new ItemBuilder(Material.BARRIER)
-                .name("§c关闭")
-                .build();
+        ItemStack closeButton = new ItemBuilder(Material.BARRIER).name("§c关闭").build();
         contentPane.addItem(new GuiItem(closeButton, event -> player.closeInventory()), 6, 2);
 
         // 遗忘功法按钮
@@ -532,9 +400,8 @@ public class SkillGUI {
                 .build();
         contentPane.addItem(new GuiItem(forgetButton, event -> {
             player.closeInventory();
-            // 显示遗忘确认信息
             player.sendMessage("§c§l========== 遗忘功法确认 ==========");
-            player.sendMessage("§e功法: §f" + skillName + " §7等级 " + level);
+            player.sendMessage("§e功法: §f" + skillId + " §7等级 " + level);
             player.sendMessage("");
             player.sendMessage("§c警告: 遗忘后该功法将被移除");
             player.sendMessage("§7• 将返还部分功法点");
@@ -544,11 +411,18 @@ public class SkillGUI {
             player.sendMessage("§7• 一段时间内无法重新学习");
             player.sendMessage("");
             player.sendMessage("§e如果确定要遗忘，请输入:");
-            player.sendMessage("§f/skill forget " + skillName + " confirm");
+            player.sendMessage("§f/skill forget " + skillId + " confirm");
             player.sendMessage("§c§l================================");
         }), 4, 3);
 
         gui.addPane(contentPane);
         gui.show(player);
+    }
+
+    /**
+     * 静态方法打开功法详情（兼容旧调用）
+     */
+    public static void openSkillDetail(Player player, XianCore plugin, String skillName, int level) {
+        new SkillGUI(plugin).openSkillDetail(player, skillName, level);
     }
 }

@@ -4,10 +4,12 @@ import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import com.xiancore.XianCore;
-import com.xiancore.core.data.PlayerData;
 import com.xiancore.core.utils.GUIUtils;
 import com.xiancore.gui.utils.ItemBuilder;
 import com.xiancore.systems.skill.Skill;
+import com.xiancore.systems.skill.SkillBindDisplayService;
+import com.xiancore.systems.skill.SkillBindDisplayService.SkillDisplayInfo;
+import com.xiancore.systems.skill.SkillBindDisplayService.SlotDisplayInfo;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -17,22 +19,25 @@ import java.util.*;
 /**
  * 功法快捷键绑定GUI
  * 提供可视化的功法绑定界面
+ * 业务逻辑委托给 SkillBindDisplayService
  *
  * @author Olivia Diaz
- * @version 1.0.0
+ * @version 2.0.0 - 使用 Service 层分离业务逻辑
  */
 public class SkillBindGUI {
 
     private final XianCore plugin;
     private final Player player;
+    private final SkillBindDisplayService displayService;
     private ChestGui gui;
-    
+
     // 选择模式：玩家点击功法后进入选择模式，等待选择槽位
     private String selectedSkillId = null;
 
     public SkillBindGUI(XianCore plugin, Player player) {
         this.plugin = plugin;
         this.player = player;
+        this.displayService = new SkillBindDisplayService(plugin);
     }
 
     /**
@@ -46,14 +51,10 @@ public class SkillBindGUI {
      * 显示GUI
      */
     private void show() {
-        // 创建6行的GUI
         gui = new ChestGui(6, "§9§l功法快捷键绑定");
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
-        // 创建背景
         createBackground();
-
-        // 显示内容
         renderGUI();
 
         gui.show(player);
@@ -72,16 +73,9 @@ public class SkillBindGUI {
     private void renderGUI() {
         StaticPane contentPane = new StaticPane(0, 0, 9, 6);
 
-        // 第1行：说明
         displayInstructions(contentPane);
-
-        // 第2行：9个槽位按钮
         displaySlots(contentPane);
-
-        // 第3-5行：已学功法列表
         displaySkillList(contentPane);
-
-        // 第6行：功能按钮
         displayActionButtons(contentPane);
 
         gui.addPane(contentPane);
@@ -92,17 +86,15 @@ public class SkillBindGUI {
      */
     private void displayInstructions(StaticPane pane) {
         List<String> lore = new ArrayList<>();
-        
+
         if (selectedSkillId != null) {
-            // 选择模式提示
-            Skill skill = plugin.getSkillSystem().getSkill(selectedSkillId);
+            Skill skill = displayService.getSkill(selectedSkillId);
             String skillName = skill != null ? skill.getName() : selectedSkillId;
             lore.add("§e§l已选择功法: §f" + skillName);
             lore.add("");
             lore.add("§a点击下方槽位进行绑定");
             lore.add("§7或点击其他功法切换选择");
         } else {
-            // 正常模式提示
             lore.add("§7点击功法 → 点击槽位绑定");
             lore.add("§7右键槽位解除绑定");
             lore.add("");
@@ -122,12 +114,13 @@ public class SkillBindGUI {
      * 显示9个槽位
      */
     private void displaySlots(StaticPane pane) {
-        Map<Integer, String> bindings = plugin.getSkillSystem().getBindManager().getAllBindings(player);
+        Map<Integer, String> bindings = displayService.getAllBindings(player);
 
         for (int slot = 1; slot <= 9; slot++) {
-            ItemStack slotItem = createSlotItem(slot, bindings.get(slot));
+            SlotDisplayInfo info = displayService.getSlotDisplayInfo(player, slot, bindings.get(slot));
+            ItemStack slotItem = createSlotItem(info);
             final int finalSlot = slot;
-            
+
             pane.addItem(new GuiItem(slotItem, event -> {
                 if (event.isLeftClick()) {
                     handleSlotClick(finalSlot);
@@ -141,48 +134,37 @@ public class SkillBindGUI {
     /**
      * 创建槽位图标
      */
-    private ItemStack createSlotItem(int slot, String boundSkillId) {
-        Material material;
+    private ItemStack createSlotItem(SlotDisplayInfo info) {
         List<String> lore = new ArrayList<>();
         String name;
 
-        if (boundSkillId != null) {
-            // 已绑定
-            Skill skill = plugin.getSkillSystem().getSkill(boundSkillId);
-            String skillName = skill != null ? skill.getName() : boundSkillId;
-            
-            // 检查冷却
-            int cooldown = plugin.getSkillSystem().getCooldownManager().getRemainingCooldown(player, boundSkillId);
-            
-            material = Material.LIME_STAINED_GLASS_PANE;
-            name = "§a§l槽位 " + slot + ": " + skillName;
-            
-            lore.add("§e当前绑定: §f" + skillName);
-            if (skill != null) {
-                lore.add("§7类型: §f" + skill.getType().getDisplayName());
-                if (skill.getElement() != null) {
-                    lore.add("§7属性: " + skill.getElement().getColoredName());
-                }
+        if (info.isBound()) {
+            name = "§a§l槽位 " + info.getSlot() + ": " + info.getSkillName();
+
+            lore.add("§e当前绑定: §f" + info.getSkillName());
+            if (info.getTypeName() != null) {
+                lore.add("§7类型: §f" + info.getTypeName());
+            }
+            if (info.getElementName() != null) {
+                lore.add("§7属性: " + info.getElementName());
             }
             lore.add("");
-            
-            if (cooldown > 0) {
-                lore.add("§c冷却中: " + cooldown + "秒");
+
+            if (info.getCooldown() > 0) {
+                lore.add("§c冷却中: " + info.getCooldown() + "秒");
             } else {
                 lore.add("§a✓ 准备就绪");
             }
-            
+
             lore.add("");
             lore.add("§e左键 §7- 重新绑定");
             lore.add("§c右键 §7- 解除绑定");
         } else {
-            // 未绑定
-            material = Material.RED_STAINED_GLASS_PANE;
-            name = "§7槽位 " + slot + ": §8(未绑定)";
-            
+            name = "§7槽位 " + info.getSlot() + ": §8(未绑定)";
+
             lore.add("§7此槽位尚未绑定功法");
             lore.add("");
-            
+
             if (selectedSkillId != null) {
                 lore.add("§a点击绑定选中的功法");
             } else {
@@ -191,7 +173,7 @@ public class SkillBindGUI {
             }
         }
 
-        return new ItemBuilder(material)
+        return new ItemBuilder(info.getMaterial())
                 .name(name)
                 .lore(lore)
                 .build();
@@ -201,15 +183,9 @@ public class SkillBindGUI {
      * 显示已学功法列表
      */
     private void displaySkillList(StaticPane pane) {
-        PlayerData data = plugin.getDataManager().loadPlayerData(player.getUniqueId());
-        if (data == null) {
-            return;
-        }
+        Map<String, Integer> learnedSkills = displayService.getLearnedSkills(player);
 
-        Map<String, Integer> learnedSkills = data.getSkills();
-        
         if (learnedSkills.isEmpty()) {
-            // 没有学习任何功法
             ItemStack noSkillItem = new ItemBuilder(Material.BARRIER)
                     .name("§c未学习任何功法")
                     .lore(
@@ -223,18 +199,19 @@ public class SkillBindGUI {
             return;
         }
 
-        // 显示功法列表（最多21个，3行x7列）
         int index = 0;
         for (Map.Entry<String, Integer> entry : learnedSkills.entrySet()) {
-            if (index >= 21) break; // 最多显示21个
+            if (index >= 21) break;
 
             String skillId = entry.getKey();
             int level = entry.getValue();
 
-            int row = 2 + (index / 7); // 第3-5行
-            int col = 1 + (index % 7); // 列1-7
+            int row = 2 + (index / 7);
+            int col = 1 + (index % 7);
 
-            ItemStack skillItem = createSkillItem(skillId, level);
+            boolean isSelected = selectedSkillId != null && selectedSkillId.equals(skillId);
+            SkillDisplayInfo info = displayService.getSkillDisplayInfo(player, skillId, level, isSelected);
+            ItemStack skillItem = createSkillItem(info);
             pane.addItem(new GuiItem(skillItem, event -> handleSkillClick(skillId)), col, row);
 
             index++;
@@ -244,59 +221,43 @@ public class SkillBindGUI {
     /**
      * 创建功法图标
      */
-    private ItemStack createSkillItem(String skillId, int level) {
-        Skill skill = plugin.getSkillSystem().getSkill(skillId);
-        if (skill == null) {
-            return new ItemBuilder(Material.PAPER).name("§c未知功法: " + skillId).build();
-        }
-
-        // 根据是否选中显示不同的材料
-        Material material = selectedSkillId != null && selectedSkillId.equals(skillId) 
-                ? Material.ENCHANTED_BOOK 
-                : Material.BOOK;
-
+    private ItemStack createSkillItem(SkillDisplayInfo info) {
         List<String> lore = new ArrayList<>();
-        lore.add("§e等级: §f" + level + "/" + skill.getMaxLevel());
-        lore.add("§e类型: §f" + skill.getType().getDisplayName());
-        
-        if (skill.getElement() != null) {
-            lore.add("§e属性: " + skill.getElement().getColoredName());
-        }
-        
-        lore.add("");
-        lore.add("§7" + skill.getDescription());
-        lore.add("");
+        lore.add("§e等级: §f" + info.getLevel() + "/" + info.getMaxLevel());
 
-        // 显示当前绑定状态
-        Map<Integer, String> bindings = plugin.getSkillSystem().getBindManager().getAllBindings(player);
-        List<Integer> boundSlots = new ArrayList<>();
-        for (Map.Entry<Integer, String> entry : bindings.entrySet()) {
-            if (skillId.equals(entry.getValue())) {
-                boundSlots.add(entry.getKey());
-            }
+        if (info.getTypeName() != null) {
+            lore.add("§e类型: §f" + info.getTypeName());
+        }
+        if (info.getElementName() != null) {
+            lore.add("§e属性: " + info.getElementName());
         }
 
-        if (!boundSlots.isEmpty()) {
-            lore.add("§a已绑定到槽位: §f" + boundSlots.toString().replaceAll("[\\[\\]]", ""));
+        lore.add("");
+        if (info.getDescription() != null) {
+            lore.add("§7" + info.getDescription());
+            lore.add("");
+        }
+
+        if (info.hasBoundSlots()) {
+            lore.add("§a已绑定到槽位: §f" + info.getBoundSlotsDisplay());
         } else {
             lore.add("§7尚未绑定到任何槽位");
         }
 
         lore.add("");
-        
-        if (selectedSkillId != null && selectedSkillId.equals(skillId)) {
+
+        if (info.isSelected()) {
             lore.add("§a§l✓ 已选中");
             lore.add("§7点击槽位进行绑定");
         } else {
             lore.add("§e点击选择此功法");
         }
 
-        ItemBuilder builder = new ItemBuilder(material)
-                .name("§b§l" + skill.getName())
+        ItemBuilder builder = new ItemBuilder(info.getMaterial())
+                .name("§b§l" + info.getName())
                 .lore(lore);
 
-        // 选中的功法发光
-        if (selectedSkillId != null && selectedSkillId.equals(skillId)) {
+        if (info.isSelected()) {
             builder.glow();
         }
 
@@ -307,7 +268,6 @@ public class SkillBindGUI {
      * 显示功能按钮
      */
     private void displayActionButtons(StaticPane pane) {
-        // 清除选择按钮
         if (selectedSkillId != null) {
             ItemStack clearItem = new ItemBuilder(Material.ORANGE_STAINED_GLASS_PANE)
                     .name("§e取消选择")
@@ -320,7 +280,6 @@ public class SkillBindGUI {
             }), 2, 5);
         }
 
-        // 刷新按钮
         ItemStack refreshItem = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE)
                 .name("§a刷新界面")
                 .lore("§7点击刷新界面显示")
@@ -330,7 +289,6 @@ public class SkillBindGUI {
             player.sendMessage("§a界面已刷新");
         }), 4, 5);
 
-        // 关闭按钮
         ItemStack closeItem = new ItemBuilder(Material.BARRIER)
                 .name("§c关闭")
                 .build();
@@ -348,11 +306,9 @@ public class SkillBindGUI {
             return;
         }
 
-        // 绑定功法
-        boolean success = plugin.getSkillSystem().getBindManager().bindSkill(player, slot, selectedSkillId);
-        
+        boolean success = displayService.bindSkill(player, slot, selectedSkillId);
+
         if (success) {
-            // 成功后清除选择并刷新
             selectedSkillId = null;
             refreshGUI();
         }
@@ -362,7 +318,7 @@ public class SkillBindGUI {
      * 处理槽位解绑（右键）
      */
     private void handleSlotUnbind(int slot) {
-        plugin.getSkillSystem().getBindManager().unbindSkill(player, slot);
+        displayService.unbindSkill(player, slot);
         refreshGUI();
     }
 
@@ -371,13 +327,11 @@ public class SkillBindGUI {
      */
     private void handleSkillClick(String skillId) {
         if (selectedSkillId != null && selectedSkillId.equals(skillId)) {
-            // 再次点击同一功法，取消选择
             selectedSkillId = null;
             player.sendMessage("§7已取消选择");
         } else {
-            // 选择功法
             selectedSkillId = skillId;
-            Skill skill = plugin.getSkillSystem().getSkill(skillId);
+            Skill skill = displayService.getSkill(skillId);
             String skillName = skill != null ? skill.getName() : skillId;
             player.sendMessage("§a已选择功法: §e" + skillName);
             player.sendMessage("§7点击上方槽位进行绑定");
@@ -389,15 +343,9 @@ public class SkillBindGUI {
      * 刷新GUI
      */
     private void refreshGUI() {
-        // 清空所有面板
         gui.getPanes().clear();
-        
-        // 重新创建
         createBackground();
         renderGUI();
-        
-        // 更新显示
         gui.update();
     }
 }
-

@@ -1,28 +1,32 @@
 package com.xiancore.gui.boss;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import com.github.stefvanschie.inventoryframework.gui.GuiItem;
+import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
+import com.github.stefvanschie.inventoryframework.pane.StaticPane;
+import com.xiancore.core.utils.GUIUtils;
+import com.xiancore.gui.utils.ItemBuilder;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
  * Boss列表GUI - 显示所有Boss刷新点
- * Boss List GUI - Display all boss spawn points
+ * 业务逻辑委托给 BossListDisplayService
+ * 使用 InventoryFramework 统一 GUI 框架
  *
  * @author XianCore
- * @version 1.0
+ * @version 3.0.0 - 统一使用 IF 框架
  */
 public class BossListGUI {
 
     private final Plugin plugin;
     private final Logger logger;
-    private final int ITEMS_PER_PAGE = 21; // 每页显示的Boss数量
+    private final BossListDisplayService displayService;
 
     /**
      * Boss信息数据类
@@ -34,10 +38,10 @@ public class BossListGUI {
         public int x, y, z;
         public int tier;
         public double health;
-        public String status; // ACTIVE, DEAD, DESPAWNED
+        public String status;
 
         public BossInfo(String id, String type, String world, int x, int y, int z,
-                       int tier, double health, String status) {
+                        int tier, double health, String status) {
             this.id = id;
             this.type = type;
             this.world = world;
@@ -50,12 +54,10 @@ public class BossListGUI {
         }
     }
 
-    /**
-     * 构造函数
-     */
     public BossListGUI(Plugin plugin) {
         this.plugin = plugin;
         this.logger = plugin.getLogger();
+        this.displayService = new BossListDisplayService();
     }
 
     /**
@@ -63,46 +65,70 @@ public class BossListGUI {
      */
     public void openBossListGUI(Player player, int page) {
         try {
-            // 获取Boss列表
             List<BossInfo> bosses = getSampleBosses();
+            BossListDisplayService.PageInfo pageInfo = displayService.calculatePageInfo(bosses.size(), page);
 
-            // 计算分页
-            int totalPages = (int) Math.ceil((double) bosses.size() / ITEMS_PER_PAGE);
-            if (page < 1) page = 1;
-            if (page > totalPages) page = totalPages;
+            String title = "§6§lBoss列表 (" + pageInfo.getCurrentPage() + "/" + pageInfo.getTotalPages() + ")";
+            ChestGui gui = new ChestGui(4, title);
+            gui.setOnGlobalClick(event -> event.setCancelled(true));
 
-            int startIndex = (page - 1) * ITEMS_PER_PAGE;
-            int endIndex = Math.min(startIndex + ITEMS_PER_PAGE, bosses.size());
+            GUIUtils.addGrayBackground(gui, 4);
 
-            // 创建菜单
-            String title = "§6§lBoss列表 (" + page + "/" + totalPages + ")";
-            Inventory listGUI = Bukkit.createInventory(null, 27, title);
+            StaticPane contentPane = new StaticPane(0, 0, 9, 4);
 
             // 添加Boss项
             int slot = 0;
-            for (int i = startIndex; i < endIndex && slot < 21; i++) {
+            for (int i = pageInfo.getStartIndex(); i < pageInfo.getEndIndex() && slot < 21; i++) {
                 BossInfo boss = bosses.get(i);
-                addBossItem(listGUI, slot, boss);
+                int row = slot / 7;
+                int col = 1 + (slot % 7);
+
+                ItemStack bossItem = createBossItem(boss);
+                final BossInfo finalBoss = boss;
+                final int currentPage = pageInfo.getCurrentPage();
+                contentPane.addItem(new GuiItem(bossItem, event -> {
+                    if (event.isLeftClick()) {
+                        showBossDetail(player, finalBoss);
+                    } else if (event.isRightClick()) {
+                        teleportToBoss(player, finalBoss);
+                    }
+                }), col, row);
+
                 slot++;
             }
 
             // 分页按钮
-            if (page > 1) {
-                ItemStack prevButton = createButton("§c上一页", Material.ARROW);
-                listGUI.setItem(21, prevButton);
+            if (pageInfo.hasPrevious()) {
+                ItemStack prevBtn = new ItemBuilder(Material.ARROW)
+                        .name("§c上一页")
+                        .lore("§7点击查看上一页")
+                        .build();
+                final int prevPage = pageInfo.getCurrentPage() - 1;
+                contentPane.addItem(new GuiItem(prevBtn, event -> {
+                    openBossListGUI(player, prevPage);
+                }), 0, 3);
             }
 
-            if (page < totalPages) {
-                ItemStack nextButton = createButton("§a下一页", Material.ARROW);
-                listGUI.setItem(23, nextButton);
+            if (pageInfo.hasNext()) {
+                ItemStack nextBtn = new ItemBuilder(Material.ARROW)
+                        .name("§a下一页")
+                        .lore("§7点击查看下一页")
+                        .build();
+                final int nextPage = pageInfo.getCurrentPage() + 1;
+                contentPane.addItem(new GuiItem(nextBtn, event -> {
+                    openBossListGUI(player, nextPage);
+                }), 8, 3);
             }
 
-            // 返回按钮
-            ItemStack backButton = createButton("§4返回", Material.BARRIER);
-            listGUI.setItem(25, backButton);
+            // 关闭按钮
+            ItemStack closeBtn = new ItemBuilder(Material.BARRIER)
+                    .name("§c§l关闭")
+                    .build();
+            contentPane.addItem(new GuiItem(closeBtn, event -> player.closeInventory()), 4, 3);
 
-            player.openInventory(listGUI);
-            logger.info("§a✓ 玩家 " + player.getName() + " 打开了Boss列表 (第 " + page + " 页)");
+            gui.addPane(contentPane);
+            gui.show(player);
+            logger.info("§a✓ 玩家 " + player.getName() + " 打开了Boss列表 (第 " + pageInfo.getCurrentPage() + " 页)");
 
         } catch (Exception e) {
             logger.severe("§c✗ 打开Boss列表失败: " + e.getMessage());
@@ -111,143 +137,57 @@ public class BossListGUI {
     }
 
     /**
-     * 添加Boss项
+     * 创建Boss物品
      */
-    private void addBossItem(Inventory inventory, int slot, BossInfo boss) {
-        ItemStack item = new ItemStack(getMaterialForTier(boss.tier));
-        ItemMeta meta = item.getItemMeta();
+    private ItemStack createBossItem(BossInfo boss) {
+        List<String> lore = new ArrayList<>();
+        lore.add("§7世界: §a" + boss.world);
+        lore.add("§7位置: §a" + boss.x + ", " + boss.y + ", " + boss.z);
+        lore.add("§7等级: §b" + displayService.getTierName(boss.tier));
+        lore.add("§7血量: §c" + String.format("%.1f", boss.health) + " / 100.0");
+        lore.add("§7状态: " + displayService.getStatusColor(boss.status) + boss.status);
+        lore.add("");
+        lore.add("§a左键 §7查看详情");
+        lore.add("§e右键 §7传送到此");
 
-        if (meta != null) {
-            meta.setDisplayName(getColorForTier(boss.tier) + boss.type);
-            List<String> lore = new ArrayList<>();
-            lore.add("§7世界: §a" + boss.world);
-            lore.add("§7位置: §a" + boss.x + ", " + boss.y + ", " + boss.z);
-            lore.add("§7等级: §b" + getTierName(boss.tier));
-            lore.add("§7血量: §c" + String.format("%.1f", boss.health) + " / 100.0");
-            lore.add("§7状态: " + getStatusColor(boss.status) + boss.status);
-            lore.add("");
-            lore.add("§8左键查看详情 | 右键传送到此");
-            meta.setLore(lore);
-            item.setItemMeta(meta);
-        }
-
-        inventory.setItem(slot, item);
-    }
-
-    /**
-     * 根据Tier获取材料
-     */
-    private Material getMaterialForTier(int tier) {
-        switch (tier) {
-            case 1: return Material.ZOMBIE_HEAD;
-            case 2: return Material.WITHER_SKELETON_SKULL;
-            case 3: return Material.DRAGON_HEAD;
-            case 4: return Material.NETHER_STAR;
-            default: return Material.SKULL_BANNER_PATTERN;
-        }
-    }
-
-    /**
-     * 根据Tier获取颜色
-     */
-    private String getColorForTier(int tier) {
-        switch (tier) {
-            case 1: return "§a";  // 绿色
-            case 2: return "§b";  // 青色
-            case 3: return "§e";  // 黄色
-            case 4: return "§c";  // 红色
-            default: return "§7"; // 灰色
-        }
-    }
-
-    /**
-     * 获取Tier名称
-     */
-    private String getTierName(int tier) {
-        switch (tier) {
-            case 1: return "普通";
-            case 2: return "精英";
-            case 3: return "世界Boss";
-            case 4: return "传奇";
-            default: return "未知";
-        }
-    }
-
-    /**
-     * 获取状态颜色
-     */
-    private String getStatusColor(String status) {
-        switch (status) {
-            case "ACTIVE": return "§a";
-            case "DEAD": return "§c";
-            case "DESPAWNED": return "§7";
-            default: return "§8";
-        }
-    }
-
-    /**
-     * 创建按钮
-     */
-    private ItemStack createButton(String name, Material material) {
-        ItemStack button = new ItemStack(material);
-        ItemMeta meta = button.getItemMeta();
-
-        if (meta != null) {
-            meta.setDisplayName(name);
-            button.setItemMeta(meta);
-        }
-
-        return button;
-    }
-
-    /**
-     * 处理Boss列表点击事件
-     */
-    public void handleBossListClick(Player player, int slot, int currentPage) {
-        try {
-            switch (slot) {
-                case 21: // 上一页
-                    openBossListGUI(player, currentPage - 1);
-                    break;
-                case 23: // 下一页
-                    openBossListGUI(player, currentPage + 1);
-                    break;
-                case 25: // 返回
-                    player.closeInventory();
-                    break;
-                default:
-                    if (slot < 21) {
-                        // 点击了Boss项
-                        List<BossInfo> bosses = getSampleBosses();
-                        int index = (currentPage - 1) * ITEMS_PER_PAGE + slot;
-                        if (index < bosses.size()) {
-                            showBossDetail(player, bosses.get(index));
-                        }
-                    }
-            }
-        } catch (Exception e) {
-            logger.severe("§c✗ 处理Boss列表点击失败: " + e.getMessage());
-        }
+        return new ItemBuilder(displayService.getMaterialForTier(boss.tier))
+                .name(displayService.getColorForTier(boss.tier) + boss.type)
+                .lore(lore)
+                .build();
     }
 
     /**
      * 显示Boss详情
      */
     private void showBossDetail(Player player, BossInfo boss) {
+        List<String> lines = displayService.createBossDetailLines(boss);
         player.sendMessage("");
-        player.sendMessage("§6§l═══════════════════════════════");
-        player.sendMessage("§6§l  Boss详情");
-        player.sendMessage("§6§l═══════════════════════════════");
-        player.sendMessage("§e名称: §a" + boss.type);
-        player.sendMessage("§e世界: §a" + boss.world);
-        player.sendMessage("§e位置: §a" + boss.x + ", " + boss.y + ", " + boss.z);
-        player.sendMessage("§e等级: " + getColorForTier(boss.tier) + getTierName(boss.tier));
-        player.sendMessage("§e血量: §c" + String.format("%.1f", boss.health) + " / 100.0");
-        player.sendMessage("§e状态: " + getStatusColor(boss.status) + boss.status);
-        player.sendMessage("§6§l═══════════════════════════════");
+        for (String line : lines) {
+            player.sendMessage(line);
+        }
         player.sendMessage("");
-
         player.sendMessage("§7[§a编辑§7] [§b传送§7] [§c删除§7] [§4关闭§7]");
+    }
+
+    /**
+     * 传送到Boss位置
+     */
+    private void teleportToBoss(Player player, BossInfo boss) {
+        org.bukkit.World world = plugin.getServer().getWorld(boss.world);
+        if (world != null) {
+            player.teleport(new org.bukkit.Location(world, boss.x, boss.y, boss.z));
+            player.sendMessage("§a已传送到 " + boss.type + " 的位置！");
+            player.closeInventory();
+        } else {
+            player.sendMessage("§c无法找到世界: " + boss.world);
+        }
+    }
+
+    /**
+     * 处理Boss列表点击事件 (保留兼容性)
+     */
+    public void handleBossListClick(Player player, int slot, int currentPage) {
+        // IF 框架自动处理点击，此方法保留兼容性
     }
 
     /**
@@ -284,41 +224,20 @@ public class BossListGUI {
      * 搜索Boss
      */
     public List<BossInfo> searchBosses(String query) {
-        List<BossInfo> allBosses = getSampleBosses();
-        List<BossInfo> results = new ArrayList<>();
-
-        String lowerQuery = query.toLowerCase();
-
-        for (BossInfo boss : allBosses) {
-            if (boss.type.toLowerCase().contains(lowerQuery) ||
-                boss.world.toLowerCase().contains(lowerQuery) ||
-                boss.status.toLowerCase().contains(lowerQuery)) {
-                results.add(boss);
-            }
-        }
-
-        return results;
+        return displayService.searchBosses(getSampleBosses(), query);
     }
 
     /**
      * 获取活跃Boss数量
      */
     public int getActiveBossCount() {
-        return (int) getSampleBosses().stream()
-                .filter(boss -> "ACTIVE".equals(boss.status))
-                .count();
+        return displayService.getActiveBossCount(getSampleBosses());
     }
 
     /**
      * 获取特定Tier的Boss列表
      */
     public List<BossInfo> getBossesByTier(int tier) {
-        List<BossInfo> results = new ArrayList<>();
-        for (BossInfo boss : getSampleBosses()) {
-            if (boss.tier == tier) {
-                results.add(boss);
-            }
-        }
-        return results;
+        return displayService.getBossesByTier(getSampleBosses(), tier);
     }
 }

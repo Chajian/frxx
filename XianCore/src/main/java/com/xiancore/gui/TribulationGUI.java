@@ -7,6 +7,9 @@ import com.xiancore.XianCore;
 import com.xiancore.core.utils.GUIUtils;
 import com.xiancore.gui.utils.ItemBuilder;
 import com.xiancore.systems.tribulation.Tribulation;
+import com.xiancore.systems.tribulation.TribulationDisplayService;
+import com.xiancore.systems.tribulation.TribulationDisplayService.RewardPreview;
+import com.xiancore.systems.tribulation.TribulationDisplayService.TribulationDisplayInfo;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -14,20 +17,23 @@ import org.bukkit.inventory.ItemStack;
 /**
  * 天劫进度GUI界面
  * 显示渡劫实时进度和统计
+ * 业务逻辑委托给 TribulationDisplayService
  *
  * @author Olivia Diaz
- * @version 1.0.0
+ * @version 2.0.0 - 使用 Service 层分离业务逻辑
  */
 public class TribulationGUI {
 
     private final XianCore plugin;
     private final Player player;
     private final Tribulation tribulation;
+    private final TribulationDisplayService displayService;
 
     public TribulationGUI(XianCore plugin, Player player, Tribulation tribulation) {
         this.plugin = plugin;
         this.player = player;
         this.tribulation = tribulation;
+        this.displayService = new TribulationDisplayService();
     }
 
     /**
@@ -41,24 +47,17 @@ public class TribulationGUI {
         ChestGui gui = new ChestGui(5, "§c§l天劫进度");
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
-        // 背景
         GUIUtils.addBackground(gui, 5, Material.RED_STAINED_GLASS_PANE);
 
         StaticPane contentPane = new StaticPane(0, 0, 9, 5);
 
-        // 天劫信息
+        TribulationDisplayInfo info = displayService.getDisplayInfo(player, tribulation);
+
         displayTribulationInfo(contentPane);
-
-        // 进度条
         displayProgressBar(contentPane);
+        displayStatistics(info, contentPane);
+        displayCurrentStatus(info, contentPane);
 
-        // 统计信息
-        displayStatistics(contentPane);
-
-        // 当前状态
-        displayCurrentStatus(contentPane);
-
-        // 关闭按钮
         ItemStack closeButton = new ItemBuilder(Material.BARRIER)
                 .name("§c关闭")
                 .lore("§7点击关闭界面")
@@ -101,7 +100,6 @@ public class TribulationGUI {
         int total = tribulation.getTotalWaves();
         double progress = tribulation.getProgress();
 
-        // 进度条长度为7格
         int barLength = 7;
         int filled = (int) (barLength * (progress / 100.0));
 
@@ -132,7 +130,7 @@ public class TribulationGUI {
     /**
      * 显示统计信息
      */
-    private void displayStatistics(StaticPane pane) {
+    private void displayStatistics(TribulationDisplayInfo info, StaticPane pane) {
         // 劫雷次数
         ItemStack strikeItem = new ItemBuilder(Material.LIGHTNING_ROD)
                 .name("§e§l劫雷统计")
@@ -160,8 +158,7 @@ public class TribulationGUI {
         pane.addItem(new GuiItem(damageItem), 3, 3);
 
         // 预计评级
-        String rating = tribulation.isCompleted() ?
-                tribulation.calculateRating() : getEstimatedRating();
+        String rating = info.getRating();
         String ratingColor = tribulation.getRatingColor();
 
         ItemBuilder ratingItemBuilder = new ItemBuilder(Material.DIAMOND)
@@ -180,8 +177,7 @@ public class TribulationGUI {
                         "§7评级影响奖励倍率"
                 );
 
-        // 条件添加发光效果
-        if (rating.equals("S") || rating.equals("A")) {
+        if (info.isHighRating()) {
             ratingItemBuilder.glow();
         }
 
@@ -195,22 +191,19 @@ public class TribulationGUI {
     /**
      * 显示当前状态
      */
-    private void displayCurrentStatus(StaticPane pane) {
+    private void displayCurrentStatus(TribulationDisplayInfo info, StaticPane pane) {
         double health = player.getHealth();
-        double maxHealth = 20.0;
 
         ItemStack statusItem = new ItemBuilder(Material.RED_DYE)
                 .name("§c§l当前状态")
                 .lore(
-                        "§e血量: " + getHealthBar() + " §c" + String.format("%.1f", health) + "§7/20.0",
+                        "§e血量: " + info.getHealthBar() + " §c" + String.format("%.1f", health) + "§7/20.0",
                         "§e位置: §f" + (int) player.getLocation().getX() + ", " +
                                 (int) player.getLocation().getY() + ", " +
                                 (int) player.getLocation().getZ(),
-                        "§e距中心: §f" + String.format("%.1f",
-                            tribulation.getLocation().distance(player.getLocation())) + " 格",
+                        "§e距中心: §f" + String.format("%.1f", info.getDistanceFromCenter()) + " 格",
                         "",
-                        tribulation.isPlayerInRange(player.getLocation()) ?
-                                "§a§l✓ 在范围内" : "§c§l✗ 超出范围!"
+                        info.isInRange() ? "§a§l✓ 在范围内" : "§c§l✗ 超出范围!"
                 )
                 .build();
         pane.addItem(new GuiItem(statusItem), 7, 3);
@@ -220,96 +213,22 @@ public class TribulationGUI {
      * 显示奖励预览
      */
     private void displayRewardPreview(StaticPane pane) {
-        long baseExp = (long) (10000 * tribulation.getType().getDifficultyMultiplier());
-        int baseStones = (int) (100 * tribulation.getType().getTier());
-        int baseSkillPoints = tribulation.getType().getTier();
-        int baseActiveQi = 25 + (tribulation.getType().getTier() * 5);
-
-        double multiplier = tribulation.isCompleted() ?
-                tribulation.getRewardMultiplier() :
-                getEstimatedMultiplier();
-
-        long exp = (long) (baseExp * multiplier);
+        RewardPreview reward = displayService.getRewardPreview(tribulation);
 
         ItemStack rewardItem = new ItemBuilder(Material.GOLD_INGOT)
                 .name("§6§l奖励预览")
                 .lore(
-                        tribulation.isCompleted() ? "§a最终奖励:" : "§7预估奖励:",
+                        reward.isFinal() ? "§a最终奖励:" : "§7预估奖励:",
                         "",
-                        "§7- 修为: §b+" + exp + " §7(×" + String.format("%.1f", multiplier) + ")",
-                        "§7- 灵石: §6+" + baseStones + "§7+",
-                        "§7- 功法点: §d+" + baseSkillPoints + "§7+",
-                        "§7- 活跃灵气: §a+" + baseActiveQi + "§7+",
+                        "§7- 修为: §b+" + reward.getFinalExp() + " §7(×" + String.format("%.1f", reward.getMultiplier()) + ")",
+                        "§7- 灵石: §6+" + reward.getBaseStones() + "§7+",
+                        "§7- 功法点: §d+" + reward.getBaseSkillPoints() + "§7+",
+                        "§7- 活跃灵气: §a+" + reward.getBaseActiveQi() + "§7+",
                         "",
                         "§7评级越高，奖励越多!"
                 )
                 .glow()
                 .build();
         pane.addItem(new GuiItem(rewardItem), 4, 4);
-    }
-
-    /**
-     * 获取预估评级
-     */
-    private String getEstimatedRating() {
-        if (tribulation.getDeaths() >= 2) {
-            return "C";
-        }
-        if (tribulation.getDeaths() == 1) {
-            return "B";
-        }
-
-        double healthPercent = tribulation.getMinHealth() / 20.0;
-        if (healthPercent >= 0.8 && tribulation.isPerfect()) {
-            return "S";
-        } else if (healthPercent >= 0.5) {
-            return "A";
-        } else {
-            return "B";
-        }
-    }
-
-    /**
-     * 获取预估倍率
-     */
-    private double getEstimatedMultiplier() {
-        String rating = getEstimatedRating();
-        return switch (rating) {
-            case "S" -> 2.0;
-            case "A" -> 1.5;
-            case "B" -> 1.2;
-            case "C" -> 1.0;
-            default -> 1.0;
-        };
-    }
-
-    /**
-     * 获取血量条
-     */
-    private String getHealthBar() {
-        double health = player.getHealth();
-        double maxHealth = 20.0;
-        double percent = health / maxHealth;
-
-        int barLength = 10;
-        int filled = (int) (barLength * percent);
-
-        StringBuilder bar = new StringBuilder("§7[");
-        for (int i = 0; i < barLength; i++) {
-            if (i < filled) {
-                if (percent > 0.6) {
-                    bar.append("§a█");
-                } else if (percent > 0.3) {
-                    bar.append("§e█");
-                } else {
-                    bar.append("§c█");
-                }
-            } else {
-                bar.append("§8█");
-            }
-        }
-        bar.append("§7]");
-
-        return bar.toString();
     }
 }

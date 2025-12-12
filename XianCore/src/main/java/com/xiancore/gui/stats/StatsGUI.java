@@ -1,26 +1,33 @@
 package com.xiancore.gui.stats;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import com.github.stefvanschie.inventoryframework.gui.GuiItem;
+import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
+import com.github.stefvanschie.inventoryframework.pane.StaticPane;
+import com.xiancore.core.utils.GUIUtils;
+import com.xiancore.gui.utils.ItemBuilder;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
  * 统计显示GUI - 显示系统和玩家统计数据
- * Stats Display GUI - Show system and player statistics
+ * 业务逻辑委托给 StatsDisplayService
+ * 使用 InventoryFramework 统一 GUI 框架
  *
  * @author XianCore
- * @version 1.0
+ * @version 3.0.0 - 统一使用 IF 框架
  */
 public class StatsGUI {
 
     private final Plugin plugin;
     private final Logger logger;
+    private final StatsDisplayService displayService;
 
     /**
      * 系统统计数据类
@@ -34,7 +41,7 @@ public class StatsGUI {
         public double averageKillTime;
 
         public SystemStats(int spawned, int killed, int active, int players,
-                          long gameTime, double avgKillTime) {
+                           long gameTime, double avgKillTime) {
             this.totalBossesSpawned = spawned;
             this.totalBossesKilled = killed;
             this.currentActiveBosses = active;
@@ -63,12 +70,10 @@ public class StatsGUI {
         }
     }
 
-    /**
-     * 构造函数
-     */
     public StatsGUI(Plugin plugin) {
         this.plugin = plugin;
         this.logger = plugin.getLogger();
+        this.displayService = new StatsDisplayService();
     }
 
     /**
@@ -76,26 +81,33 @@ public class StatsGUI {
      */
     public void showSystemStatsMenu(Player player) {
         try {
-            Inventory statsMenu = Bukkit.createInventory(null, 27, "§6§l系统统计");
-
-            // 获取统计数据
             SystemStats stats = getSampleSystemStats();
 
-            // 添加统计卡片
-            addStatCard(statsMenu, 10, "§a总生成数", Material.ZOMBIE_HEAD, stats.totalBossesSpawned + "");
-            addStatCard(statsMenu, 12, "§b总击杀数", Material.DIAMOND, stats.totalBossesKilled + "");
-            addStatCard(statsMenu, 14, "§c当前活跃", Material.REDSTONE, stats.currentActiveBosses + "");
-            addStatCard(statsMenu, 16, "§d参与玩家", Material.PLAYER_HEAD, stats.totalPlayers + "");
+            ChestGui gui = new ChestGui(3, "§6§l系统统计");
+            gui.setOnGlobalClick(event -> event.setCancelled(true));
 
-            // 第二排统计
-            addStatCard(statsMenu, 19, "§e总游戏时间", Material.CLOCK, formatTime(stats.totalGameTime));
-            addStatCard(statsMenu, 21, "§f平均击杀时间", Material.CLOCK, String.format("%.1f秒", stats.averageKillTime));
+            GUIUtils.addGrayBackground(gui, 3);
 
-            // 返回按钮
-            ItemStack backButton = createButton("§4返回", Material.BARRIER);
-            statsMenu.setItem(26, backButton);
+            StaticPane contentPane = new StaticPane(0, 0, 9, 3);
 
-            player.openInventory(statsMenu);
+            // 统计卡片
+            contentPane.addItem(new GuiItem(createStatCard("§a总生成数", Material.ZOMBIE_HEAD,
+                    stats.totalBossesSpawned + "")), 1, 1);
+            contentPane.addItem(new GuiItem(createStatCard("§b总击杀数", Material.DIAMOND,
+                    stats.totalBossesKilled + "")), 3, 1);
+            contentPane.addItem(new GuiItem(createStatCard("§c当前活跃", Material.REDSTONE,
+                    stats.currentActiveBosses + "")), 5, 1);
+            contentPane.addItem(new GuiItem(createStatCard("§d参与玩家", Material.PLAYER_HEAD,
+                    stats.totalPlayers + "")), 7, 1);
+
+            // 关闭按钮
+            ItemStack closeBtn = new ItemBuilder(Material.BARRIER)
+                    .name("§c§l关闭")
+                    .build();
+            contentPane.addItem(new GuiItem(closeBtn, event -> player.closeInventory()), 8, 2);
+
+            gui.addPane(contentPane);
+            gui.show(player);
             logger.info("§a✓ 玩家 " + player.getName() + " 打开了系统统计菜单");
 
         } catch (Exception e) {
@@ -109,27 +121,41 @@ public class StatsGUI {
     public void showRankingsMenu(Player player, String rankType) {
         try {
             String title = "击杀数".equals(rankType) ? "§6§l击杀排名" : "§6§l伤害排名";
-            Inventory rankMenu = Bukkit.createInventory(null, 27, title);
 
-            // 获取排名数据
+            ChestGui gui = new ChestGui(3, title);
+            gui.setOnGlobalClick(event -> event.setCancelled(true));
+
+            GUIUtils.addGrayBackground(gui, 3);
+
+            StaticPane contentPane = new StaticPane(0, 0, 9, 3);
+
             List<PlayerRank> rankings = getRankings(rankType);
 
             // 显示前6名
-            int[] slots = {10, 12, 14, 16, 19, 21};
+            int[] cols = {1, 2, 3, 5, 6, 7};
             for (int i = 0; i < Math.min(6, rankings.size()); i++) {
-                addRankCard(rankMenu, slots[i], rankings.get(i));
+                contentPane.addItem(new GuiItem(createRankCard(rankings.get(i))), cols[i], 1);
             }
 
             // 类型切换按钮
             String otherType = "击杀数".equals(rankType) ? "伤害排名" : "击杀排名";
-            ItemStack switchButton = createButton("§e切换: " + otherType, Material.COMPARATOR);
-            rankMenu.setItem(23, switchButton);
+            final String switchTo = "击杀数".equals(rankType) ? "伤害" : "击杀数";
+            ItemStack switchBtn = new ItemBuilder(Material.COMPARATOR)
+                    .name("§e切换: " + otherType)
+                    .lore("§7点击切换排名类型")
+                    .build();
+            contentPane.addItem(new GuiItem(switchBtn, event -> {
+                showRankingsMenu(player, switchTo);
+            }), 4, 2);
 
-            // 返回按钮
-            ItemStack backButton = createButton("§4返回", Material.BARRIER);
-            rankMenu.setItem(26, backButton);
+            // 关闭按钮
+            ItemStack closeBtn = new ItemBuilder(Material.BARRIER)
+                    .name("§c§l关闭")
+                    .build();
+            contentPane.addItem(new GuiItem(closeBtn, event -> player.closeInventory()), 8, 2);
 
-            player.openInventory(rankMenu);
+            gui.addPane(contentPane);
+            gui.show(player);
             logger.info("§a✓ 玩家 " + player.getName() + " 打开了" + title + "菜单");
 
         } catch (Exception e) {
@@ -142,18 +168,14 @@ public class StatsGUI {
      */
     public void showPlayerStats(Player player) {
         try {
+            StatsDisplayService.PlayerStatsInfo info = displayService.createPlayerStatsInfo(
+                    player.getName(), 42, 2100.5, 8, 12, "5分钟前");
+            List<String> lines = displayService.createPlayerStatsDisplay(info);
+
             player.sendMessage("");
-            player.sendMessage("§6§l═══════════════════════════════");
-            player.sendMessage("§6§l  个人统计");
-            player.sendMessage("§6§l═══════════════════════════════");
-            player.sendMessage("§e玩家名: §a" + player.getName());
-            player.sendMessage("§e击杀数: §a42");
-            player.sendMessage("§e总伤害: §a2100.5");
-            player.sendMessage("§e平均伤害: §a50.01");
-            player.sendMessage("§e击杀排名: §a#8");
-            player.sendMessage("§e伤害排名: §a#12");
-            player.sendMessage("§e最后击杀: §a5分钟前");
-            player.sendMessage("§6§l═══════════════════════════════");
+            for (String line : lines) {
+                player.sendMessage(line);
+            }
             player.sendMessage("");
 
         } catch (Exception e) {
@@ -166,23 +188,18 @@ public class StatsGUI {
      */
     public void showRecentBosses(Player player) {
         try {
+            List<StatsDisplayService.RecentBossInfo> recentBosses = Arrays.asList(
+                    new StatsDisplayService.RecentBossInfo("SkeletonKing", "5分钟前", "50.5伤害"),
+                    new StatsDisplayService.RecentBossInfo("FrostGiant", "15分钟前", "150.3伤害"),
+                    new StatsDisplayService.RecentBossInfo("FireTitan", "1小时前", "200.8伤害")
+            );
+
+            List<String> lines = displayService.createRecentBossesDisplay(recentBosses);
+
             player.sendMessage("");
-            player.sendMessage("§6§l═══════════════════════════════");
-            player.sendMessage("§6§l  最近击杀的Boss");
-            player.sendMessage("§6§l═══════════════════════════════");
-
-            // 模拟最近Boss数据
-            String[][] recentBosses = {
-                    {"SkeletonKing", "5分钟前", "50.5伤害"},
-                    {"FrostGiant", "15分钟前", "150.3伤害"},
-                    {"FireTitan", "1小时前", "200.8伤害"}
-            };
-
-            for (String[] boss : recentBosses) {
-                player.sendMessage("§e" + boss[0] + "§7 - " + boss[1] + " (伤害: " + boss[2] + ")");
+            for (String line : lines) {
+                player.sendMessage(line);
             }
-
-            player.sendMessage("§6§l═══════════════════════════════");
             player.sendMessage("");
 
         } catch (Exception e) {
@@ -191,82 +208,31 @@ public class StatsGUI {
     }
 
     /**
-     * 添加统计卡片
+     * 创建统计卡片
      */
-    private void addStatCard(Inventory inventory, int slot, String name, Material icon, String value) {
-        ItemStack card = new ItemStack(icon);
-        ItemMeta meta = card.getItemMeta();
-
-        if (meta != null) {
-            meta.setDisplayName(name);
-            meta.setLore(Arrays.asList(
-                    "§7数值: §a" + value
-            ));
-            card.setItemMeta(meta);
-        }
-
-        inventory.setItem(slot, card);
+    private ItemStack createStatCard(String name, Material icon, String value) {
+        return new ItemBuilder(icon)
+                .name(name)
+                .lore("§7数值: §a" + value)
+                .build();
     }
 
     /**
-     * 添加排名卡片
+     * 创建排名卡片
      */
-    private void addRankCard(Inventory inventory, int slot, PlayerRank rank) {
-        Material icon = getMaterialForRank(rank.rank);
-        ItemStack card = new ItemStack(icon);
-        ItemMeta meta = card.getItemMeta();
+    private ItemStack createRankCard(PlayerRank rank) {
+        Material icon = displayService.getMaterialForRank(rank.rank);
+        String color = displayService.getColorForRank(rank.rank);
 
-        if (meta != null) {
-            String color = getColorForRank(rank.rank);
-            meta.setDisplayName(color + "§l#" + rank.rank + " " + rank.playerName);
-            List<String> lore = new ArrayList<>();
-            lore.add("§7击杀: §a" + rank.killCount);
-            lore.add("§7总伤害: §a" + String.format("%.1f", rank.totalDamage));
-            lore.add("§7平均伤害: §a" + String.format("%.1f", rank.averageDamage));
-            meta.setLore(lore);
-            card.setItemMeta(meta);
-        }
+        List<String> lore = new ArrayList<>();
+        lore.add("§7击杀: §a" + rank.killCount);
+        lore.add("§7总伤害: §a" + displayService.formatDamage(rank.totalDamage));
+        lore.add("§7平均伤害: §a" + displayService.formatDamage(rank.averageDamage));
 
-        inventory.setItem(slot, card);
-    }
-
-    /**
-     * 根据排名获取材料
-     */
-    private Material getMaterialForRank(int rank) {
-        switch (rank) {
-            case 1: return Material.GOLD_BLOCK;
-            case 2: return Material.IRON_BLOCK;
-            case 3: return Material.COPPER_BLOCK;
-            default: return Material.STONE;
-        }
-    }
-
-    /**
-     * 根据排名获取颜色
-     */
-    private String getColorForRank(int rank) {
-        switch (rank) {
-            case 1: return "§6";  // 黄金
-            case 2: return "§7";  // 白银
-            case 3: return "§c";  // 铜
-            default: return "§8"; // 默认
-        }
-    }
-
-    /**
-     * 创建按钮
-     */
-    private ItemStack createButton(String name, Material material) {
-        ItemStack button = new ItemStack(material);
-        ItemMeta meta = button.getItemMeta();
-
-        if (meta != null) {
-            meta.setDisplayName(name);
-            button.setItemMeta(meta);
-        }
-
-        return button;
+        return new ItemBuilder(icon)
+                .name(color + "§l#" + rank.rank + " " + rank.playerName)
+                .lore(lore)
+                .build();
     }
 
     /**
@@ -302,40 +268,16 @@ public class StatsGUI {
     }
 
     /**
-     * 格式化时间显示
-     */
-    private String formatTime(long millis) {
-        long seconds = millis / 1000;
-        long minutes = seconds / 60;
-        long hours = minutes / 60;
-        long days = hours / 24;
-
-        if (days > 0) {
-            return days + "天" + (hours % 24) + "小时";
-        } else if (hours > 0) {
-            return hours + "小时" + (minutes % 60) + "分";
-        } else if (minutes > 0) {
-            return minutes + "分" + (seconds % 60) + "秒";
-        } else {
-            return seconds + "秒";
-        }
-    }
-
-    /**
      * 获取今日统计
      */
     public void showTodayStats(Player player) {
+        List<String> lines = displayService.createTodayStatsDisplay(
+                28, 24, 16, 12500.5, "3分12秒", "Player1");
+
         player.sendMessage("");
-        player.sendMessage("§6§l═══════════════════════════════");
-        player.sendMessage("§6§l  今日统计");
-        player.sendMessage("§6§l═══════════════════════════════");
-        player.sendMessage("§e生成Boss数: §a28");
-        player.sendMessage("§e击杀Boss数: §a24");
-        player.sendMessage("§e参与玩家数: §a16");
-        player.sendMessage("§e总伤害数: §a12500.5");
-        player.sendMessage("§e平均击杀时间: §a3分12秒");
-        player.sendMessage("§e最活跃玩家: §aPlayer1");
-        player.sendMessage("§6§l═══════════════════════════════");
+        for (String line : lines) {
+            player.sendMessage(line);
+        }
         player.sendMessage("");
     }
 }

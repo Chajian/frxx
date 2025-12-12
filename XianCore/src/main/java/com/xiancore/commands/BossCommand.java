@@ -46,8 +46,7 @@ public class BossCommand implements CommandExecutor, TabCompleter {
         BossConfigLoader configLoader = new BossConfigLoader(plugin);
         this.adminCommand = new BossCommandImpl(plugin, permissionChecker, bossManager, configLoader, this.adminGUI);
 
-        plugin.getServer().getPluginManager().registerEvents(bossGUI, plugin);
-        plugin.getServer().getPluginManager().registerEvents(adminGUI, plugin);
+        // IF 框架不需要手动注册 Listener
     }
 
     @Override

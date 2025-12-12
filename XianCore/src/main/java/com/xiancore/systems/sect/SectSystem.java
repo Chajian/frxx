@@ -127,13 +127,12 @@ public class SectSystem {
         // 初始化设施管理器
         facilityManager.initialize();
 
-        // 注册设施 GUI 事件
-        plugin.getServer().getPluginManager().registerEvents(facilityGUI, plugin);
+        // SectFacilityGUI 使用 IF Framework，不需要手动注册 Listener
 
         // 初始化仓库管理器
         warehouseManager.initialize();
 
-        // 注册仓库 GUI 事件
+        // 注册仓库 GUI 事件（保留原生 Bukkit，支持物品存取）
         plugin.getServer().getPluginManager().registerEvents(warehouseGUI, plugin);
 
         // SectShopGUI 使用 IF Framework，不需要手动注册 Listener

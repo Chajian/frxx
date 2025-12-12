@@ -7,7 +7,9 @@ import com.xiancore.XianCore;
 import com.xiancore.core.utils.GUIUtils;
 import com.xiancore.core.data.PlayerData;
 import com.xiancore.gui.utils.ItemBuilder;
-import com.xiancore.systems.sect.SectRank;
+import com.xiancore.systems.sect.Sect;
+import com.xiancore.systems.sect.SectDisplayService;
+import com.xiancore.systems.sect.SectDisplayService.SectDisplayInfo;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -15,16 +17,19 @@ import org.bukkit.inventory.ItemStack;
 /**
  * 宗门界面
  * 提供宗门管理、成员查看、任务等功能
+ * 业务逻辑委托给 SectDisplayService
  *
  * @author Olivia Diaz
- * @version 1.0.0
+ * @version 2.0.0 - 使用 Service 层分离业务逻辑
  */
 public class SectGUI {
 
     private final XianCore plugin;
+    private final SectDisplayService displayService;
 
     public SectGUI(XianCore plugin) {
         this.plugin = plugin;
+        this.displayService = new SectDisplayService(plugin);
     }
 
     /**
@@ -37,27 +42,21 @@ public class SectGUI {
     private void show(Player player) {
         PlayerData data = plugin.getDataManager().loadPlayerData(player.getUniqueId());
 
-        // 创建6行的GUI
         ChestGui gui = new ChestGui(6, "§d§l宗门系统");
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
-        // 创建边框面板
         GUIUtils.addBackground(gui, 6, Material.PURPLE_STAINED_GLASS_PANE);
 
-        // 创建内容面板
         StaticPane contentPane = new StaticPane(0, 0, 9, 6);
 
-        // 判断玩家是否已加入宗门
-        Integer sectId = data.getSectId();
-        if (sectId == null) {
-            // 未加入宗门 - 显示创建/加入界面
-            displayNoSectInterface(player, data, contentPane);
+        SectDisplayInfo info = displayService.getSectDisplayInfo(player, data);
+
+        if (!info.isInSect()) {
+            displayNoSectInterface(player, info, contentPane);
         } else {
-            // 已加入宗门 - 显示宗门管理界面
-            displaySectInterface(player, data, contentPane);
+            displaySectInterface(player, info, contentPane);
         }
 
-        // 关闭按钮
         ItemStack closeButton = new ItemBuilder(Material.BARRIER).name("§c关闭").build();
         contentPane.addItem(new GuiItem(closeButton, event -> player.closeInventory()), 4, 5);
 
@@ -68,7 +67,7 @@ public class SectGUI {
     /**
      * 显示未加入宗门的界面
      */
-    private void displayNoSectInterface(Player player, PlayerData data, StaticPane pane) {
+    private void displayNoSectInterface(Player player, SectDisplayInfo info, StaticPane pane) {
         // 标题提示
         ItemStack infoItem = new ItemBuilder(Material.PAPER)
                 .name("§e§l宗门系统")
@@ -103,8 +102,7 @@ public class SectGUI {
                 .build();
 
         pane.addItem(new GuiItem(createButton, event -> {
-            // 检查条件
-            if (!data.getRealm().equals("炼气期")) {
+            if (info.canCreateSect()) {
                 player.sendMessage("§e正在创建宗门，请稍候...");
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                     player.performCommand("sect create");
@@ -162,22 +160,16 @@ public class SectGUI {
     /**
      * 显示已加入宗门的界面
      */
-    private void displaySectInterface(Player player, PlayerData data, StaticPane pane) {
-        // 从宗门系统获取宗门信息
-        com.xiancore.systems.sect.Sect sect = plugin.getSectSystem().getPlayerSect(player.getUniqueId());
-
-        // 获取职位和成员数量
-        String playerRank = SectRank.getColoredDisplayName(data.getSectRank());
-        int memberCount = sect != null ? sect.getMemberList().size() : 1;
-        int maxMembers = sect != null ? sect.getMaxMembers() : 10;
+    private void displaySectInterface(Player player, SectDisplayInfo info, StaticPane pane) {
+        Sect sect = displayService.getPlayerSect(player.getUniqueId());
 
         // 宗门信息
         ItemStack sectInfoItem = new ItemBuilder(Material.WHITE_BANNER)
                 .name("§d§l我的宗门")
                 .lore(
-                        "§e宗门ID: §f" + data.getSectId(),
-                        "§e我的职位: §f" + playerRank,
-                        "§e成员数量: §f" + memberCount + "§7/§f" + maxMembers,
+                        "§e宗门ID: §f" + info.getSectId(),
+                        "§e我的职位: §f" + info.getColoredRank(),
+                        "§e成员数量: §f" + info.getMemberCountDisplay(),
                         "",
                         "§7点击查看详细信息"
                 )
@@ -234,7 +226,6 @@ public class SectGUI {
 
         pane.addItem(new GuiItem(questButton, event -> {
             player.closeInventory();
-            // 打开宗门任务GUI
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 plugin.getSectSystem().getTaskGUI().openGUI(player);
             });
@@ -257,7 +248,6 @@ public class SectGUI {
 
         pane.addItem(new GuiItem(warehouseButton, event -> {
             player.closeInventory();
-            // 打开宗门仓库GUI
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 plugin.getSectSystem().getWarehouseGUI().open(player);
             });
@@ -280,7 +270,6 @@ public class SectGUI {
 
         pane.addItem(new GuiItem(shopButton, event -> {
             player.closeInventory();
-            // 打开宗门商店GUI
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 plugin.getSectSystem().getShopGUI().open(player);
             });
@@ -306,7 +295,6 @@ public class SectGUI {
 
         pane.addItem(new GuiItem(facilityButton, event -> {
             player.closeInventory();
-            // 打开宗门设施GUI
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 plugin.getSectSystem().getFacilityGUI().open(player);
             });
@@ -329,9 +317,7 @@ public class SectGUI {
                 .build();
 
         pane.addItem(new GuiItem(settingsButton, event -> {
-            // 检查权限：只有宗主可以访问设置
-            SectRank sectRank = SectRank.fromRankString(data.getSectRank());
-            if (sectRank != SectRank.LEADER) {
+            if (!info.isLeader()) {
                 player.sendMessage("§c只有宗主才能访问宗门设置!");
                 return;
             }
@@ -365,15 +351,12 @@ public class SectGUI {
                 .build();
 
         pane.addItem(new GuiItem(landButton, event -> {
-            // 检查权限：只有宗主可以访问领地管理
-            SectRank sectRank = SectRank.fromRankString(data.getSectRank());
-            if (sectRank != SectRank.LEADER) {
+            if (!info.isLeader()) {
                 player.sendMessage("§c只有宗主才能管理领地!");
                 return;
             }
 
             player.closeInventory();
-            // 打开领地管理GUI（已整合所有功能）
             plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                 player.performCommand("sect land gui");
             }, 1L);

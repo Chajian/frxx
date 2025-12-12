@@ -7,7 +7,9 @@ import com.xiancore.XianCore;
 import com.xiancore.core.data.PlayerData;
 import com.xiancore.core.utils.GUIUtils;
 import com.xiancore.gui.utils.ItemBuilder;
-import com.xiancore.systems.activeqi.ActiveQiManager.ActiveQiBoostType;
+import com.xiancore.systems.activeqi.ActiveQiShopDisplayService;
+import com.xiancore.systems.activeqi.ActiveQiShopDisplayService.DailyGiftInfo;
+import com.xiancore.systems.activeqi.ActiveQiShopDisplayService.ShopItemInfo;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -18,17 +20,19 @@ import java.util.List;
 /**
  * 活跃灵气商店 GUI
  * 玩家可以使用活跃灵气购买加成和领取每日礼包
- * 使用 IF (Inventory Framework) 重构
+ * 业务逻辑委托给 ActiveQiShopDisplayService
  *
  * @author Olivia Diaz
- * @version 2.0.0
+ * @version 3.0.0 - 使用 Service 层分离业务逻辑
  */
 public class ActiveQiShopGUI {
 
     private final XianCore plugin;
+    private final ActiveQiShopDisplayService displayService;
 
     public ActiveQiShopGUI(XianCore plugin) {
         this.plugin = plugin;
+        this.displayService = new ActiveQiShopDisplayService(plugin);
     }
 
     /**
@@ -41,22 +45,16 @@ public class ActiveQiShopGUI {
             return;
         }
 
-        // 创建 GUI
         ChestGui gui = new ChestGui(3, "§b§l活跃灵气商店");
         gui.setOnGlobalClick(event -> event.setCancelled(true));
 
-        // 背景
         GUIUtils.addGrayBackground(gui, 3);
 
-        // 内容面板
         StaticPane contentPane = new StaticPane(0, 0, 9, 3);
 
-        // 设置商品
         setBreakthroughBoostItem(contentPane, player);
         setForgeBoostItem(contentPane, player);
         setDailyGiftItem(contentPane, player);
-
-        // 设置当前活跃灵气显示
         setActiveQiDisplay(contentPane, player, data);
 
         gui.addPane(contentPane);
@@ -67,31 +65,30 @@ public class ActiveQiShopGUI {
      * 设置突破加成物品
      */
     private void setBreakthroughBoostItem(StaticPane pane, Player player) {
+        ShopItemInfo info = displayService.getBreakthroughBoostInfo(player.getUniqueId());
+
         List<String> lore = new ArrayList<>();
         lore.add("");
-        lore.add("§7消耗: §e30 活跃灵气");
-        lore.add("§7效果: §a+5% 突破成功率");
-        lore.add("§7持续: §f本次突破");
+        lore.add("§7消耗: §e" + info.getCost() + " 活跃灵气");
+        lore.add("§7效果: §a" + info.getEffect());
+        lore.add("§7持续: §f" + info.getDuration());
         lore.add("");
 
-        boolean hasBoost = plugin.getActiveQiManager().hasActiveBoost(
-                player.getUniqueId(), ActiveQiBoostType.BREAKTHROUGH);
-
-        if (hasBoost) {
-            lore.add("§c§l✗ 已拥有此加成");
+        if (info.isOwned()) {
+            lore.add("§c§l✗ " + info.getActionText());
         } else {
-            lore.add("§e点击购买");
+            lore.add("§e" + info.getActionText());
         }
 
         ItemStack item = new ItemBuilder(Material.NETHER_STAR)
-                .name("§e§l★ 突破加成")
+                .name("§e§l" + info.getName())
                 .lore(lore)
                 .glow()
                 .build();
 
         pane.addItem(new GuiItem(item, event -> {
-            if (!hasBoost) {
-                if (plugin.getActiveQiManager().purchaseBreakthroughBoost(player)) {
+            if (!info.isOwned()) {
+                if (displayService.purchaseBreakthroughBoost(player)) {
                     player.closeInventory();
                 }
             }
@@ -102,30 +99,29 @@ public class ActiveQiShopGUI {
      * 设置炼制加成物品
      */
     private void setForgeBoostItem(StaticPane pane, Player player) {
+        ShopItemInfo info = displayService.getForgeBoostInfo(player.getUniqueId());
+
         List<String> lore = new ArrayList<>();
         lore.add("");
-        lore.add("§7消耗: §e25 活跃灵气");
-        lore.add("§7效果: §a+3% 炼制成功率");
-        lore.add("§7持续: §f本次炼制/强化/融合");
+        lore.add("§7消耗: §e" + info.getCost() + " 活跃灵气");
+        lore.add("§7效果: §a" + info.getEffect());
+        lore.add("§7持续: §f" + info.getDuration());
         lore.add("");
 
-        boolean hasBoost = plugin.getActiveQiManager().hasActiveBoost(
-                player.getUniqueId(), ActiveQiBoostType.FORGE);
-
-        if (hasBoost) {
-            lore.add("§c§l✗ 已拥有此加成");
+        if (info.isOwned()) {
+            lore.add("§c§l✗ " + info.getActionText());
         } else {
-            lore.add("§e点击购买");
+            lore.add("§e" + info.getActionText());
         }
 
         ItemStack item = new ItemBuilder(Material.ANVIL)
-                .name("§6§l⚏ 炼制加成")
+                .name("§6§l" + info.getName())
                 .lore(lore)
                 .build();
 
         pane.addItem(new GuiItem(item, event -> {
-            if (!hasBoost) {
-                if (plugin.getActiveQiManager().purchaseForgeBoost(player)) {
+            if (!info.isOwned()) {
+                if (displayService.purchaseForgeBoost(player)) {
                     player.closeInventory();
                 }
             }
@@ -136,9 +132,11 @@ public class ActiveQiShopGUI {
      * 设置每日礼包物品
      */
     private void setDailyGiftItem(StaticPane pane, Player player) {
+        DailyGiftInfo info = displayService.getDailyGiftInfo(player.getUniqueId());
+
         List<String> lore = new ArrayList<>();
         lore.add("");
-        lore.add("§7消耗: §e100 活跃灵气");
+        lore.add("§7消耗: §e" + info.getCost() + " 活跃灵气");
         lore.add("§7冷却: §f24 小时");
         lore.add("");
         lore.add("§e奖励内容:");
@@ -148,24 +146,20 @@ public class ActiveQiShopGUI {
         lore.add("§7（根据境界调整）");
         lore.add("");
 
-        boolean onCooldown = plugin.getActiveQiManager().isDailyGiftOnCooldown(player.getUniqueId());
-
-        if (onCooldown) {
-            long remainingHours = plugin.getActiveQiManager()
-                    .getDailyGiftRemainingCooldown(player.getUniqueId());
-            lore.add("§c§l✗ 冷却中 (" + remainingHours + " 小时)");
+        if (info.isOnCooldown()) {
+            lore.add("§c§l✗ " + info.getActionText());
         } else {
-            lore.add("§e点击领取");
+            lore.add("§e" + info.getActionText());
         }
 
         ItemStack item = new ItemBuilder(Material.CHEST)
-                .name("§d§l❤ 每日礼包")
+                .name("§d§l" + info.getName())
                 .lore(lore)
                 .build();
 
         pane.addItem(new GuiItem(item, event -> {
-            if (!onCooldown) {
-                if (plugin.getActiveQiManager().claimDailyGift(player)) {
+            if (!info.isOnCooldown()) {
+                if (displayService.claimDailyGift(player)) {
                     player.closeInventory();
                 }
             }
