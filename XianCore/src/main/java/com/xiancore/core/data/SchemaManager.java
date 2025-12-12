@@ -175,7 +175,44 @@ public class SchemaManager {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8
                     """);
 
-            plugin.getLogger().info("§a✓ 数据表创建/检查完成");
+            // 玩家技能绑定表（新增）
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS xian_player_skill_binds (
+                        player_uuid VARCHAR(36) NOT NULL,
+                        slot INT NOT NULL,
+                        skill_id VARCHAR(64) NOT NULL,
+                        PRIMARY KEY (player_uuid, slot),
+                        FOREIGN KEY (player_uuid) REFERENCES xian_players(uuid) ON DELETE CASCADE,
+                        INDEX idx_player (player_uuid)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+                    """);
+
+            // 宗门设施表（新增）
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS xian_sect_facilities (
+                        sect_id INT NOT NULL,
+                        facility_type VARCHAR(32) NOT NULL,
+                        level INT DEFAULT 1,
+                        upgraded_at BIGINT,
+                        PRIMARY KEY (sect_id, facility_type),
+                        FOREIGN KEY (sect_id) REFERENCES xian_sects(id) ON DELETE CASCADE,
+                        INDEX idx_sect (sect_id),
+                        INDEX idx_type_level (facility_type, level)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+                    """);
+
+            // 宗门仓库表（新增）
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS xian_sect_warehouses (
+                        sect_id INT PRIMARY KEY,
+                        capacity INT DEFAULT 54,
+                        items_json LONGTEXT,
+                        last_modified BIGINT,
+                        FOREIGN KEY (sect_id) REFERENCES xian_sects(id) ON DELETE CASCADE
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+                    """);
+
+            plugin.getLogger().info("§a✓ 数据表创建/检查完成（包含3张新表）");
 
         } catch (SQLException e) {
             plugin.getLogger().severe("§c✗ 创建数据表失败!");

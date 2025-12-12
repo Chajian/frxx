@@ -4,6 +4,8 @@ import com.xiancore.XianCore;
 import com.xiancore.core.data.migrate.base.IMigrator;
 import com.xiancore.core.data.migrate.migrators.PlayerDataMigrator;
 import com.xiancore.core.data.migrate.migrators.SectDataMigrator;
+import com.xiancore.core.data.migrate.migrators.FacilityDataMigrator;
+import com.xiancore.core.data.migrate.migrators.WarehouseDataMigrator;
 import com.xiancore.core.data.migrate.migrators.BossDataMigrator;
 import com.xiancore.core.data.migrate.migrators.BossConfigMigrator;
 import com.xiancore.core.data.migrate.migrators.TribulationDataMigrator;
@@ -39,10 +41,16 @@ public class MigrationManager {
         // 注册宗门数据迁移器
         registerMigrator("sect", new SectDataMigrator(plugin));
 
+        // 注册宗门设施迁移器（新增）
+        registerMigrator("facility", new FacilityDataMigrator(plugin));
+
+        // 注册宗门仓库迁移器（新增）
+        registerMigrator("warehouse", new WarehouseDataMigrator(plugin));
+
         // 注册Boss记录迁移器
         registerMigrator("boss", new BossDataMigrator(plugin));
 
-        // 注册Boss配置迁移器（新增）
+        // 注册Boss配置迁移器
         registerMigrator("boss-config", new BossConfigMigrator(plugin));
 
         // 注册渡劫数据迁移器

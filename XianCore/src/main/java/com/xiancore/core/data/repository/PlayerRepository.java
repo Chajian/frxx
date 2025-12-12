@@ -80,6 +80,15 @@ public class PlayerRepository {
     private static final String SQL_INSERT_EQUIPMENT =
             "INSERT INTO xian_player_equipment (player_uuid, slot, equipment_uuid) VALUES (?, ?, ?)";
 
+    private static final String SQL_SELECT_SKILL_BINDS =
+            "SELECT slot, skill_id FROM xian_player_skill_binds WHERE player_uuid = ?";
+
+    private static final String SQL_DELETE_SKILL_BINDS =
+            "DELETE FROM xian_player_skill_binds WHERE player_uuid = ?";
+
+    private static final String SQL_INSERT_SKILL_BIND =
+            "INSERT INTO xian_player_skill_binds (player_uuid, slot, skill_id) VALUES (?, ?, ?)";
+
     public PlayerRepository(XianCore plugin, DatabaseManager databaseManager) {
         this.plugin = plugin;
         this.databaseManager = databaseManager;
@@ -151,6 +160,7 @@ public class PlayerRepository {
         // 保存关联数据
         saveSkillsWithConnection(conn, data);
         saveEquipmentWithConnection(conn, data);
+        saveSkillBindsWithConnection(conn, data);
     }
 
     /**
@@ -249,6 +259,7 @@ public class PlayerRepository {
                     PlayerData data = mapper.mapFromResultSet(rs, uuid);
                     loadSkillsFromDatabase(uuid, data);
                     loadEquipmentFromDatabase(uuid, data);
+                    loadSkillBindsFromDatabase(uuid, data);
                     return data;
                 }
             }
@@ -268,6 +279,7 @@ public class PlayerRepository {
 
             saveSkillsToDatabase(data);
             saveEquipmentToDatabase(data);
+            saveSkillBindsToDatabase(data);
 
         } catch (SQLException e) {
             plugin.getLogger().warning("§e保存玩家数据到数据库失败: " + data.getUuid());
@@ -399,6 +411,72 @@ public class PlayerRepository {
                 for (var entry : data.getEquipment().entrySet()) {
                     pstmt.setString(1, data.getUuid().toString());
                     pstmt.setString(2, entry.getKey());
+                    pstmt.setString(3, entry.getValue());
+                    pstmt.addBatch();
+                }
+                pstmt.executeBatch();
+            }
+        }
+    }
+
+    private void loadSkillBindsFromDatabase(UUID uuid, PlayerData data) {
+        try (Connection conn = databaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(SQL_SELECT_SKILL_BINDS)) {
+
+            pstmt.setString(1, uuid.toString());
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    int slot = rs.getInt("slot");
+                    String skillId = rs.getString("skill_id");
+                    data.getSkillBindings().put(slot, skillId);
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().warning("§e加载玩家技能绑定数据失败: " + uuid);
+            e.printStackTrace();
+        }
+    }
+
+    private void saveSkillBindsToDatabase(PlayerData data) {
+        try (Connection conn = databaseManager.getConnection()) {
+            // 删除旧数据
+            try (PreparedStatement pstmt = conn.prepareStatement(SQL_DELETE_SKILL_BINDS)) {
+                pstmt.setString(1, data.getUuid().toString());
+                pstmt.executeUpdate();
+            }
+
+            // 插入新数据
+            if (!data.getSkillBindings().isEmpty()) {
+                try (PreparedStatement pstmt = conn.prepareStatement(SQL_INSERT_SKILL_BIND)) {
+                    for (var entry : data.getSkillBindings().entrySet()) {
+                        pstmt.setString(1, data.getUuid().toString());
+                        pstmt.setInt(2, entry.getKey());
+                        pstmt.setString(3, entry.getValue());
+                        pstmt.addBatch();
+                    }
+                    pstmt.executeBatch();
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().warning("§e保存玩家技能绑定数据失败: " + data.getUuid());
+            e.printStackTrace();
+        }
+    }
+
+    private void saveSkillBindsWithConnection(Connection conn, PlayerData data) throws SQLException {
+        // 删除旧数据
+        try (PreparedStatement pstmt = conn.prepareStatement(SQL_DELETE_SKILL_BINDS)) {
+            pstmt.setString(1, data.getUuid().toString());
+            pstmt.executeUpdate();
+        }
+
+        // 插入新数据
+        if (!data.getSkillBindings().isEmpty()) {
+            try (PreparedStatement pstmt = conn.prepareStatement(SQL_INSERT_SKILL_BIND)) {
+                for (var entry : data.getSkillBindings().entrySet()) {
+                    pstmt.setString(1, data.getUuid().toString());
+                    pstmt.setInt(2, entry.getKey());
                     pstmt.setString(3, entry.getValue());
                     pstmt.addBatch();
                 }
