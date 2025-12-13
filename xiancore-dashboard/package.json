@@ -1,0 +1,31 @@
+{
+  "name": "xiancore-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "XianCore Boss Management Dashboard - Full Stack TypeScript",
+  "scripts": {
+    "dev": "pnpm --filter @xiancore/backend dev & pnpm --filter @xiancore/frontend dev",
+    "dev:backend": "pnpm --filter @xiancore/backend dev",
+    "dev:frontend": "pnpm --filter @xiancore/frontend dev",
+    "build": "pnpm --filter @xiancore/backend build && pnpm --filter @xiancore/frontend build",
+    "build:backend": "pnpm --filter @xiancore/backend build",
+    "build:frontend": "pnpm --filter @xiancore/frontend build",
+    "start": "pnpm --filter @xiancore/backend start",
+    "typecheck": "pnpm -r typecheck",
+    "clean": "pnpm -r clean && rimraf node_modules",
+    "prisma:generate": "pnpm --filter @xiancore/backend prisma:generate",
+    "prisma:migrate": "pnpm --filter @xiancore/backend prisma:migrate",
+    "prisma:studio": "pnpm --filter @xiancore/backend prisma:studio"
+  },
+  "engines": {
+    "node": ">=20.10.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.1",
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.7.2"
+  }
+}
