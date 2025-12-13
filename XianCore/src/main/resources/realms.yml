@@ -1,0 +1,134 @@
+# ============================================
+# XianCore 境界配置文件
+# 定义修仙境界体系
+# ============================================
+
+realms:
+  # ==================== 炼气期 ====================
+  lianqi:
+    name: "炼气期"
+    order: 1
+    breakthrough-qi: 1000
+    difficulty: 1.0
+    level-gain:
+      small: 5      # 小境界升级增加的等级 (初→中, 中→后)
+      big: 15       # 大境界升级增加的等级 (后→下一境界初)
+    skill-point-reward: 0
+    next: "zhuji"
+    keywords:
+      - "炼气"
+      - "炼气期"
+      - "qi_condensation"
+
+  # ==================== 筑基期 ====================
+  zhuji:
+    name: "筑基期"
+    order: 2
+    breakthrough-qi: 5000
+    difficulty: 2.0
+    level-gain:
+      small: 5
+      big: 15
+    skill-point-reward: 5
+    next: "jiedan"
+    keywords:
+      - "筑基"
+      - "筑基期"
+      - "foundation"
+
+  # ==================== 结丹期 ====================
+  jiedan:
+    name: "结丹期"
+    order: 3
+    breakthrough-qi: 50000
+    difficulty: 5.0
+    level-gain:
+      small: 5
+      big: 15
+    skill-point-reward: 10
+    next: "yuanying"
+    keywords:
+      - "结丹"
+      - "结丹期"
+      - "金丹"
+      - "golden_core"
+
+  # ==================== 元婴期 ====================
+  yuanying:
+    name: "元婴期"
+    order: 4
+    breakthrough-qi: 500000
+    difficulty: 10.0
+    level-gain:
+      small: 5
+      big: 15
+    skill-point-reward: 15
+    next: "huashen"
+    keywords:
+      - "元婴"
+      - "元婴期"
+      - "nascent_soul"
+
+  # ==================== 化神期 ====================
+  huashen:
+    name: "化神期"
+    order: 5
+    breakthrough-qi: 5000000
+    difficulty: 20.0
+    level-gain:
+      small: 5
+      big: 15
+    skill-point-reward: 20
+    next: "lianxu"
+    keywords:
+      - "化神"
+      - "化神期"
+      - "soul_formation"
+
+  # ==================== 炼虚期 ====================
+  lianxu:
+    name: "炼虚期"
+    order: 6
+    breakthrough-qi: 50000000
+    difficulty: 40.0
+    level-gain:
+      small: 5
+      big: 15
+    skill-point-reward: 30
+    next: "heti"
+    keywords:
+      - "炼虚"
+      - "炼虚期"
+      - "void_refinement"
+
+  # ==================== 合体期 ====================
+  heti:
+    name: "合体期"
+    order: 7
+    breakthrough-qi: 500000000
+    difficulty: 80.0
+    level-gain:
+      small: 5
+      big: 15
+    skill-point-reward: 40
+    next: "dacheng"
+    keywords:
+      - "合体"
+      - "合体期"
+      - "integration"
+
+  # ==================== 大乘期 ====================
+  dacheng:
+    name: "大乘期"
+    order: 8
+    breakthrough-qi: 5000000000
+    difficulty: 160.0
+    level-gain:
+      small: 5
+      big: 15
+    skill-point-reward: 50
+    next: ""  # 空表示最高境界
+    keywords:
+      - "大乘"
+      - "大乘期"
+      - "mahayana"

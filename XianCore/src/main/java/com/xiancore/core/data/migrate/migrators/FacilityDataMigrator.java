@@ -29,7 +29,7 @@ public class FacilityDataMigrator extends AbstractMigrator {
     public FacilityDataMigrator(XianCore plugin) {
         super(plugin);
         this.sectsFolder = new File(plugin.getDataFolder(), "sects");
-        this.facilityRepository = new FacilityRepository(plugin);
+        this.facilityRepository = new FacilityRepository(plugin, dataManager.getDatabaseManager());
     }
 
     @Override

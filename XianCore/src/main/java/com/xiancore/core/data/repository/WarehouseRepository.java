@@ -46,9 +46,9 @@ public class WarehouseRepository {
             "ON DUPLICATE KEY UPDATE capacity = VALUES(capacity), items_json = VALUES(items_json), " +
             "last_modified = VALUES(last_modified)";
 
-    public WarehouseRepository(XianCore plugin) {
+    public WarehouseRepository(XianCore plugin, DatabaseManager databaseManager) {
         this.plugin = plugin;
-        this.databaseManager = plugin.getDataManager().getDatabaseManager();
+        this.databaseManager = databaseManager;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
     }
 

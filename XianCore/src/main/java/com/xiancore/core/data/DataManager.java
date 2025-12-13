@@ -63,8 +63,8 @@ public class DataManager {
         this.playerRepository = new PlayerRepository(plugin, databaseManager);
         this.sectRepository = new SectRepository(plugin, databaseManager);
         this.tribulationRepository = new TribulationRepository(plugin, databaseManager);
-        this.warehouseRepository = new WarehouseRepository(plugin);
-        this.facilityRepository = new FacilityRepository(plugin);
+        this.warehouseRepository = new WarehouseRepository(plugin, databaseManager);
+        this.facilityRepository = new FacilityRepository(plugin, databaseManager);
     }
 
     /**

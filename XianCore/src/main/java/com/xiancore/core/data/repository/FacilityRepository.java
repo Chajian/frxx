@@ -38,9 +38,9 @@ public class FacilityRepository {
     private static final String SQL_INSERT =
             "INSERT INTO xian_sect_facilities (sect_id, facility_type, level, upgraded_at) VALUES (?, ?, ?, ?)";
 
-    public FacilityRepository(XianCore plugin) {
+    public FacilityRepository(XianCore plugin, DatabaseManager databaseManager) {
         this.plugin = plugin;
-        this.databaseManager = plugin.getDataManager().getDatabaseManager();
+        this.databaseManager = databaseManager;
     }
 
     // ==================== 公开 API ====================

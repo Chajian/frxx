@@ -31,7 +31,7 @@ public class WarehouseDataMigrator extends AbstractMigrator {
     public WarehouseDataMigrator(XianCore plugin) {
         super(plugin);
         this.sectsFolder = new File(plugin.getDataFolder(), "sects");
-        this.warehouseRepository = new WarehouseRepository(plugin);
+        this.warehouseRepository = new WarehouseRepository(plugin, dataManager.getDatabaseManager());
     }
 
     @Override
