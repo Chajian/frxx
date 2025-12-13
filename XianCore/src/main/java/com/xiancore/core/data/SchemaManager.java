@@ -182,7 +182,6 @@ public class SchemaManager {
                         slot INT NOT NULL,
                         skill_id VARCHAR(64) NOT NULL,
                         PRIMARY KEY (player_uuid, slot),
-                        FOREIGN KEY (player_uuid) REFERENCES xian_players(uuid) ON DELETE CASCADE,
                         INDEX idx_player (player_uuid)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8
                     """);
@@ -195,7 +194,6 @@ public class SchemaManager {
                         level INT DEFAULT 1,
                         upgraded_at BIGINT,
                         PRIMARY KEY (sect_id, facility_type),
-                        FOREIGN KEY (sect_id) REFERENCES xian_sects(id) ON DELETE CASCADE,
                         INDEX idx_sect (sect_id),
                         INDEX idx_type_level (facility_type, level)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8
@@ -207,8 +205,7 @@ public class SchemaManager {
                         sect_id INT PRIMARY KEY,
                         capacity INT DEFAULT 54,
                         items_json LONGTEXT,
-                        last_modified BIGINT,
-                        FOREIGN KEY (sect_id) REFERENCES xian_sects(id) ON DELETE CASCADE
+                        last_modified BIGINT
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8
                     """);
 
