@@ -50,4 +50,18 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * PUT /api/sects/:id
+ * 更新宗门信息
+ */
+router.put('/:id', async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.id);
+    const updatedSect = await sectService.updateSect(id, req.body);
+    return success(res, updatedSect);
+  } catch (err: any) {
+    return error(res, err.message);
+  }
+});
+
 export default router;

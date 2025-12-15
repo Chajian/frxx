@@ -24,6 +24,11 @@ export const sectApi = {
     return request.get<Sect>(`/sects/${id}`);
   },
 
+  // 更新宗门信息
+  update(id: number, data: Partial<Sect>) {
+    return request.put<Sect>(`/sects/${id}`, data);
+  },
+
   // 获取宗门排行榜
   getRanking(limit = 10) {
     return request.get<Sect[]>('/sects/ranking', { params: { limit } });

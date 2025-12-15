@@ -31,6 +31,178 @@
         </el-table-column>
       </el-table>
     </el-card>
+
+    <!-- 详情对话框 -->
+    <el-dialog
+      v-model="detailDialogVisible"
+      :title="editMode ? `编辑玩家 - ${currentPlayer?.name}` : `玩家详情 - ${currentPlayer?.name}`"
+      width="650px"
+    >
+      <div v-if="currentPlayer" v-loading="detailLoading">
+        <!-- 查看模式 -->
+        <el-tabs v-if="!editMode" v-model="activeTab">
+          <!-- 基础信息 -->
+          <el-tab-pane label="基础信息" name="basic">
+            <el-descriptions :column="2" border>
+              <el-descriptions-item label="UUID" :span="2">{{
+                currentPlayer.uuid
+              }}</el-descriptions-item>
+              <el-descriptions-item label="玩家名称">{{
+                currentPlayer.name
+              }}</el-descriptions-item>
+              <el-descriptions-item label="等级">{{
+                currentPlayer.playerLevel
+              }}</el-descriptions-item>
+              <el-descriptions-item label="境界">{{
+                currentPlayer.realm
+              }}</el-descriptions-item>
+              <el-descriptions-item label="境界层数">{{
+                currentPlayer.realmStage
+              }}</el-descriptions-item>
+              <el-descriptions-item label="灵根">{{
+                ((currentPlayer.spiritualRoot || 0) * 100).toFixed(1)
+              }}%</el-descriptions-item>
+              <el-descriptions-item label="灵根类型">{{
+                currentPlayer.spiritualRootType || '未知'
+              }}</el-descriptions-item>
+              <el-descriptions-item label="真气">{{
+                currentPlayer.qi
+              }}</el-descriptions-item>
+              <el-descriptions-item label="灵石">{{
+                currentPlayer.spiritStones || 0
+              }}</el-descriptions-item>
+              <el-descriptions-item label="宗门贡献">{{
+                currentPlayer.contributionPoints || 0
+              }}</el-descriptions-item>
+              <el-descriptions-item label="活跃灵气">{{
+                currentPlayer.activeQi || 0
+              }}</el-descriptions-item>
+            </el-descriptions>
+          </el-tab-pane>
+
+          <!-- 功法技能 -->
+          <el-tab-pane label="功法技能" name="skills">
+            <el-table :data="currentPlayer.skills || []" stripe max-height="300">
+              <el-table-column prop="skillId" label="技能ID" width="200" />
+              <el-table-column prop="level" label="等级" width="100" />
+              <el-table-column prop="proficiency" label="熟练度" />
+            </el-table>
+            <el-empty v-if="!currentPlayer.skills?.length" description="暂无功法技能" />
+          </el-tab-pane>
+
+          <!-- 装备 -->
+          <el-tab-pane label="装备" name="equipment">
+            <el-table :data="currentPlayer.equipment || []" stripe max-height="300">
+              <el-table-column prop="slot" label="槽位" width="120" />
+              <el-table-column prop="itemId" label="物品ID" />
+              <el-table-column prop="itemData" label="物品数据" show-overflow-tooltip />
+            </el-table>
+            <el-empty v-if="!currentPlayer.equipment?.length" description="暂无装备" />
+          </el-tab-pane>
+        </el-tabs>
+
+        <!-- 编辑模式 -->
+        <el-form v-else :model="editFormData" label-width="100px">
+          <el-divider content-position="left">修炼数据</el-divider>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="境界">
+                <el-select v-model="editFormData.realm" placeholder="选择境界">
+                  <el-option label="炼气期" value="炼气期" />
+                  <el-option label="筑基期" value="筑基期" />
+                  <el-option label="金丹期" value="金丹期" />
+                  <el-option label="元婴期" value="元婴期" />
+                  <el-option label="化神期" value="化神期" />
+                  <el-option label="炼虚期" value="炼虚期" />
+                  <el-option label="合体期" value="合体期" />
+                  <el-option label="大乘期" value="大乘期" />
+                  <el-option label="渡劫期" value="渡劫期" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="玩家等级">
+                <el-input-number v-model="editFormData.playerLevel" :min="1" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="真气(修为)">
+                <el-input-number v-model="editFormData.qi" :min="0" :step="1000" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="灵根值">
+                <el-slider v-model="editFormData.spiritualRoot" :min="0" :max="1" :step="0.01" show-input />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="灵根类型">
+                <el-select v-model="editFormData.spiritualRootType" placeholder="选择灵根类型" filterable>
+                  <el-option-group label="天灵根 (0.5%)">
+                    <el-option label="纯金灵根" value="HEAVENLY_METAL" />
+                    <el-option label="纯木灵根" value="HEAVENLY_WOOD" />
+                    <el-option label="纯水灵根" value="HEAVENLY_WATER" />
+                    <el-option label="纯火灵根" value="HEAVENLY_FIRE" />
+                    <el-option label="纯土灵根" value="HEAVENLY_EARTH" />
+                  </el-option-group>
+                  <el-option-group label="异灵根 (2.5%)">
+                    <el-option label="金木双灵根" value="VARIANT_METAL_WOOD" />
+                    <el-option label="金水双灵根" value="VARIANT_METAL_WATER" />
+                    <el-option label="金火双灵根" value="VARIANT_METAL_FIRE" />
+                    <el-option label="金土双灵根" value="VARIANT_METAL_EARTH" />
+                    <el-option label="木水双灵根" value="VARIANT_WOOD_WATER" />
+                    <el-option label="木火双灵根" value="VARIANT_WOOD_FIRE" />
+                    <el-option label="木土双灵根" value="VARIANT_WOOD_EARTH" />
+                    <el-option label="水火双灵根" value="VARIANT_WATER_FIRE" />
+                    <el-option label="水土双灵根" value="VARIANT_WATER_EARTH" />
+                    <el-option label="火土双灵根" value="VARIANT_FIRE_EARTH" />
+                  </el-option-group>
+                  <el-option-group label="杂灵根">
+                    <el-option label="杂灵根" value="MIXED" />
+                  </el-option-group>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-divider content-position="left">资源数据</el-divider>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="灵石">
+                <el-input-number v-model="editFormData.spiritStones" :min="0" :step="100" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="宗门贡献">
+                <el-input-number v-model="editFormData.contributionPoints" :min="0" :step="10" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="活跃灵气">
+                <el-input-number v-model="editFormData.activeQi" :min="0" :max="100" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+      </div>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button v-if="!editMode" @click="enterEditMode">编辑</el-button>
+          <el-button v-if="editMode" @click="cancelEdit">取消</el-button>
+          <el-button v-if="editMode" type="primary" @click="savePlayer" :loading="saving">
+            保存
+          </el-button>
+          <el-button @click="detailDialogVisible = false">关闭</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -40,8 +212,15 @@ import { playerApi, type Player } from '@/api/player';
 import { ElMessage } from 'element-plus';
 
 const loading = ref(false);
+const detailLoading = ref(false);
+const saving = ref(false);
 const searchText = ref('');
 const players = ref<Player[]>([]);
+const detailDialogVisible = ref(false);
+const currentPlayer = ref<any>(null);
+const activeTab = ref('basic');
+const editMode = ref(false);
+const editFormData = ref<Partial<Player>>({});
 
 const filteredPlayers = computed(() => {
   if (!searchText.value) return players.value;
@@ -61,9 +240,61 @@ const fetchPlayers = async () => {
   }
 };
 
-const viewDetail = (player: Player) => {
-  ElMessage.info(`查看玩家 ${player.name} 的详情`);
-  // TODO: 跳转到详情页或打开弹窗
+const viewDetail = async (player: Player) => {
+  detailDialogVisible.value = true;
+  detailLoading.value = true;
+  activeTab.value = 'basic';
+  editMode.value = false;
+
+  try {
+    currentPlayer.value = await playerApi.getByUuid(player.uuid);
+  } catch (error) {
+    ElMessage.error('获取玩家详情失败');
+  } finally {
+    detailLoading.value = false;
+  }
+};
+
+const enterEditMode = () => {
+  if (currentPlayer.value) {
+    editFormData.value = {
+      realm: currentPlayer.value.realm,
+      playerLevel: currentPlayer.value.playerLevel,
+      qi: Number(currentPlayer.value.qi) || 0,
+      spiritualRoot: currentPlayer.value.spiritualRoot,
+      spiritualRootType: currentPlayer.value.spiritualRootType,
+      spiritStones: Number(currentPlayer.value.spiritStones) || 0,
+      contributionPoints: currentPlayer.value.contributionPoints || 0,
+      activeQi: Number(currentPlayer.value.activeQi) || 0,
+    };
+    editMode.value = true;
+  }
+};
+
+const cancelEdit = () => {
+  editMode.value = false;
+  editFormData.value = {};
+};
+
+const savePlayer = async () => {
+  if (!currentPlayer.value) return;
+
+  saving.value = true;
+  try {
+    const updatedPlayer = await playerApi.update(currentPlayer.value.uuid, editFormData.value);
+    currentPlayer.value = updatedPlayer;
+    // 更新列表数据
+    const index = players.value.findIndex((p) => p.uuid === currentPlayer.value.uuid);
+    if (index !== -1) {
+      players.value[index] = { ...players.value[index], ...updatedPlayer };
+    }
+    editMode.value = false;
+    ElMessage.success('玩家信息已更新');
+  } catch (error) {
+    ElMessage.error('保存玩家信息失败');
+  } finally {
+    saving.value = false;
+  }
 };
 
 onMounted(() => {

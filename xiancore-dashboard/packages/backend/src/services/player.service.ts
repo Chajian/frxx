@@ -48,6 +48,30 @@ export class PlayerService {
       },
     });
   }
+
+  /**
+   * 更新玩家信息
+   */
+  async updatePlayer(uuid: string, data: Record<string, any>) {
+    return await prisma.xianPlayer.update({
+      where: { uuid },
+      data: {
+        ...(data.realm && { realm: data.realm }),
+        ...(data.qi !== undefined && { qi: BigInt(data.qi) }),
+        ...(data.spiritualRoot !== undefined && { spiritualRoot: data.spiritualRoot }),
+        ...(data.spiritualRootType && { spiritualRootType: data.spiritualRootType }),
+        ...(data.spiritStones !== undefined && { spiritStones: BigInt(data.spiritStones) }),
+        ...(data.contributionPoints !== undefined && { contributionPoints: data.contributionPoints }),
+        ...(data.playerLevel !== undefined && { playerLevel: data.playerLevel }),
+        ...(data.activeQi !== undefined && { activeQi: BigInt(data.activeQi) }),
+      },
+      include: {
+        skills: true,
+        equipment: true,
+        skillBinds: true,
+      },
+    });
+  }
 }
 
 export default new PlayerService();

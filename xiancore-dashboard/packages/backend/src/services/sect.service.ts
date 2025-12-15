@@ -59,6 +59,26 @@ export class SectService {
       },
     });
   }
+
+  /**
+   * 更新宗门信息
+   */
+  async updateSect(id: number, data: Record<string, any>) {
+    return await prisma.xianSect.update({
+      where: { id },
+      data: {
+        ...(data.name && { name: data.name }),
+        ...(data.level !== undefined && { level: data.level }),
+        ...(data.sectFunds !== undefined && { sectFunds: data.sectFunds }),
+        ...(data.experience !== undefined && { experience: data.experience }),
+      },
+      include: {
+        _count: {
+          select: { members: true },
+        },
+      },
+    });
+  }
 }
 
 export default new SectService();

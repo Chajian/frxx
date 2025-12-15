@@ -50,4 +50,18 @@ router.get('/:uuid', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * PUT /api/players/:uuid
+ * 更新玩家信息
+ */
+router.put('/:uuid', async (req: Request, res: Response) => {
+  try {
+    const { uuid } = req.params;
+    const updatedPlayer = await playerService.updatePlayer(uuid, req.body);
+    return success(res, updatedPlayer);
+  } catch (err: any) {
+    return error(res, err.message);
+  }
+});
+
 export default router;
