@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import playerRoutes from './player.routes';
-import sectRoutes from './sect.routes';
-import bossRoutes from './boss.routes';
+import playerRoutes from './player.routes.js';
+import sectRoutes from './sect.routes.js';
+import bossRoutes from './boss.routes.js';
 
 const router = Router();
 

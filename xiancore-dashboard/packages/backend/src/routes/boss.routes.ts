@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
-import bossService from '@/services/boss.service';
-import { success, error } from '@/lib/response';
+import bossService from '@/services/boss.service.js';
+import { success, error } from '@/lib/response.js';
 
 const router = Router();
 

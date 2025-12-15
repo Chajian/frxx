@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: xiancore-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-xiancore}
+      MYSQL_USER: ${MYSQL_USER:-securityuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-security123}
+      TZ: Asia/Shanghai
+    ports:
+      - "${MYSQL_PORT:-3307}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init-db:/docker-entrypoint-initdb.d
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - xiancore-network
+
+  # Backend Service
+  backend:
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+    container_name: xiancore-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${BACKEND_PORT:-8400}
+      DATABASE_URL: mysql://${MYSQL_USER:-securityuser}:${MYSQL_PASSWORD:-security123}@mysql:3306/${MYSQL_DATABASE:-xiancore}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+      MYTHICMOBS_MOBS_PATH: /app/mythicmobs
+      TZ: Asia/Shanghai
+    ports:
+      - "${BACKEND_PORT:-8400}:8400"
+    volumes:
+      # MythicMobs directory (read-only)
+      # If MYTHICMOBS_MOBS_PATH is empty, mounts an empty directory
+      - ${MYTHICMOBS_MOBS_PATH:-.docker/mythicmobs-empty}:/app/mythicmobs:ro
+      - backend_logs:/app/packages/backend/logs
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8400/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - xiancore-network
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        cd /app/packages/backend
+        echo "Waiting for database to be ready..."
+        sleep 10
+        echo "Syncing database schema..."
+        npx prisma db push --skip-generate || echo "Schema sync failed, continuing..."
+        echo "Starting backend server..."
+        node dist/index.js
+
+  # Frontend Service
+  frontend:
+    build:
+      context: .
+      dockerfile: packages/frontend/Dockerfile
+    container_name: xiancore-frontend
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    networks:
+      - xiancore-network
+
+networks:
+  xiancore-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
+  backend_logs:
+    driver: local

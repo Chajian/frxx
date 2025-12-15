@@ -1,5 +1,5 @@
-import prisma from '@/lib/prisma';
-import mythicMobsService, { type MythicMobInfo, type MythicMobDetailInfo } from './mythicmobs.service';
+import prisma from '@/lib/prisma.js';
+import mythicMobsService, { type MythicMobInfo, type MythicMobDetailInfo } from './mythicmobs.service.js';
 
 /**
  * Boss 刷新点数据（带 MythicMob 信息）

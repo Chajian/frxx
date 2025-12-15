@@ -262,3 +262,47 @@ model BossActive {
   @@index([spawnPointId], map: "idx_active_spawn_point")
   @@map("boss_active")
 }
+
+model BossRefreshConfig {
+  id                    Int     @id @default(1)
+  checkIntervalSeconds  Int     @default(300) @map("check_interval_seconds")
+  maxActiveBosses       Int     @default(10) @map("max_active_bosses")
+  minOnlinePlayers      Int     @default(0) @map("min_online_players")
+  enabled               Boolean @default(true)
+  updatedAt             BigInt? @map("updated_at")
+
+  @@map("xian_boss_refresh_config")
+}
+
+model XianBossSpawnPoint {
+  id                      String   @id @db.VarChar(64)
+  worldName               String   @map("world_name") @db.VarChar(64)
+  x                       Float
+  y                       Float
+  z                       Float
+  mythicMobId             String   @map("mythic_mob_id") @db.VarChar(64)
+  tier                    Int      @default(1)
+  cooldownSeconds         BigInt   @default(7200) @map("cooldown_seconds")
+  maxCount                Int      @default(1) @map("max_count")
+  currentCount            Int      @default(0) @map("current_count")
+  lastSpawnTime           BigInt   @default(0) @map("last_spawn_time")
+  enabled                 Boolean  @default(true)
+  spawnMode               String   @default("fixed") @map("spawn_mode") @db.VarChar(32)
+  randomRadius            Int      @default(0) @map("random_radius")
+  autoFindGround          Boolean  @default(false) @map("auto_find_ground")
+  minDistance             Int      @default(50) @map("min_distance")
+  maxDistance             Int      @default(200) @map("max_distance")
+  regions                 String?  @db.Text
+  enableSmartScoring      Boolean  @default(false) @map("enable_smart_scoring")
+  preferredBiomes         String?  @map("preferred_biomes") @db.Text
+  biomeWeight             Float    @default(0.2) @map("biome_weight")
+  spiritualEnergyWeight   Float    @default(0.3) @map("spiritual_energy_weight")
+  playerDensityWeight     Float    @default(0.2) @map("player_density_weight")
+  opennessWeight          Float    @default(0.3) @map("openness_weight")
+  minScore                Float    @default(0.4) @map("min_score")
+  createdAt               BigInt?  @map("created_at")
+  updatedAt               BigInt?  @map("updated_at")
+
+  @@map("xian_boss_spawn_points")
+}
+

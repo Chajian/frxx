@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
-import playerService from '@/services/player.service';
-import { success, error } from '@/lib/response';
+import playerService from '@/services/player.service.js';
+import { success, error } from '@/lib/response.js';
 
 const router = Router();
 

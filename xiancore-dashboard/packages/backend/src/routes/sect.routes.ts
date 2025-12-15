@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
-import sectService from '@/services/sect.service';
-import { success, error } from '@/lib/response';
+import sectService from '@/services/sect.service.js';
+import { success, error } from '@/lib/response.js';
 
 const router = Router();
 
