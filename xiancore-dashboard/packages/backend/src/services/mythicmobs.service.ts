@@ -312,6 +312,30 @@ export class MythicMobsService {
   }
 
   /**
+   * 递归读取目录下所有 yml 文件
+   */
+  private async getAllYmlFiles(dir: string, fileList: string[] = []): Promise<string[]> {
+    try {
+      const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+
+        if (entry.isDirectory()) {
+          // 递归读取子目录
+          await this.getAllYmlFiles(fullPath, fileList);
+        } else if (entry.isFile() && (entry.name.endsWith('.yml') || entry.name.endsWith('.yaml'))) {
+          fileList.push(fullPath);
+        }
+      }
+    } catch (error) {
+      console.error(`读取目录 ${dir} 失败:`, error);
+    }
+
+    return fileList;
+  }
+
+  /**
    * 获取所有 MythicMob 怪物列表
    */
   async getAllMobs(): Promise<MythicMobInfo[]> {
@@ -328,15 +352,11 @@ export class MythicMobsService {
     const mobs: MythicMobInfo[] = [];
 
     try {
-      const files = await fs.promises.readdir(this.mobsPath);
+      // 递归获取所有 yml 文件
+      const files = await this.getAllYmlFiles(this.mobsPath);
 
-      for (const file of files) {
-        if (!file.endsWith('.yml') && !file.endsWith('.yaml')) {
-          continue;
-        }
-
+      for (const filePath of files) {
         try {
-          const filePath = path.join(this.mobsPath, file);
           const content = await fs.promises.readFile(filePath, 'utf8');
           const parsed = yaml.load(content) as Record<string, any>;
 
@@ -344,20 +364,23 @@ export class MythicMobsService {
             continue;
           }
 
+          // 获取相对文件名用于显示
+          const fileName = path.relative(this.mobsPath, filePath);
+
           // 遍历文件中定义的所有怪物
           for (const [id, config] of Object.entries(parsed)) {
             if (!config || typeof config !== 'object') {
               continue;
             }
 
-            const mobInfo = this.parseMobConfig(id, config, file);
+            const mobInfo = this.parseMobConfig(id, config, fileName);
             if (mobInfo) {
               mobs.push(mobInfo);
               this.cache.set(id, mobInfo);
             }
           }
         } catch (fileError) {
-          console.error(`解析文件 ${file} 失败:`, fileError);
+          console.error(`解析文件 ${filePath} 失败:`, fileError);
         }
       }
 
@@ -837,15 +860,11 @@ export class MythicMobsService {
     }
 
     try {
-      const files = await fs.promises.readdir(dropTablesPath);
+      // 递归获取所有 yml 文件
+      const files = await this.getAllYmlFiles(dropTablesPath);
 
-      for (const file of files) {
-        if (!file.endsWith('.yml') && !file.endsWith('.yaml')) {
-          continue;
-        }
-
+      for (const filePath of files) {
         try {
-          const filePath = path.join(dropTablesPath, file);
           const content = await fs.promises.readFile(filePath, 'utf8');
           const parsed = yaml.load(content) as Record<string, any>;
 
@@ -864,7 +883,7 @@ export class MythicMobsService {
             }
           }
         } catch (fileError) {
-          console.error(`解析掉落表文件 ${file} 失败:`, fileError);
+          console.error(`解析掉落表文件 ${filePath} 失败:`, fileError);
         }
       }
     } catch (error) {
@@ -1239,15 +1258,11 @@ export class MythicMobsService {
     }
 
     try {
-      const files = await fs.promises.readdir(itemsPath);
+      // 递归获取所有 yml 文件
+      const files = await this.getAllYmlFiles(itemsPath);
 
-      for (const file of files) {
-        if (!file.endsWith('.yml') && !file.endsWith('.yaml')) {
-          continue;
-        }
-
+      for (const filePath of files) {
         try {
-          const filePath = path.join(itemsPath, file);
           const content = await fs.promises.readFile(filePath, 'utf8');
           const parsed = yaml.load(content) as Record<string, any>;
 
@@ -1255,18 +1270,21 @@ export class MythicMobsService {
             continue;
           }
 
+          // 获取相对文件名用于显示
+          const fileName = path.relative(itemsPath, filePath);
+
           for (const [id, config] of Object.entries(parsed)) {
             if (!config || typeof config !== 'object') {
               continue;
             }
 
-            const item = this.parseItemConfig(id, config, file);
+            const item = this.parseItemConfig(id, config, fileName);
             if (item) {
               this.itemCache.set(id, item);
             }
           }
         } catch (fileError) {
-          console.error(`解析物品文件 ${file} 失败:`, fileError);
+          console.error(`解析物品文件 ${filePath} 失败:`, fileError);
         }
       }
     } catch (error) {
