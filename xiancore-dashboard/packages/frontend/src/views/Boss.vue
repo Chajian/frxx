@@ -761,17 +761,100 @@
           <div v-if="editableDrops.length > 0" class="editable-drops">
             <p class="drops-label">直接掉落 (可编辑):</p>
             <el-table :data="editableDrops" size="small" stripe>
-              <el-table-column label="物品" width="220">
+              <el-table-column label="类型" width="140">
                 <template #default="{ row }">
-                  <el-autocomplete
+                  <el-select v-model="row.type" size="small" style="width: 100%">
+                    <el-option
+                      v-for="dropType in DROP_TYPES"
+                      :key="dropType.value"
+                      :label="dropType.label"
+                      :value="dropType.value"
+                    >
+                      <span style="display: flex; align-items: center;">
+                        <el-icon style="margin-right: 6px;"><component :is="dropType.icon" /></el-icon>
+                        {{ dropType.label }}
+                      </span>
+                    </el-option>
+                  </el-select>
+                </template>
+              </el-table-column>
+              <el-table-column label="物品/掉落表" width="280">
+                <template #default="{ row }">
+                  <!-- MythicMobs 物品 -->
+                  <el-select
+                    v-if="row.type === 'mythicitem'"
                     v-model="row.item"
-                    :fetch-suggestions="searchItemSuggestions"
-                    placeholder="物品ID或MythicMobs物品"
+                    filterable
+                    allow-create
+                    default-first-option
+                    placeholder="选择或输入 MythicMobs 物品"
                     size="small"
                     style="width: 100%"
-                    value-key="value"
-                    @select="(item) => row.item = item.value"
-                  />
+                  >
+                    <template #prefix>
+                      <el-icon><Box /></el-icon>
+                    </template>
+                    <el-option
+                      v-for="item in items"
+                      :key="item.id"
+                      :label="`${item.displayName} (${item.id})`"
+                      :value="item.id"
+                    >
+                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>{{ item.displayName }}</span>
+                        <span style="color: var(--el-text-color-secondary); font-size: 12px;">{{ item.id }}</span>
+                      </div>
+                    </el-option>
+                  </el-select>
+
+                  <!-- 掉落表 -->
+                  <el-select
+                    v-else-if="row.type === 'droptable'"
+                    v-model="row.item"
+                    filterable
+                    allow-create
+                    default-first-option
+                    placeholder="选择或输入掉落表"
+                    size="small"
+                    style="width: 100%"
+                  >
+                    <template #prefix>
+                      <el-icon><Coin /></el-icon>
+                    </template>
+                    <el-option
+                      v-for="dt in dropTables"
+                      :key="dt.id"
+                      :label="dt.id"
+                      :value="dt.id"
+                    >
+                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>{{ dt.id }}</span>
+                        <el-tag size="small" type="info">{{ dt.drops?.length || 0 }} 个掉落物</el-tag>
+                      </div>
+                    </el-option>
+                  </el-select>
+
+                  <!-- 原版物品 -->
+                  <el-select
+                    v-else
+                    v-model="row.item"
+                    filterable
+                    allow-create
+                    default-first-option
+                    placeholder="选择或输入原版物品"
+                    size="small"
+                    style="width: 100%"
+                  >
+                    <template #prefix>
+                      <el-icon><Present /></el-icon>
+                    </template>
+                    <el-option
+                      v-for="vanillaItem in VANILLA_ITEMS"
+                      :key="vanillaItem.value"
+                      :label="vanillaItem.label"
+                      :value="vanillaItem.value"
+                    />
+                  </el-select>
                 </template>
               </el-table-column>
               <el-table-column label="数量" width="100">
@@ -1134,7 +1217,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, reactive } from 'vue';
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus';
-import { Plus, Refresh, Search, Location, View, Edit, Box, Coin, Delete } from '@element-plus/icons-vue';
+import { Plus, Refresh, Search, Location, View, Edit, Box, Coin, Delete, Present } from '@element-plus/icons-vue';
 import {
   bossApi,
   type BossSpawnPoint,
@@ -1219,11 +1302,63 @@ const dropTableDetailVisible = ref(false);
 const dropTableDetail = ref<MythicDropTableInfo | null>(null);
 
 // 掉落编辑相关状态
+type DropType = 'mythicitem' | 'vanilla' | 'droptable';
+
 interface EditableDrop {
-  item: string;
-  amount: string;
-  chance: number;
+  type: DropType;           // 掉落类型
+  item: string;             // 物品ID/掉落表ID
+  amount: string;           // 数量
+  chance: number;           // 概率
 }
+
+const DROP_TYPES = [
+  { value: 'mythicitem', label: 'MythicMobs 物品', icon: 'Box' },
+  { value: 'vanilla', label: '原版物品', icon: 'Present' },
+  { value: 'droptable', label: '掉落表', icon: 'Coin' },
+] as const;
+
+// 常用原版物品列表
+const VANILLA_ITEMS = [
+  { value: 'DIAMOND', label: '钻石 (DIAMOND)' },
+  { value: 'EMERALD', label: '绿宝石 (EMERALD)' },
+  { value: 'GOLD_INGOT', label: '金锭 (GOLD_INGOT)' },
+  { value: 'IRON_INGOT', label: '铁锭 (IRON_INGOT)' },
+  { value: 'NETHERITE_INGOT', label: '下界合金锭 (NETHERITE_INGOT)' },
+  { value: 'DIAMOND_SWORD', label: '钻石剑 (DIAMOND_SWORD)' },
+  { value: 'DIAMOND_PICKAXE', label: '钻石镐 (DIAMOND_PICKAXE)' },
+  { value: 'DIAMOND_AXE', label: '钻石斧 (DIAMOND_AXE)' },
+  { value: 'DIAMOND_SHOVEL', label: '钻石锹 (DIAMOND_SHOVEL)' },
+  { value: 'DIAMOND_HOE', label: '钻石锄 (DIAMOND_HOE)' },
+  { value: 'NETHERITE_SWORD', label: '下界合金剑 (NETHERITE_SWORD)' },
+  { value: 'NETHERITE_PICKAXE', label: '下界合金镐 (NETHERITE_PICKAXE)' },
+  { value: 'NETHERITE_AXE', label: '下界合金斧 (NETHERITE_AXE)' },
+  { value: 'BOW', label: '弓 (BOW)' },
+  { value: 'CROSSBOW', label: '弩 (CROSSBOW)' },
+  { value: 'TRIDENT', label: '三叉戟 (TRIDENT)' },
+  { value: 'DIAMOND_HELMET', label: '钻石头盔 (DIAMOND_HELMET)' },
+  { value: 'DIAMOND_CHESTPLATE', label: '钻石胸甲 (DIAMOND_CHESTPLATE)' },
+  { value: 'DIAMOND_LEGGINGS', label: '钻石护腿 (DIAMOND_LEGGINGS)' },
+  { value: 'DIAMOND_BOOTS', label: '钻石靴子 (DIAMOND_BOOTS)' },
+  { value: 'NETHERITE_HELMET', label: '下界合金头盔 (NETHERITE_HELMET)' },
+  { value: 'NETHERITE_CHESTPLATE', label: '下界合金胸甲 (NETHERITE_CHESTPLATE)' },
+  { value: 'NETHERITE_LEGGINGS', label: '下界合金护腿 (NETHERITE_LEGGINGS)' },
+  { value: 'NETHERITE_BOOTS', label: '下界合金靴子 (NETHERITE_BOOTS)' },
+  { value: 'ELYTRA', label: '鞘翅 (ELYTRA)' },
+  { value: 'TOTEM_OF_UNDYING', label: '不死图腾 (TOTEM_OF_UNDYING)' },
+  { value: 'ENCHANTED_GOLDEN_APPLE', label: '附魔金苹果 (ENCHANTED_GOLDEN_APPLE)' },
+  { value: 'GOLDEN_APPLE', label: '金苹果 (GOLDEN_APPLE)' },
+  { value: 'EXPERIENCE_BOTTLE', label: '附魔之瓶 (EXPERIENCE_BOTTLE)' },
+  { value: 'NETHER_STAR', label: '下界之星 (NETHER_STAR)' },
+  { value: 'DRAGON_EGG', label: '龙蛋 (DRAGON_EGG)' },
+  { value: 'BEACON', label: '信标 (BEACON)' },
+  { value: 'SHULKER_BOX', label: '潜影盒 (SHULKER_BOX)' },
+  { value: 'ENDER_CHEST', label: '末影箱 (ENDER_CHEST)' },
+  { value: 'ENDER_PEARL', label: '末影珍珠 (ENDER_PEARL)' },
+  { value: 'BLAZE_ROD', label: '烈焰棒 (BLAZE_ROD)' },
+  { value: 'GHAST_TEAR', label: '恶魂之泪 (GHAST_TEAR)' },
+  { value: 'CHORUS_FRUIT', label: '紫颂果 (CHORUS_FRUIT)' },
+];
+
 const editableDrops = ref<EditableDrop[]>([]);
 const savingDrops = ref(false);
 
@@ -1412,13 +1547,28 @@ const showMobDetail = async (mobId: string) => {
     // 使用增强版 API 获取详细信息
     mobDetail.value = await bossApi.getMythicMobDetail(mobId, true);
 
-    // 初始化可编辑的掉落列表
+    // 初始化可编辑的掉落列表，智能识别类型
     if (mobDetail.value?.drops?.length) {
-      editableDrops.value = mobDetail.value.drops.map(drop => ({
-        item: drop.item || drop.raw || '',
-        amount: drop.amount || '1',
-        chance: drop.chance ?? 1,
-      }));
+      editableDrops.value = mobDetail.value.drops.map(drop => {
+        const itemId = drop.item || drop.raw || '';
+
+        // 智能识别掉落类型
+        let type: DropType = 'vanilla';
+        if (itemId.toLowerCase().includes('droptable') || itemId.startsWith('table:')) {
+          type = 'droptable';
+        } else if (items.value.some(i => i.id === itemId)) {
+          type = 'mythicitem';
+        } else if (dropTables.value.some(dt => dt.id === itemId)) {
+          type = 'droptable';
+        }
+
+        return {
+          type,
+          item: itemId,
+          amount: drop.amount || '1',
+          chance: drop.chance ?? 1,
+        };
+      });
     }
   } catch (error) {
     ElMessage.error('获取怪物详情失败');
@@ -1430,6 +1580,7 @@ const showMobDetail = async (mobId: string) => {
 // 掉落编辑方法
 const addMobDrop = () => {
   editableDrops.value.push({
+    type: 'mythicitem',
     item: '',
     amount: '1',
     chance: 1,
@@ -1440,41 +1591,39 @@ const removeMobDrop = (index: number) => {
   editableDrops.value.splice(index, 1);
 };
 
-const searchItemSuggestions = (queryString: string, cb: (results: { value: string; label: string }[]) => void) => {
-  if (!queryString) {
-    cb([]);
-    return;
-  }
-
-  bossApi.searchItems(queryString)
-    .then(results => {
-      cb(results.map(item => ({
-        value: item.id,
-        label: `${item.displayName} (${item.id})`,
-      })));
-    })
-    .catch(() => {
-      cb([]);
-    });
-};
-
 const saveMobDrops = async () => {
   if (!mobDetail.value) return;
 
   savingDrops.value = true;
   try {
-    // 构建掉落配置
+    // 构建掉落配置，根据类型生成不同格式
     const dropsConfig = editableDrops.value
       .filter(drop => drop.item.trim())
       .map(drop => {
-        // 构建 MythicMobs 掉落格式: item amount chance
-        let dropStr = drop.item;
+        let dropStr = '';
+
+        // 根据掉落类型构建格式
+        if (drop.type === 'droptable') {
+          // 掉落表引用格式: droptable{table=掉落表名}
+          dropStr = `droptable{table=${drop.item}}`;
+        } else if (drop.type === 'mythicitem') {
+          // MythicMobs 物品格式: mythicitem{item=物品ID}
+          dropStr = `mythicitem{item=${drop.item}}`;
+        } else {
+          // 原版物品直接使用 ID
+          dropStr = drop.item;
+        }
+
+        // 添加数量（如果不是1）
         if (drop.amount && drop.amount !== '1') {
           dropStr += ` ${drop.amount}`;
         }
+
+        // 添加概率（如果小于1）
         if (drop.chance !== undefined && drop.chance < 1) {
           dropStr += ` ${drop.chance}`;
         }
+
         return dropStr;
       });
 
