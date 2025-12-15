@@ -409,12 +409,33 @@
     <el-dialog
       v-model="mobDetailVisible"
       :title="mobDetail?.displayName || '怪物详情'"
-      width="800px"
+      width="900px"
     >
       <div v-if="mobDetailLoading" class="detail-loading">
         <el-skeleton :rows="10" animated />
       </div>
       <div v-else-if="mobDetail" class="mob-detail">
+        <!-- 模板继承信息 -->
+        <div v-if="mobDetail.templateInfo?.parent || mobDetail.templateInfo?.children?.length" class="detail-section template-section">
+          <h4>模板继承</h4>
+          <div class="template-chain">
+            <template v-if="mobDetail.templateInfo?.parent">
+              <el-tag type="warning" size="small">父模板: {{ mobDetail.templateInfo.parent }}</el-tag>
+              <span class="chain-arrow">→</span>
+            </template>
+            <el-tag type="primary" size="small">{{ mobDetail.id }}</el-tag>
+            <template v-if="mobDetail.templateInfo?.children?.length">
+              <span class="chain-arrow">→</span>
+              <el-tag v-for="child in mobDetail.templateInfo.children" :key="child" type="success" size="small" style="margin-left: 4px;">
+                {{ child }}
+              </el-tag>
+            </template>
+          </div>
+          <div v-if="mobDetail.templateInfo?.depth" class="template-depth">
+            继承深度: {{ mobDetail.templateInfo.depth }}
+          </div>
+        </div>
+
         <!-- 基础信息 -->
         <el-descriptions :column="3" border>
           <el-descriptions-item label="怪物 ID">{{ mobDetail.id }}</el-descriptions-item>
@@ -451,35 +472,110 @@
           </el-table>
         </div>
 
-        <!-- 技能 -->
+        <!-- 技能 (增强版) -->
         <div v-if="mobDetail.parsedSkills?.length" class="detail-section">
           <h4>技能列表 ({{ mobDetail.parsedSkills.length }} 个)</h4>
           <el-table :data="mobDetail.parsedSkills" size="small" stripe max-height="300">
-            <el-table-column label="技能机制" width="150">
+            <el-table-column label="技能机制" width="120">
               <template #default="{ row }">
                 <el-tag size="small">{{ row.mechanic || '未解析' }}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="触发器" width="120">
+            <el-table-column label="触发器" width="100">
               <template #default="{ row }">
                 <el-tag v-if="row.trigger" type="info" size="small">@{{ row.trigger }}</el-tag>
                 <span v-else>-</span>
               </template>
             </el-table-column>
-            <el-table-column label="原始配置">
+            <el-table-column label="目标" width="100">
               <template #default="{ row }">
-                <code class="skill-raw">{{ row.raw }}</code>
+                <el-tag v-if="row.targetSelector" type="warning" size="small">?{{ row.targetSelector }}</el-tag>
+                <span v-else>-</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="参数">
+              <template #default="{ row }">
+                <template v-if="row.params?.length">
+                  <el-tag v-for="(param, idx) in row.params.slice(0, 3)" :key="idx" size="small" type="info" style="margin-right: 4px;">
+                    {{ param.key }}={{ param.value }}
+                  </el-tag>
+                  <span v-if="row.params.length > 3" class="more-params">+{{ row.params.length - 3 }}</span>
+                </template>
+                <span v-else>-</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="条件" width="120">
+              <template #default="{ row }">
+                <template v-if="row.parsedConditions?.length">
+                  <el-tag v-for="(cond, idx) in row.parsedConditions.slice(0, 2)" :key="idx" :type="cond.negated ? 'danger' : 'success'" size="small" style="margin-right: 4px;">
+                    {{ cond.negated ? '!' : '' }}{{ cond.type }}
+                  </el-tag>
+                  <span v-if="row.parsedConditions.length > 2">+{{ row.parsedConditions.length - 2 }}</span>
+                </template>
+                <span v-else>-</span>
               </template>
             </el-table-column>
           </el-table>
         </div>
 
-        <!-- 掉落表 -->
+        <!-- 技能组 -->
+        <div v-if="mobDetail.skillGroups?.length" class="detail-section">
+          <h4>引用的技能组 ({{ mobDetail.skillGroups.length }} 个)</h4>
+          <el-collapse>
+            <el-collapse-item v-for="group in mobDetail.skillGroups" :key="group.id" :title="group.id">
+              <div v-if="group.cooldown" class="skill-group-info">
+                <el-tag size="small">冷却: {{ group.cooldown }}s</el-tag>
+              </div>
+              <el-table :data="group.skills" size="small" stripe>
+                <el-table-column label="机制" width="100">
+                  <template #default="{ row }">
+                    <el-tag size="small">{{ row.mechanic || '-' }}</el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column label="触发器" width="100">
+                  <template #default="{ row }">
+                    <span v-if="row.trigger">@{{ row.trigger }}</span>
+                    <span v-else>-</span>
+                  </template>
+                </el-table-column>
+                <el-table-column label="原始配置">
+                  <template #default="{ row }">
+                    <code class="skill-raw">{{ row.raw }}</code>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-collapse-item>
+          </el-collapse>
+        </div>
+
+        <!-- 掉落表 (增强版) -->
         <div v-if="mobDetail.drops?.length || mobDetail.dropsTable" class="detail-section">
           <h4>掉落配置</h4>
-          <p v-if="mobDetail.dropsTable">
+          <div v-if="mobDetail.dropsTable" class="drops-table-ref">
             <el-tag type="warning">引用掉落表: {{ mobDetail.dropsTable }}</el-tag>
-          </p>
+            <!-- 展开的掉落表 -->
+            <div v-if="mobDetail.expandedDropsTable" class="expanded-drops">
+              <p class="expanded-label">掉落表内容:</p>
+              <el-table :data="mobDetail.expandedDropsTable.drops" size="small" stripe>
+                <el-table-column label="物品" width="200">
+                  <template #default="{ row }">
+                    {{ row.item || row.raw }}
+                  </template>
+                </el-table-column>
+                <el-table-column label="数量" width="100">
+                  <template #default="{ row }">
+                    {{ row.amount || '-' }}
+                  </template>
+                </el-table-column>
+                <el-table-column label="概率" width="100">
+                  <template #default="{ row }">
+                    <span v-if="row.chance !== undefined">{{ (row.chance * 100).toFixed(1) }}%</span>
+                    <span v-else>-</span>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </div>
           <el-table v-if="mobDetail.drops?.length" :data="mobDetail.drops" size="small" stripe>
             <el-table-column label="物品" width="200">
               <template #default="{ row }">
@@ -551,7 +647,43 @@
       </div>
 
       <template #footer>
+        <el-button @click="openYamlEditor" type="warning">
+          <el-icon><Edit /></el-icon>
+          编辑配置
+        </el-button>
         <el-button @click="mobDetailVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- YAML 编辑对话框 -->
+    <el-dialog
+      v-model="yamlEditorVisible"
+      title="编辑怪物配置"
+      width="800px"
+      :close-on-click-modal="false"
+    >
+      <el-alert
+        type="warning"
+        :closable="false"
+        show-icon
+        style="margin-bottom: 15px;"
+      >
+        直接编辑 YAML 配置。修改将保存到原始配置文件。
+      </el-alert>
+      <el-input
+        v-model="yamlContent"
+        type="textarea"
+        :rows="20"
+        placeholder="YAML 配置"
+        class="yaml-editor"
+      />
+      <div v-if="yamlError" class="yaml-error">
+        <el-alert type="error" :title="yamlError" :closable="false" />
+      </div>
+      <template #footer>
+        <el-button @click="validateYamlContent">验证</el-button>
+        <el-button @click="yamlEditorVisible = false">取消</el-button>
+        <el-button type="primary" @click="saveYamlConfig" :loading="yamlSaving">保存</el-button>
       </template>
     </el-dialog>
   </div>
@@ -560,7 +692,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, reactive } from 'vue';
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus';
-import { Plus, Refresh, Search, Location, View } from '@element-plus/icons-vue';
+import { Plus, Refresh, Search, Location, View, Edit } from '@element-plus/icons-vue';
 import {
   bossApi,
   type BossSpawnPoint,
@@ -772,11 +904,78 @@ const showMobDetail = async (mobId: string) => {
   mobDetail.value = null;
 
   try {
-    mobDetail.value = await bossApi.getMythicMobDetail(mobId);
+    // 使用增强版 API 获取详细信息
+    mobDetail.value = await bossApi.getMythicMobDetail(mobId, true);
   } catch (error) {
     ElMessage.error('获取怪物详情失败');
   } finally {
     mobDetailLoading.value = false;
+  }
+};
+
+// YAML 编辑功能
+const yamlEditorVisible = ref(false);
+const yamlContent = ref('');
+const yamlError = ref('');
+const yamlSaving = ref(false);
+
+const openYamlEditor = async () => {
+  if (!mobDetail.value) return;
+
+  try {
+    const result = await bossApi.getMobRawYaml(mobDetail.value.id);
+    yamlContent.value = result.yaml;
+    yamlError.value = '';
+    yamlEditorVisible.value = true;
+  } catch (error) {
+    ElMessage.error('获取配置失败');
+  }
+};
+
+const validateYamlContent = async () => {
+  try {
+    const result = await bossApi.validateYaml(yamlContent.value);
+    if (result.valid) {
+      yamlError.value = '';
+      ElMessage.success('YAML 格式正确');
+    } else {
+      yamlError.value = result.error || '格式错误';
+    }
+  } catch (error) {
+    ElMessage.error('验证失败');
+  }
+};
+
+const saveYamlConfig = async () => {
+  if (!mobDetail.value) return;
+
+  // 先验证
+  const validation = await bossApi.validateYaml(yamlContent.value);
+  if (!validation.valid) {
+    yamlError.value = validation.error || '格式错误';
+    ElMessage.error('YAML 格式错误，请修正后再保存');
+    return;
+  }
+
+  yamlSaving.value = true;
+  try {
+    // 从 YAML 中提取配置对象 (去掉外层的 mobId 键)
+    const config = validation.parsed[mobDetail.value.id];
+    if (!config) {
+      yamlError.value = `配置中必须包含 "${mobDetail.value.id}" 键`;
+      return;
+    }
+
+    await bossApi.saveMobConfig(mobDetail.value.id, config);
+    ElMessage.success('配置已保存');
+    yamlEditorVisible.value = false;
+
+    // 刷新详情
+    showMobDetail(mobDetail.value.id);
+  } catch (error) {
+    ElMessage.error('保存失败');
+  } finally {
+    yamlSaving.value = false;
   }
 };
 
@@ -1038,5 +1237,72 @@ onMounted(() => {
   font-family: monospace;
   font-size: 12px;
   margin-bottom: 4px;
+}
+
+/* 模板继承样式 */
+.template-section {
+  background-color: var(--el-fill-color-light);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.template-chain {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chain-arrow {
+  color: var(--el-text-color-secondary);
+  font-weight: bold;
+}
+
+.template-depth {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+}
+
+/* 技能组样式 */
+.skill-group-info {
+  margin-bottom: 10px;
+}
+
+/* 更多参数提示 */
+.more-params {
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+/* 掉落表引用样式 */
+.drops-table-ref {
+  margin-bottom: 15px;
+}
+
+.expanded-drops {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: var(--el-fill-color-lighter);
+  border-radius: 6px;
+}
+
+.expanded-label {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  color: var(--el-text-color-secondary);
+}
+
+/* YAML 编辑器样式 */
+.yaml-editor :deep(textarea) {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.yaml-error {
+  margin-top: 10px;
 }
 </style>

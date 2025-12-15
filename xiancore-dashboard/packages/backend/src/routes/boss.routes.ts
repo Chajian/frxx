@@ -338,7 +338,11 @@ router.post('/mythicmobs/refresh', async (req: Request, res: Response) => {
 router.get('/mythicmobs/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const mobDetail = await bossService.getMythicMobDetail(id);
+    const { enhanced } = req.query;
+
+    const mobDetail = enhanced === 'true'
+      ? await bossService.getMythicMobDetailEnhanced(id)
+      : await bossService.getMythicMobDetail(id);
 
     if (!mobDetail) {
       return error(res, '怪物不存在', 404);
@@ -362,6 +366,183 @@ router.get('/mythicmobs-stats', async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error('获取怪物类型统计失败:', err);
     return error(res, err.message || '获取统计失败');
+  }
+});
+
+// ==================== 掉落表 ====================
+
+/**
+ * 获取所有掉落表
+ * GET /api/boss/droptables
+ */
+router.get('/droptables', async (req: Request, res: Response) => {
+  try {
+    const dropTables = await bossService.getAllDropTables();
+    return success(res, dropTables);
+  } catch (err: any) {
+    console.error('获取掉落表列表失败:', err);
+    return error(res, err.message || '获取失败');
+  }
+});
+
+/**
+ * 获取指定掉落表
+ * GET /api/boss/droptables/:id
+ */
+router.get('/droptables/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const dropTable = await bossService.getDropTable(id);
+
+    if (!dropTable) {
+      return error(res, '掉落表不存在', 404);
+    }
+
+    return success(res, dropTable);
+  } catch (err: any) {
+    console.error('获取掉落表失败:', err);
+    return error(res, err.message || '获取失败');
+  }
+});
+
+// ==================== 技能组 ====================
+
+/**
+ * 获取所有技能组
+ * GET /api/boss/skillgroups
+ */
+router.get('/skillgroups', async (req: Request, res: Response) => {
+  try {
+    const skillGroups = await bossService.getAllSkillGroups();
+    return success(res, skillGroups);
+  } catch (err: any) {
+    console.error('获取技能组列表失败:', err);
+    return error(res, err.message || '获取失败');
+  }
+});
+
+/**
+ * 获取指定技能组
+ * GET /api/boss/skillgroups/:id
+ */
+router.get('/skillgroups/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const skillGroup = await bossService.getSkillGroup(id);
+
+    if (!skillGroup) {
+      return error(res, '技能组不存在', 404);
+    }
+
+    return success(res, skillGroup);
+  } catch (err: any) {
+    console.error('获取技能组失败:', err);
+    return error(res, err.message || '获取失败');
+  }
+});
+
+// ==================== 模板继承 ====================
+
+/**
+ * 获取怪物模板继承信息
+ * GET /api/boss/mythicmobs/:id/template
+ */
+router.get('/mythicmobs/:id/template', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const templateInfo = await bossService.getTemplateInfo(id);
+
+    if (!templateInfo) {
+      return error(res, '模板信息不存在', 404);
+    }
+
+    return success(res, templateInfo);
+  } catch (err: any) {
+    console.error('获取模板信息失败:', err);
+    return error(res, err.message || '获取失败');
+  }
+});
+
+/**
+ * 获取怪物继承链
+ * GET /api/boss/mythicmobs/:id/inheritance
+ */
+router.get('/mythicmobs/:id/inheritance', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const chain = await bossService.getInheritanceChain(id);
+    return success(res, chain);
+  } catch (err: any) {
+    console.error('获取继承链失败:', err);
+    return error(res, err.message || '获取失败');
+  }
+});
+
+// ==================== 配置编辑 ====================
+
+/**
+ * 获取怪物原始 YAML 配置
+ * GET /api/boss/mythicmobs/:id/yaml
+ */
+router.get('/mythicmobs/:id/yaml', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const yamlContent = await bossService.getMobRawYaml(id);
+
+    if (!yamlContent) {
+      return error(res, '怪物不存在', 404);
+    }
+
+    return success(res, { yaml: yamlContent });
+  } catch (err: any) {
+    console.error('获取 YAML 配置失败:', err);
+    return error(res, err.message || '获取失败');
+  }
+});
+
+/**
+ * 保存怪物配置
+ * PUT /api/boss/mythicmobs/:id/config
+ */
+router.put('/mythicmobs/:id/config', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { config } = req.body;
+
+    if (!config || typeof config !== 'object') {
+      return error(res, '请提供有效的配置对象', 400);
+    }
+
+    const result = await bossService.saveMobConfig(id, config);
+
+    if (!result) {
+      return error(res, '保存配置失败', 500);
+    }
+
+    return success(res, null, '配置已保存');
+  } catch (err: any) {
+    console.error('保存配置失败:', err);
+    return error(res, err.message || '保存失败');
+  }
+});
+
+/**
+ * 验证 YAML 配置
+ * POST /api/boss/mythicmobs/validate-yaml
+ */
+router.post('/mythicmobs/validate-yaml', async (req: Request, res: Response) => {
+  try {
+    const { yaml: yamlContent } = req.body;
+
+    if (!yamlContent || typeof yamlContent !== 'string') {
+      return error(res, '请提供 YAML 内容', 400);
+    }
+
+    const result = bossService.validateYamlConfig(yamlContent);
+    return success(res, result);
+  } catch (err: any) {
+    console.error('验证 YAML 失败:', err);
+    return error(res, err.message || '验证失败');
   }
 });
 

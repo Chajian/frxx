@@ -410,10 +410,80 @@ export class BossService {
   }
 
   /**
+   * 获取单个 MythicMobs 怪物详情（增强版）
+   */
+  async getMythicMobDetailEnhanced(id: string): Promise<MythicMobDetailInfo | null> {
+    return await mythicMobsService.getMobDetailByIdEnhanced(id);
+  }
+
+  /**
    * 获取怪物类型统计
    */
   async getMythicMobTypeStats(): Promise<Record<string, number>> {
     return await mythicMobsService.getMobTypeStats();
+  }
+
+  /**
+   * 获取所有掉落表
+   */
+  async getAllDropTables() {
+    return await mythicMobsService.getAllDropTables();
+  }
+
+  /**
+   * 获取指定掉落表
+   */
+  async getDropTable(id: string) {
+    return await mythicMobsService.getDropTable(id);
+  }
+
+  /**
+   * 获取所有技能组
+   */
+  async getAllSkillGroups() {
+    return await mythicMobsService.getAllSkillGroups();
+  }
+
+  /**
+   * 获取指定技能组
+   */
+  async getSkillGroup(id: string) {
+    return await mythicMobsService.getSkillGroup(id);
+  }
+
+  /**
+   * 获取怪物模板继承信息
+   */
+  async getTemplateInfo(mobId: string) {
+    return await mythicMobsService.getTemplateInfo(mobId);
+  }
+
+  /**
+   * 获取怪物继承链
+   */
+  async getInheritanceChain(mobId: string) {
+    return await mythicMobsService.getInheritanceChain(mobId);
+  }
+
+  /**
+   * 获取怪物原始 YAML 配置
+   */
+  async getMobRawYaml(mobId: string) {
+    return await mythicMobsService.getMobRawYaml(mobId);
+  }
+
+  /**
+   * 保存怪物配置
+   */
+  async saveMobConfig(mobId: string, config: Record<string, any>) {
+    return await mythicMobsService.saveMobConfig(mobId, config);
+  }
+
+  /**
+   * 验证 YAML 配置
+   */
+  validateYamlConfig(yamlContent: string) {
+    return mythicMobsService.validateYamlConfig(yamlContent);
   }
 
   /**

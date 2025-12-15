@@ -1,13 +1,58 @@
 import request from '@/utils/request';
 
 /**
- * 技能信息
+ * 技能参数
+ */
+export interface MythicSkillParam {
+  key: string;
+  value: string;
+}
+
+/**
+ * 条件详细信息
+ */
+export interface MythicConditionInfo {
+  raw: string;
+  type: string;
+  params: MythicSkillParam[];
+  negated: boolean;
+}
+
+/**
+ * 目标选择器详细信息
+ */
+export interface MythicTargeterInfo {
+  raw: string;
+  type: string;
+  params: MythicSkillParam[];
+}
+
+/**
+ * 技能信息 (增强版)
  */
 export interface MythicSkillInfo {
   raw: string;
   mechanic?: string;
   trigger?: string;
+  triggerHealth?: number;
   conditions?: string[];
+  parsedConditions?: MythicConditionInfo[];
+  targetSelector?: string;
+  parsedTargeter?: MythicTargeterInfo;
+  params?: MythicSkillParam[];
+  chance?: number;
+  cooldown?: number;
+  healthModifier?: string;
+}
+
+/**
+ * 技能组信息
+ */
+export interface MythicSkillGroupInfo {
+  id: string;
+  skills: MythicSkillInfo[];
+  cooldown?: number;
+  conditions?: MythicConditionInfo[];
 }
 
 /**
@@ -18,6 +63,26 @@ export interface MythicDropInfo {
   item?: string;
   amount?: string;
   chance?: number;
+}
+
+/**
+ * 掉落表详细信息
+ */
+export interface MythicDropTableInfo {
+  id: string;
+  drops: MythicDropInfo[];
+  totalWeight?: number;
+  conditions?: MythicConditionInfo[];
+}
+
+/**
+ * 模板继承信息
+ */
+export interface MythicTemplateInfo {
+  id: string;
+  parent?: string;
+  children: string[];
+  depth: number;
 }
 
 /**
@@ -51,8 +116,10 @@ export interface MythicMobInfo {
 export interface MythicMobDetailInfo extends MythicMobInfo {
   rawConfig: Record<string, any>;
   parsedSkills: MythicSkillInfo[];
+  skillGroups?: MythicSkillGroupInfo[];
   drops: MythicDropInfo[];
   dropsTable?: string;
+  expandedDropsTable?: MythicDropTableInfo;
   equipment: MythicEquipmentInfo[];
   aiGoals?: string[];
   aiTargets?: string[];
@@ -71,6 +138,8 @@ export interface MythicMobDetailInfo extends MythicMobInfo {
   preventRandomEquipment?: boolean;
   preventLeashing?: boolean;
   preventSunburn?: boolean;
+  template?: string;
+  templateInfo?: MythicTemplateInfo;
 }
 
 /**
@@ -290,13 +359,66 @@ export const bossApi = {
   },
 
   /** 获取单个 MythicMobs 怪物详情 */
-  getMythicMobDetail(id: string): Promise<MythicMobDetailInfo> {
-    return request.get(`/boss/mythicmobs/${id}`);
+  getMythicMobDetail(id: string, enhanced = false): Promise<MythicMobDetailInfo> {
+    return request.get(`/boss/mythicmobs/${id}`, { params: { enhanced } });
   },
 
   /** 获取怪物类型统计 */
   getMythicMobTypeStats(): Promise<Record<string, number>> {
     return request.get('/boss/mythicmobs-stats');
+  },
+
+  // ==================== 掉落表 ====================
+
+  /** 获取所有掉落表 */
+  getDropTables(): Promise<MythicDropTableInfo[]> {
+    return request.get('/boss/droptables');
+  },
+
+  /** 获取指定掉落表 */
+  getDropTable(id: string): Promise<MythicDropTableInfo> {
+    return request.get(`/boss/droptables/${id}`);
+  },
+
+  // ==================== 技能组 ====================
+
+  /** 获取所有技能组 */
+  getSkillGroups(): Promise<MythicSkillGroupInfo[]> {
+    return request.get('/boss/skillgroups');
+  },
+
+  /** 获取指定技能组 */
+  getSkillGroup(id: string): Promise<MythicSkillGroupInfo> {
+    return request.get(`/boss/skillgroups/${id}`);
+  },
+
+  // ==================== 模板继承 ====================
+
+  /** 获取怪物模板继承信息 */
+  getTemplateInfo(mobId: string): Promise<MythicTemplateInfo> {
+    return request.get(`/boss/mythicmobs/${mobId}/template`);
+  },
+
+  /** 获取怪物继承链 */
+  getInheritanceChain(mobId: string): Promise<string[]> {
+    return request.get(`/boss/mythicmobs/${mobId}/inheritance`);
+  },
+
+  // ==================== 配置编辑 ====================
+
+  /** 获取怪物原始 YAML 配置 */
+  getMobRawYaml(mobId: string): Promise<{ yaml: string }> {
+    return request.get(`/boss/mythicmobs/${mobId}/yaml`);
+  },
+
+  /** 保存怪物配置 */
+  saveMobConfig(mobId: string, config: Record<string, any>): Promise<void> {
+    return request.put(`/boss/mythicmobs/${mobId}/config`, { config });
+  },
+
+  /** 验证 YAML 配置 */
+  validateYaml(yaml: string): Promise<{ valid: boolean; error?: string; parsed?: any }> {
+    return request.post('/boss/mythicmobs/validate-yaml', { yaml });
   },
 
   // ==================== 奖励配置 ====================
