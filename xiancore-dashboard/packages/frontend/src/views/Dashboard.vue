@@ -119,6 +119,7 @@ import { playerApi } from '@/api/player';
 import { sectApi } from '@/api/sect';
 import type { Player } from '@/api/player';
 import type { Sect } from '@/api/sect';
+import { useAutoRefresh } from '@/hooks/useAutoRefresh';
 
 const loading = ref(false);
 const stats = ref({
@@ -154,6 +155,9 @@ const fetchData = async () => {
     loading.value = false;
   }
 };
+
+// 使用自动刷新
+useAutoRefresh(fetchData);
 
 onMounted(() => {
   fetchData();
@@ -197,14 +201,14 @@ onMounted(() => {
 
 .stat-title {
   font-size: 14px;
-  color: #909399;
+  color: var(--el-text-color-secondary);
   margin-bottom: 8px;
 }
 
 .stat-value {
   font-size: 24px;
   font-weight: bold;
-  color: #303133;
+  color: var(--el-text-color-primary);
 }
 
 .card-header {
@@ -217,7 +221,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--el-border-color-lighter);
 }
 
 .ranking-item:last-child {
@@ -228,12 +232,12 @@ onMounted(() => {
   width: 30px;
   height: 30px;
   border-radius: 4px;
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  color: #606266;
+  color: var(--el-text-color-regular);
   margin-right: 12px;
 }
 
@@ -259,24 +263,24 @@ onMounted(() => {
 .name {
   font-size: 14px;
   font-weight: 500;
-  color: #303133;
+  color: var(--el-text-color-primary);
   margin-bottom: 4px;
 }
 
 .desc {
   font-size: 12px;
-  color: #909399;
+  color: var(--el-text-color-secondary);
 }
 
 .value {
   font-size: 16px;
   font-weight: bold;
-  color: #409eff;
+  color: var(--el-color-primary);
 }
 
 .empty-text {
   text-align: center;
   padding: 40px 0;
-  color: #909399;
+  color: var(--el-text-color-secondary);
 }
 </style>
