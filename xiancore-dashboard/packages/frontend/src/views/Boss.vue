@@ -2,12 +2,12 @@
   <div class="boss-container">
     <!-- 统计卡片 -->
     <el-row :gutter="20" class="stats-row">
-      <el-col :xs="12" :sm="6">
+      <el-col :xs="12" :sm="6" :md="4">
         <el-card shadow="hover" class="stat-card">
           <el-statistic title="刷新点总数" :value="stats.totalSpawnPoints" />
         </el-card>
       </el-col>
-      <el-col :xs="12" :sm="6">
+      <el-col :xs="12" :sm="6" :md="4">
         <el-card shadow="hover" class="stat-card">
           <el-statistic title="已启用" :value="stats.enabledSpawnPoints">
             <template #suffix>
@@ -16,16 +16,26 @@
           </el-statistic>
         </el-card>
       </el-col>
-      <el-col :xs="12" :sm="6">
+      <el-col :xs="12" :sm="6" :md="4">
         <el-card shadow="hover" class="stat-card">
           <el-statistic title="MythicMobs 怪物" :value="mythicMobs.length" />
         </el-card>
       </el-col>
-      <el-col :xs="12" :sm="6">
+      <el-col :xs="12" :sm="6" :md="4">
+        <el-card shadow="hover" class="stat-card">
+          <el-statistic title="MythicMobs 物品" :value="items.length" />
+        </el-card>
+      </el-col>
+      <el-col :xs="12" :sm="6" :md="4">
+        <el-card shadow="hover" class="stat-card">
+          <el-statistic title="掉落表" :value="dropTables.length" />
+        </el-card>
+      </el-col>
+      <el-col :xs="12" :sm="6" :md="4">
         <el-card shadow="hover" class="stat-card">
           <el-statistic title="今日击杀" :value="stats.todayKills">
             <template #suffix>
-              <span class="stat-suffix">/ {{ stats.totalKills }} 总计</span>
+              <span class="stat-suffix">/ {{ stats.totalKills }}</span>
             </template>
           </el-statistic>
         </el-card>
@@ -302,6 +312,85 @@
             <el-table-column label="操作" width="120" fixed="right">
               <template #default="{ row }">
                 <el-button type="primary" link @click="showItemDetail(row.id)">
+                  <el-icon><View /></el-icon>
+                  详情
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+
+        <!-- 掉落表 Tab -->
+        <el-tab-pane label="掉落表" name="droptables">
+          <template #label>
+            <span><el-icon><Coin /></el-icon> 掉落表</span>
+          </template>
+
+          <div class="tab-header">
+            <div class="filter-bar">
+              <el-input
+                v-model="dropTableSearchText"
+                placeholder="搜索掉落表 ID"
+                style="width: 250px"
+                clearable
+              >
+                <template #prefix>
+                  <el-icon><Search /></el-icon>
+                </template>
+              </el-input>
+            </div>
+            <div class="header-actions">
+              <el-button @click="fetchDropTables" :loading="dropTablesLoading">
+                <el-icon><Refresh /></el-icon>
+                刷新
+              </el-button>
+            </div>
+          </div>
+
+          <!-- 掉落表列表 -->
+          <el-table :data="filteredDropTables" v-loading="dropTablesLoading" stripe style="width: 100%">
+            <el-table-column prop="id" label="掉落表 ID" width="250" sortable />
+            <el-table-column label="掉落物数量" width="150">
+              <template #default="{ row }">
+                <el-tag type="primary" size="small">
+                  {{ row.drops?.length || 0 }} 个
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="总权重" width="150">
+              <template #default="{ row }">
+                <span v-if="row.totalWeight">{{ row.totalWeight }}</span>
+                <span v-else class="no-data">-</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="条件数量" width="120">
+              <template #default="{ row }">
+                <el-tag v-if="row.conditions?.length" type="warning" size="small">
+                  {{ row.conditions.length }} 个
+                </el-tag>
+                <span v-else class="no-data">-</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="掉落物预览">
+              <template #default="{ row }">
+                <div class="drops-preview">
+                  <el-tag
+                    v-for="(drop, idx) in row.drops?.slice(0, 3)"
+                    :key="idx"
+                    size="small"
+                    style="margin-right: 4px; margin-bottom: 2px;"
+                  >
+                    {{ drop.item || drop.raw }}
+                  </el-tag>
+                  <span v-if="row.drops?.length > 3" class="more-drops">
+                    +{{ row.drops.length - 3 }} 更多
+                  </span>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="120" fixed="right">
+              <template #default="{ row }">
+                <el-button type="primary" link @click="showDropTableDetail(row)">
                   <el-icon><View /></el-icon>
                   详情
                 </el-button>
@@ -632,14 +721,21 @@
           </el-collapse>
         </div>
 
-        <!-- 掉落表 (增强版) -->
-        <div v-if="mobDetail.drops?.length || mobDetail.dropsTable" class="detail-section">
-          <h4>掉落配置</h4>
+        <!-- 掉落表 (可编辑版) -->
+        <div class="detail-section">
+          <div class="section-header">
+            <h4>掉落配置</h4>
+            <el-button type="primary" size="small" @click="addMobDrop">
+              <el-icon><Plus /></el-icon>
+              添加掉落
+            </el-button>
+          </div>
+
+          <!-- 引用的掉落表 -->
           <div v-if="mobDetail.dropsTable" class="drops-table-ref">
             <el-tag type="warning">引用掉落表: {{ mobDetail.dropsTable }}</el-tag>
-            <!-- 展开的掉落表 -->
             <div v-if="mobDetail.expandedDropsTable" class="expanded-drops">
-              <p class="expanded-label">掉落表内容:</p>
+              <p class="expanded-label">掉落表内容 (只读):</p>
               <el-table :data="mobDetail.expandedDropsTable.drops" size="small" stripe>
                 <el-table-column label="物品" width="200">
                   <template #default="{ row }">
@@ -660,29 +756,57 @@
               </el-table>
             </div>
           </div>
-          <el-table v-if="mobDetail.drops?.length" :data="mobDetail.drops" size="small" stripe>
-            <el-table-column label="物品" width="200">
-              <template #default="{ row }">
-                {{ row.item || row.raw }}
-              </template>
-            </el-table-column>
-            <el-table-column label="数量" width="100">
-              <template #default="{ row }">
-                {{ row.amount || '-' }}
-              </template>
-            </el-table-column>
-            <el-table-column label="概率" width="100">
-              <template #default="{ row }">
-                <span v-if="row.chance !== undefined">{{ (row.chance * 100).toFixed(1) }}%</span>
-                <span v-else>-</span>
-              </template>
-            </el-table-column>
-            <el-table-column label="原始配置">
-              <template #default="{ row }">
-                <code class="drop-raw">{{ row.raw }}</code>
-              </template>
-            </el-table-column>
-          </el-table>
+
+          <!-- 可编辑的掉落列表 -->
+          <div v-if="editableDrops.length > 0" class="editable-drops">
+            <p class="drops-label">直接掉落 (可编辑):</p>
+            <el-table :data="editableDrops" size="small" stripe>
+              <el-table-column label="物品" width="220">
+                <template #default="{ row }">
+                  <el-autocomplete
+                    v-model="row.item"
+                    :fetch-suggestions="searchItemSuggestions"
+                    placeholder="物品ID或MythicMobs物品"
+                    size="small"
+                    style="width: 100%"
+                    value-key="value"
+                    @select="(item) => row.item = item.value"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column label="数量" width="100">
+                <template #default="{ row }">
+                  <el-input v-model="row.amount" placeholder="1" size="small" />
+                </template>
+              </el-table-column>
+              <el-table-column label="概率" width="120">
+                <template #default="{ row }">
+                  <el-input-number
+                    v-model="row.chance"
+                    :min="0"
+                    :max="1"
+                    :step="0.1"
+                    :precision="2"
+                    size="small"
+                    style="width: 100%"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" width="80">
+                <template #default="{ $index }">
+                  <el-button type="danger" link size="small" @click="removeMobDrop($index)">
+                    <el-icon><Delete /></el-icon>
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <div class="drops-actions">
+              <el-button type="success" size="small" @click="saveMobDrops" :loading="savingDrops">
+                保存掉落配置
+              </el-button>
+            </div>
+          </div>
+          <el-empty v-else-if="!mobDetail.dropsTable" description="暂无掉落配置" :image-size="60" />
         </div>
 
         <!-- AI 行为 -->
@@ -870,7 +994,138 @@
       </div>
 
       <template #footer>
+        <el-button @click="openItemYamlEditor" type="warning">
+          <el-icon><Edit /></el-icon>
+          编辑配置
+        </el-button>
         <el-button @click="itemDetailVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 物品 YAML 编辑对话框 -->
+    <el-dialog
+      v-model="itemYamlEditorVisible"
+      title="编辑物品配置"
+      width="800px"
+      :close-on-click-modal="false"
+    >
+      <el-alert
+        type="warning"
+        :closable="false"
+        show-icon
+        style="margin-bottom: 15px;"
+      >
+        直接编辑 YAML 配置。修改将保存到原始配置文件。
+      </el-alert>
+      <el-input
+        v-model="itemYamlContent"
+        type="textarea"
+        :rows="20"
+        placeholder="YAML 配置"
+        class="yaml-editor"
+      />
+      <div v-if="itemYamlError" class="yaml-error">
+        <el-alert type="error" :title="itemYamlError" :closable="false" />
+      </div>
+      <template #footer>
+        <el-button @click="validateItemYamlContent">验证</el-button>
+        <el-button @click="itemYamlEditorVisible = false">取消</el-button>
+        <el-button type="primary" @click="saveItemYamlConfig" :loading="itemYamlSaving">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 掉落表详情对话框 -->
+    <el-dialog
+      v-model="dropTableDetailVisible"
+      :title="`掉落表详情: ${dropTableDetail?.id || ''}`"
+      width="800px"
+    >
+      <div v-if="dropTableDetail" class="droptable-detail">
+        <!-- 基础信息 -->
+        <el-descriptions :column="2" border>
+          <el-descriptions-item label="掉落表 ID">{{ dropTableDetail.id }}</el-descriptions-item>
+          <el-descriptions-item label="掉落物数量">
+            <el-tag type="primary" size="small">{{ dropTableDetail.drops?.length || 0 }} 个</el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item v-if="dropTableDetail.totalWeight" label="总权重">
+            {{ dropTableDetail.totalWeight }}
+          </el-descriptions-item>
+        </el-descriptions>
+
+        <!-- 条件列表 -->
+        <div v-if="dropTableDetail.conditions?.length" class="detail-section">
+          <h4>触发条件 ({{ dropTableDetail.conditions.length }} 个)</h4>
+          <el-table :data="dropTableDetail.conditions" size="small" stripe>
+            <el-table-column label="条件类型" width="150">
+              <template #default="{ row }">
+                <el-tag :type="row.negated ? 'danger' : 'success'" size="small">
+                  {{ row.negated ? '!' : '' }}{{ row.type }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="参数">
+              <template #default="{ row }">
+                <template v-if="row.params?.length">
+                  <el-tag
+                    v-for="(param, idx) in row.params"
+                    :key="idx"
+                    size="small"
+                    type="info"
+                    style="margin-right: 4px;"
+                  >
+                    {{ param.key }}={{ param.value }}
+                  </el-tag>
+                </template>
+                <span v-else class="no-data">-</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="原始配置">
+              <template #default="{ row }">
+                <code class="drop-raw">{{ row.raw }}</code>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+
+        <!-- 掉落物列表 -->
+        <div v-if="dropTableDetail.drops?.length" class="detail-section">
+          <h4>掉落物列表 ({{ dropTableDetail.drops.length }} 个)</h4>
+          <el-table :data="dropTableDetail.drops" size="small" stripe max-height="400">
+            <el-table-column label="物品" width="200">
+              <template #default="{ row }">
+                <span class="drop-item">{{ row.item || row.raw }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="数量" width="100">
+              <template #default="{ row }">
+                <span v-if="row.amount">{{ row.amount }}</span>
+                <span v-else class="no-data">-</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="概率" width="120">
+              <template #default="{ row }">
+                <template v-if="row.chance !== undefined">
+                  <el-progress
+                    :percentage="Math.min(row.chance * 100, 100)"
+                    :format="() => `${(row.chance * 100).toFixed(1)}%`"
+                    :stroke-width="10"
+                    style="width: 80px;"
+                  />
+                </template>
+                <span v-else class="no-data">-</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="原始配置">
+              <template #default="{ row }">
+                <code class="drop-raw">{{ row.raw }}</code>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </div>
+
+      <template #footer>
+        <el-button @click="dropTableDetailVisible = false">关闭</el-button>
       </template>
     </el-dialog>
   </div>
@@ -879,7 +1134,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, reactive } from 'vue';
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus';
-import { Plus, Refresh, Search, Location, View, Edit, Box } from '@element-plus/icons-vue';
+import { Plus, Refresh, Search, Location, View, Edit, Box, Coin, Delete } from '@element-plus/icons-vue';
 import {
   bossApi,
   type BossSpawnPoint,
@@ -889,6 +1144,7 @@ import {
   type MythicMobsStatus,
   type MythicItemInfo,
   type MythicItemDetailInfo,
+  type MythicDropTableInfo,
   type CreateSpawnPointInput,
   BOSS_TIERS,
   SPAWN_MODES,
@@ -954,6 +1210,22 @@ const itemFilterMaterial = ref<string | null>(null);
 const itemDetailVisible = ref(false);
 const itemDetailLoading = ref(false);
 const itemDetail = ref<MythicItemDetailInfo | null>(null);
+
+// DropTables 相关状态
+const dropTablesLoading = ref(false);
+const dropTables = ref<MythicDropTableInfo[]>([]);
+const dropTableSearchText = ref('');
+const dropTableDetailVisible = ref(false);
+const dropTableDetail = ref<MythicDropTableInfo | null>(null);
+
+// 掉落编辑相关状态
+interface EditableDrop {
+  item: string;
+  amount: string;
+  chance: number;
+}
+const editableDrops = ref<EditableDrop[]>([]);
+const savingDrops = ref(false);
 
 // 表单
 const formRef = ref<FormInstance>();
@@ -1065,6 +1337,18 @@ const filteredItems = computed(() => {
   return result;
 });
 
+// 计算属性 - DropTables 筛选
+const filteredDropTables = computed(() => {
+  let result = dropTables.value;
+
+  if (dropTableSearchText.value) {
+    const keyword = dropTableSearchText.value.toLowerCase();
+    result = result.filter(dt => dt.id.toLowerCase().includes(keyword));
+  }
+
+  return result;
+});
+
 // 方法
 const fetchData = async () => {
   loading.value = true;
@@ -1122,14 +1406,106 @@ const showMobDetail = async (mobId: string) => {
   mobDetailVisible.value = true;
   mobDetailLoading.value = true;
   mobDetail.value = null;
+  editableDrops.value = [];
 
   try {
     // 使用增强版 API 获取详细信息
     mobDetail.value = await bossApi.getMythicMobDetail(mobId, true);
+
+    // 初始化可编辑的掉落列表
+    if (mobDetail.value?.drops?.length) {
+      editableDrops.value = mobDetail.value.drops.map(drop => ({
+        item: drop.item || drop.raw || '',
+        amount: drop.amount || '1',
+        chance: drop.chance ?? 1,
+      }));
+    }
   } catch (error) {
     ElMessage.error('获取怪物详情失败');
   } finally {
     mobDetailLoading.value = false;
+  }
+};
+
+// 掉落编辑方法
+const addMobDrop = () => {
+  editableDrops.value.push({
+    item: '',
+    amount: '1',
+    chance: 1,
+  });
+};
+
+const removeMobDrop = (index: number) => {
+  editableDrops.value.splice(index, 1);
+};
+
+const searchItemSuggestions = (queryString: string, cb: (results: { value: string; label: string }[]) => void) => {
+  if (!queryString) {
+    cb([]);
+    return;
+  }
+
+  bossApi.searchItems(queryString)
+    .then(results => {
+      cb(results.map(item => ({
+        value: item.id,
+        label: `${item.displayName} (${item.id})`,
+      })));
+    })
+    .catch(() => {
+      cb([]);
+    });
+};
+
+const saveMobDrops = async () => {
+  if (!mobDetail.value) return;
+
+  savingDrops.value = true;
+  try {
+    // 构建掉落配置
+    const dropsConfig = editableDrops.value
+      .filter(drop => drop.item.trim())
+      .map(drop => {
+        // 构建 MythicMobs 掉落格式: item amount chance
+        let dropStr = drop.item;
+        if (drop.amount && drop.amount !== '1') {
+          dropStr += ` ${drop.amount}`;
+        }
+        if (drop.chance !== undefined && drop.chance < 1) {
+          dropStr += ` ${drop.chance}`;
+        }
+        return dropStr;
+      });
+
+    // 获取当前配置
+    const yamlResult = await bossApi.getMobRawYaml(mobDetail.value.id);
+    const validation = await bossApi.validateYaml(yamlResult.yaml);
+
+    if (!validation.valid || !validation.parsed) {
+      ElMessage.error('获取当前配置失败');
+      return;
+    }
+
+    // 更新掉落配置
+    const config = validation.parsed[mobDetail.value.id];
+    if (!config) {
+      ElMessage.error('配置解析失败');
+      return;
+    }
+
+    config.Drops = dropsConfig;
+
+    // 保存配置
+    await bossApi.saveMobConfig(mobDetail.value.id, config);
+    ElMessage.success('掉落配置已保存');
+
+    // 刷新详情
+    await showMobDetail(mobDetail.value.id);
+  } catch (error) {
+    ElMessage.error('保存掉落配置失败');
+  } finally {
+    savingDrops.value = false;
   }
 };
 
@@ -1167,6 +1543,24 @@ const showItemDetail = async (itemId: string) => {
   } finally {
     itemDetailLoading.value = false;
   }
+};
+
+// DropTables 相关方法
+const fetchDropTables = async () => {
+  dropTablesLoading.value = true;
+  try {
+    const tables = await bossApi.getDropTables();
+    dropTables.value = tables;
+  } catch (error) {
+    console.error('获取掉落表列表失败:', error);
+  } finally {
+    dropTablesLoading.value = false;
+  }
+};
+
+const showDropTableDetail = (table: MythicDropTableInfo) => {
+  dropTableDetail.value = table;
+  dropTableDetailVisible.value = true;
 };
 
 // YAML 编辑功能
@@ -1232,6 +1626,72 @@ const saveYamlConfig = async () => {
     ElMessage.error('保存失败');
   } finally {
     yamlSaving.value = false;
+  }
+};
+
+// 物品 YAML 编辑功能
+const itemYamlEditorVisible = ref(false);
+const itemYamlContent = ref('');
+const itemYamlError = ref('');
+const itemYamlSaving = ref(false);
+
+const openItemYamlEditor = async () => {
+  if (!itemDetail.value) return;
+
+  try {
+    const result = await bossApi.getItemRawYaml(itemDetail.value.id);
+    itemYamlContent.value = result.yaml;
+    itemYamlError.value = '';
+    itemYamlEditorVisible.value = true;
+  } catch (error) {
+    ElMessage.error('获取物品配置失败');
+  }
+};
+
+const validateItemYamlContent = async () => {
+  try {
+    const result = await bossApi.validateYaml(itemYamlContent.value);
+    if (result.valid) {
+      itemYamlError.value = '';
+      ElMessage.success('YAML 格式正确');
+    } else {
+      itemYamlError.value = result.error || '格式错误';
+    }
+  } catch (error) {
+    ElMessage.error('验证失败');
+  }
+};
+
+const saveItemYamlConfig = async () => {
+  if (!itemDetail.value) return;
+
+  // 先验证
+  const validation = await bossApi.validateYaml(itemYamlContent.value);
+  if (!validation.valid) {
+    itemYamlError.value = validation.error || '格式错误';
+    ElMessage.error('YAML 格式错误，请修正后再保存');
+    return;
+  }
+
+  itemYamlSaving.value = true;
+  try {
+    // 从 YAML 中提取配置对象 (去掉外层的 itemId 键)
+    const config = validation.parsed[itemDetail.value.id];
+    if (!config) {
+      itemYamlError.value = `配置中必须包含 "${itemDetail.value.id}" 键`;
+      return;
+    }
+
+    await bossApi.saveItemConfig(itemDetail.value.id, config);
+    ElMessage.success('物品配置已保存');
+    itemYamlEditorVisible.value = false;
+
+    // 刷新详情
+    showItemDetail(itemDetail.value.id);
+  } catch (error) {
+    ElMessage.error('保存失败');
+  } finally {
+    itemYamlSaving.value = false;
   }
 };
 
@@ -1353,6 +1813,7 @@ onMounted(() => {
   fetchData();
   fetchMythicMobs();
   fetchItems();
+  fetchDropTables();
 });
 </script>
 
@@ -1621,5 +2082,57 @@ onMounted(() => {
   margin: 0;
   max-height: 200px;
   overflow: auto;
+}
+
+/* 掉落表样式 */
+.droptable-detail {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.drops-preview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.more-drops {
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+.drop-item {
+  font-weight: 500;
+  color: var(--el-color-primary);
+}
+
+/* 掉落编辑样式 */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.section-header h4 {
+  margin: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.editable-drops {
+  margin-top: 15px;
+}
+
+.drops-label {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  color: var(--el-text-color-secondary);
+}
+
+.drops-actions {
+  margin-top: 15px;
+  text-align: right;
 }
 </style>

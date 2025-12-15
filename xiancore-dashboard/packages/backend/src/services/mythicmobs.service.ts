@@ -1498,6 +1498,62 @@ export class MythicMobsService {
 
     return stats;
   }
+
+  // ==================== 物品配置编辑功能 ====================
+
+  /**
+   * 获取物品的原始 YAML 配置
+   */
+  async getItemRawYaml(itemId: string): Promise<string | null> {
+    const item = await this.getItem(itemId);
+    if (!item) return null;
+
+    try {
+      const filePath = path.join(this.getItemsPath(), item.fileName);
+      const content = await fs.promises.readFile(filePath, 'utf8');
+      const parsed = yaml.load(content) as Record<string, any>;
+
+      if (parsed && parsed[itemId]) {
+        // 只返回这个物品的配置
+        return yaml.dump({ [itemId]: parsed[itemId] }, { indent: 2, lineWidth: -1 });
+      }
+    } catch (error) {
+      console.error(`读取物品配置失败 ${itemId}:`, error);
+    }
+
+    return null;
+  }
+
+  /**
+   * 保存物品配置
+   */
+  async saveItemConfig(itemId: string, newConfig: Record<string, any>): Promise<boolean> {
+    const item = await this.getItem(itemId);
+    if (!item) return false;
+
+    try {
+      const filePath = path.join(this.getItemsPath(), item.fileName);
+      const content = await fs.promises.readFile(filePath, 'utf8');
+      const parsed = yaml.load(content) as Record<string, any>;
+
+      if (!parsed) return false;
+
+      // 更新配置
+      parsed[itemId] = newConfig;
+
+      // 写回文件
+      const newContent = yaml.dump(parsed, { indent: 2, lineWidth: -1 });
+      await fs.promises.writeFile(filePath, newContent, 'utf8');
+
+      // 清除缓存
+      this.clearCache();
+
+      return true;
+    } catch (error) {
+      console.error(`保存物品配置失败 ${itemId}:`, error);
+      return false;
+    }
+  }
 }
 
 export default new MythicMobsService();

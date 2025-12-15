@@ -524,6 +524,20 @@ export class BossService {
   }
 
   /**
+   * 获取物品原始 YAML 配置
+   */
+  async getItemRawYaml(itemId: string) {
+    return await mythicMobsService.getItemRawYaml(itemId);
+  }
+
+  /**
+   * 保存物品配置
+   */
+  async saveItemConfig(itemId: string, config: Record<string, any>) {
+    return await mythicMobsService.saveItemConfig(itemId, config);
+  }
+
+  /**
    * 丰富刷新点数据（添加 MythicMob 信息和计算字段）
    */
   private enrichSpawnPoint(

@@ -616,4 +616,50 @@ router.get('/items/:id', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * 获取物品原始 YAML 配置
+ * GET /api/boss/items/:id/yaml
+ */
+router.get('/items/:id/yaml', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const yamlContent = await bossService.getItemRawYaml(id);
+
+    if (!yamlContent) {
+      return error(res, '物品不存在', 404);
+    }
+
+    return success(res, { yaml: yamlContent });
+  } catch (err: any) {
+    console.error('获取物品 YAML 配置失败:', err);
+    return error(res, err.message || '获取失败');
+  }
+});
+
+/**
+ * 保存物品配置
+ * PUT /api/boss/items/:id/config
+ */
+router.put('/items/:id/config', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { config } = req.body;
+
+    if (!config || typeof config !== 'object') {
+      return error(res, '请提供有效的配置对象', 400);
+    }
+
+    const result = await bossService.saveItemConfig(id, config);
+
+    if (!result) {
+      return error(res, '保存配置失败', 500);
+    }
+
+    return success(res, null, '配置已保存');
+  } catch (err: any) {
+    console.error('保存物品配置失败:', err);
+    return error(res, err.message || '保存失败');
+  }
+});
+
 export default router;

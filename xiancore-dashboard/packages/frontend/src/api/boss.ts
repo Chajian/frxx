@@ -501,6 +501,16 @@ export const bossApi = {
   getItemMaterialStats(): Promise<Record<string, number>> {
     return request.get('/boss/items-stats');
   },
+
+  /** 获取物品原始 YAML 配置 */
+  getItemRawYaml(itemId: string): Promise<{ yaml: string }> {
+    return request.get(`/boss/items/${itemId}/yaml`);
+  },
+
+  /** 保存物品配置 */
+  saveItemConfig(itemId: string, config: Record<string, any>): Promise<void> {
+    return request.put(`/boss/items/${itemId}/config`, { config });
+  },
 };
 
 /**
