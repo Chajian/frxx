@@ -6,9 +6,10 @@ import mythicMobsService, { type MythicMobInfo, type MythicMobDetailInfo } from 
  */
 export interface SpawnPointWithMob {
   id: string;
-  name: string;
-  description: string | null;
-  world: string;
+  name?: string;  // Dashboard 表独有，可选
+  description?: string | null;  // Dashboard 表独有，可选
+  world?: string;  // Dashboard 表字段
+  worldName?: string;  // Java 插件表字段
   x: number;
   y: number;
   z: number;
@@ -17,17 +18,24 @@ export interface SpawnPointWithMob {
   tier: number;
   cooldownSeconds: bigint;
   maxCount: number;
-  randomLocation: boolean;
-  spawnRadius: number;
+  randomLocation?: boolean;  // Dashboard 表独有
+  spawnRadius?: number;  // Dashboard 表独有
   randomRadius: number;
   spawnMode: string;
   enabled: boolean;
-  preSpawnWarning: number;
-  spawnMessage: string | null;
-  killMessage: string | null;
+  preSpawnWarning?: number;  // Dashboard 表独有
+  spawnMessage?: string | null;  // Dashboard 表独有
+  killMessage?: string | null;  // Dashboard 表独有
   lastSpawnTime: bigint;
   currentCount: number;
-  totalSpawns: number;
+  totalSpawns?: number;  // Dashboard 表独有
+  // Java 插件表独有字段
+  autoFindGround?: boolean;
+  minDistance?: number;
+  maxDistance?: number;
+  regions?: string | null;
+  enableSmartScoring?: boolean;
+  preferredBiomes?: string | null;
   createdAt: bigint | null;
   updatedAt: bigint | null;
   // 计算字段
@@ -106,8 +114,9 @@ export class BossService {
    * 获取所有刷新点
    */
   async getAllSpawnPoints(): Promise<SpawnPointWithMob[]> {
-    const spawnPoints = await prisma.bossSpawnPoint.findMany({
-      orderBy: [{ tier: 'desc' }, { name: 'asc' }],
+    // 读取 Java 插件的刷新点表
+    const spawnPoints = await prisma.xianBossSpawnPoint.findMany({
+      orderBy: [{ tier: 'desc' }, { id: 'asc' }],
     });
 
     // 获取所有 MythicMob 信息
@@ -553,6 +562,8 @@ export class BossService {
 
     return {
       ...sp,
+      // 兼容字段映射：Java 插件的 worldName -> Dashboard 的 world
+      world: sp.worldName || sp.world,
       mythicMobInfo: mobMap.get(sp.mythicMobId) || null,
       remainingCooldown,
       isReadyToSpawn,
