@@ -486,6 +486,43 @@ export class BossService {
     return mythicMobsService.validateYamlConfig(yamlContent);
   }
 
+  // ==================== MythicMobs Items ====================
+
+  /**
+   * 获取所有物品
+   */
+  async getAllItems() {
+    return await mythicMobsService.getAllItems();
+  }
+
+  /**
+   * 获取指定物品
+   */
+  async getItem(id: string) {
+    return await mythicMobsService.getItem(id);
+  }
+
+  /**
+   * 获取物品详情
+   */
+  async getItemDetail(id: string) {
+    return await mythicMobsService.getItemDetail(id);
+  }
+
+  /**
+   * 搜索物品
+   */
+  async searchItems(keyword: string) {
+    return await mythicMobsService.searchItems(keyword);
+  }
+
+  /**
+   * 获取物品材质统计
+   */
+  async getItemMaterialStats() {
+    return await mythicMobsService.getItemMaterialStats();
+  }
+
   /**
    * 丰富刷新点数据（添加 MythicMob 信息和计算字段）
    */

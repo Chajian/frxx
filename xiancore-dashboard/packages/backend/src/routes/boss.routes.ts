@@ -546,4 +546,74 @@ router.post('/mythicmobs/validate-yaml', async (req: Request, res: Response) => 
   }
 });
 
+// ==================== MythicMobs Items ====================
+
+/**
+ * 获取所有 MythicMobs 物品
+ * GET /api/boss/items
+ */
+router.get('/items', async (req: Request, res: Response) => {
+  try {
+    const items = await bossService.getAllItems();
+    return success(res, items);
+  } catch (err: any) {
+    console.error('获取物品列表失败:', err);
+    return error(res, err.message || '获取列表失败');
+  }
+});
+
+/**
+ * 搜索 MythicMobs 物品
+ * GET /api/boss/items/search?keyword=xxx
+ */
+router.get('/items/search', async (req: Request, res: Response) => {
+  try {
+    const { keyword } = req.query;
+
+    if (!keyword || typeof keyword !== 'string') {
+      return error(res, '请提供搜索关键词', 400);
+    }
+
+    const items = await bossService.searchItems(keyword);
+    return success(res, items);
+  } catch (err: any) {
+    console.error('搜索物品失败:', err);
+    return error(res, err.message || '搜索失败');
+  }
+});
+
+/**
+ * 获取物品材质统计
+ * GET /api/boss/items-stats
+ */
+router.get('/items-stats', async (req: Request, res: Response) => {
+  try {
+    const stats = await bossService.getItemMaterialStats();
+    return success(res, stats);
+  } catch (err: any) {
+    console.error('获取物品材质统计失败:', err);
+    return error(res, err.message || '获取统计失败');
+  }
+});
+
+/**
+ * 获取单个 MythicMobs 物品详情
+ * GET /api/boss/items/:id
+ */
+router.get('/items/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const item = await bossService.getItemDetail(id);
+
+    if (!item) {
+      return error(res, '物品不存在', 404);
+    }
+
+    return success(res, item);
+  } catch (err: any) {
+    console.error('获取物品详情失败:', err);
+    return error(res, err.message || '获取详情失败');
+  }
+});
+
 export default router;

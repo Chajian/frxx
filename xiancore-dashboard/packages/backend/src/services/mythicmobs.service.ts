@@ -113,6 +113,53 @@ export interface MythicTemplateInfo {
 }
 
 /**
+ * MythicMobs 物品附魔信息
+ */
+export interface MythicEnchantmentInfo {
+  enchantment: string;    // 附魔类型
+  level: number;          // 附魔等级
+}
+
+/**
+ * MythicMobs 物品属性修饰符
+ */
+export interface MythicAttributeInfo {
+  attribute: string;      // 属性类型
+  amount: number;         // 数值
+  operation?: string;     // 操作类型
+  slot?: string;          // 装备槽位
+}
+
+/**
+ * MythicMobs 物品基础信息
+ */
+export interface MythicItemInfo {
+  id: string;
+  displayName: string;
+  material: string;
+  amount?: number;
+  customModelData?: number;
+  lore?: string[];
+  enchantments?: MythicEnchantmentInfo[];
+  attributes?: MythicAttributeInfo[];
+  unbreakable?: boolean;
+  hideFlags?: string[];
+  color?: string;           // 皮革染色
+  potionEffects?: string[];
+  skullTexture?: string;    // 头颅材质
+  nbt?: Record<string, any>;
+  options?: Record<string, any>;
+  fileName: string;
+}
+
+/**
+ * MythicMobs 物品详细信息
+ */
+export interface MythicItemDetailInfo extends MythicItemInfo {
+  rawConfig: Record<string, any>;
+}
+
+/**
  * MythicMob 怪物详细信息（包含完整配置）
  */
 export interface MythicMobDetailInfo extends MythicMobInfo {
@@ -179,6 +226,7 @@ export class MythicMobsService {
   private dropTableCache: Map<string, MythicDropTableInfo> = new Map();
   private skillGroupCache: Map<string, MythicSkillGroupInfo> = new Map();
   private templateCache: Map<string, MythicTemplateInfo> = new Map();
+  private itemCache: Map<string, MythicItemInfo> = new Map();
   private lastCacheTime: number = 0;
   private cacheExpireMs: number = 60000; // 缓存 60 秒
 
@@ -206,6 +254,13 @@ export class MythicMobsService {
    */
   private getSkillsPath(): string {
     return path.join(this.getBasePath(), 'Skills');
+  }
+
+  /**
+   * 获取 Items 目录路径
+   */
+  private getItemsPath(): string {
+    return path.join(this.getBasePath(), 'Items');
   }
 
   /**
@@ -245,6 +300,7 @@ export class MythicMobsService {
     this.dropTableCache.clear();
     this.skillGroupCache.clear();
     this.templateCache.clear();
+    this.itemCache.clear();
     this.lastCacheTime = 0;
   }
 
@@ -1168,6 +1224,279 @@ export class MythicMobsService {
     }
 
     return detail;
+  }
+
+  // ==================== 物品功能 ====================
+
+  /**
+   * 加载所有物品
+   */
+  async loadItems(): Promise<Map<string, MythicItemInfo>> {
+    const itemsPath = this.getItemsPath();
+
+    if (!fs.existsSync(itemsPath)) {
+      return this.itemCache;
+    }
+
+    try {
+      const files = await fs.promises.readdir(itemsPath);
+
+      for (const file of files) {
+        if (!file.endsWith('.yml') && !file.endsWith('.yaml')) {
+          continue;
+        }
+
+        try {
+          const filePath = path.join(itemsPath, file);
+          const content = await fs.promises.readFile(filePath, 'utf8');
+          const parsed = yaml.load(content) as Record<string, any>;
+
+          if (!parsed || typeof parsed !== 'object') {
+            continue;
+          }
+
+          for (const [id, config] of Object.entries(parsed)) {
+            if (!config || typeof config !== 'object') {
+              continue;
+            }
+
+            const item = this.parseItemConfig(id, config, file);
+            if (item) {
+              this.itemCache.set(id, item);
+            }
+          }
+        } catch (fileError) {
+          console.error(`解析物品文件 ${file} 失败:`, fileError);
+        }
+      }
+    } catch (error) {
+      console.error('读取物品目录失败:', error);
+    }
+
+    return this.itemCache;
+  }
+
+  /**
+   * 解析物品配置
+   */
+  private parseItemConfig(id: string, config: any, fileName: string): MythicItemInfo | null {
+    try {
+      // 清理显示名称中的颜色代码
+      let displayName = config.Display || config.DisplayName || id;
+      displayName = this.stripColorCodes(displayName);
+
+      const item: MythicItemInfo = {
+        id,
+        displayName,
+        material: config.Id || config.Material || 'STONE',
+        fileName,
+      };
+
+      // 数量
+      if (config.Amount !== undefined) {
+        item.amount = this.parseNumber(config.Amount, 1);
+      }
+
+      // 自定义模型数据
+      if (config.Model !== undefined || config.CustomModelData !== undefined) {
+        item.customModelData = this.parseNumber(config.Model || config.CustomModelData, undefined as any);
+      }
+
+      // Lore (描述)
+      if (config.Lore && Array.isArray(config.Lore)) {
+        item.lore = config.Lore.map((line: any) => this.stripColorCodes(String(line)));
+      }
+
+      // 附魔
+      if (config.Enchantments && Array.isArray(config.Enchantments)) {
+        item.enchantments = this.parseEnchantments(config.Enchantments);
+      }
+
+      // 属性修饰符
+      if (config.Attributes && Array.isArray(config.Attributes)) {
+        item.attributes = this.parseAttributes(config.Attributes);
+      }
+
+      // 不可破坏
+      if (config.Unbreakable !== undefined) {
+        item.unbreakable = Boolean(config.Unbreakable);
+      }
+
+      // 隐藏标志
+      if (config.HideFlags && Array.isArray(config.HideFlags)) {
+        item.hideFlags = config.HideFlags.map((f: any) => String(f));
+      }
+
+      // 皮革颜色
+      if (config.Color) {
+        item.color = String(config.Color);
+      }
+
+      // 药水效果
+      if (config.PotionEffects && Array.isArray(config.PotionEffects)) {
+        item.potionEffects = config.PotionEffects.map((e: any) => String(e));
+      }
+
+      // 头颅材质
+      if (config.SkullTexture || config.Texture) {
+        item.skullTexture = String(config.SkullTexture || config.Texture);
+      }
+
+      // NBT 数据
+      if (config.NBT) {
+        item.nbt = config.NBT;
+      }
+
+      // Options
+      if (config.Options && typeof config.Options === 'object') {
+        item.options = config.Options;
+      }
+
+      return item;
+    } catch (error) {
+      console.error(`解析物品配置 ${id} 失败:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * 解析附魔列表
+   */
+  private parseEnchantments(enchantments: any[]): MythicEnchantmentInfo[] {
+    const result: MythicEnchantmentInfo[] = [];
+
+    for (const ench of enchantments) {
+      const str = String(ench);
+      // 格式: ENCHANTMENT:LEVEL 或 ENCHANTMENT LEVEL
+      const match = str.match(/^([A-Z_]+)[:\s](\d+)$/i);
+      if (match) {
+        result.push({
+          enchantment: match[1].toUpperCase(),
+          level: parseInt(match[2], 10),
+        });
+      } else {
+        // 只有附魔名，等级默认为1
+        result.push({
+          enchantment: str.toUpperCase(),
+          level: 1,
+        });
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * 解析属性修饰符列表
+   */
+  private parseAttributes(attributes: any[]): MythicAttributeInfo[] {
+    const result: MythicAttributeInfo[] = [];
+
+    for (const attr of attributes) {
+      if (typeof attr === 'string') {
+        // 格式: ATTRIBUTE AMOUNT [OPERATION] [SLOT]
+        const parts = attr.split(/\s+/);
+        if (parts.length >= 2) {
+          const attrInfo: MythicAttributeInfo = {
+            attribute: parts[0].toUpperCase(),
+            amount: parseFloat(parts[1]) || 0,
+          };
+          if (parts.length >= 3) {
+            attrInfo.operation = parts[2];
+          }
+          if (parts.length >= 4) {
+            attrInfo.slot = parts[3];
+          }
+          result.push(attrInfo);
+        }
+      } else if (typeof attr === 'object') {
+        // 对象格式
+        result.push({
+          attribute: String(attr.Attribute || attr.Type || '').toUpperCase(),
+          amount: this.parseNumber(attr.Amount || attr.Value, 0),
+          operation: attr.Operation,
+          slot: attr.Slot,
+        });
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * 获取所有物品
+   */
+  async getAllItems(): Promise<MythicItemInfo[]> {
+    if (this.itemCache.size === 0) {
+      await this.loadItems();
+    }
+
+    return Array.from(this.itemCache.values());
+  }
+
+  /**
+   * 获取指定物品
+   */
+  async getItem(id: string): Promise<MythicItemInfo | null> {
+    if (this.itemCache.size === 0) {
+      await this.loadItems();
+    }
+
+    return this.itemCache.get(id) || null;
+  }
+
+  /**
+   * 获取物品详细信息
+   */
+  async getItemDetail(id: string): Promise<MythicItemDetailInfo | null> {
+    const item = await this.getItem(id);
+    if (!item) return null;
+
+    try {
+      const filePath = path.join(this.getItemsPath(), item.fileName);
+      const content = await fs.promises.readFile(filePath, 'utf8');
+      const parsed = yaml.load(content) as Record<string, any>;
+
+      if (!parsed || !parsed[id]) {
+        return null;
+      }
+
+      return {
+        ...item,
+        rawConfig: parsed[id],
+      };
+    } catch (error) {
+      console.error(`获取物品详情 ${id} 失败:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * 搜索物品
+   */
+  async searchItems(keyword: string): Promise<MythicItemInfo[]> {
+    const items = await this.getAllItems();
+    const lowerKeyword = keyword.toLowerCase();
+    return items.filter(item =>
+      item.id.toLowerCase().includes(lowerKeyword) ||
+      item.displayName.toLowerCase().includes(lowerKeyword) ||
+      item.material.toLowerCase().includes(lowerKeyword)
+    );
+  }
+
+  /**
+   * 获取物品材质统计
+   */
+  async getItemMaterialStats(): Promise<Record<string, number>> {
+    const items = await this.getAllItems();
+    const stats: Record<string, number> = {};
+
+    for (const item of items) {
+      const material = item.material.toUpperCase();
+      stats[material] = (stats[material] || 0) + 1;
+    }
+
+    return stats;
   }
 }
 

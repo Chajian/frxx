@@ -225,6 +225,90 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
+
+        <!-- MythicMobs 物品列表 Tab -->
+        <el-tab-pane label="MythicMobs 物品" name="items">
+          <template #label>
+            <span><el-icon><Box /></el-icon> MythicMobs 物品</span>
+          </template>
+
+          <div class="tab-header">
+            <div class="filter-bar">
+              <el-input
+                v-model="itemSearchText"
+                placeholder="搜索物品 ID / 名称 / 材质"
+                style="width: 250px"
+                clearable
+              >
+                <template #prefix>
+                  <el-icon><Search /></el-icon>
+                </template>
+              </el-input>
+              <el-select v-model="itemFilterMaterial" placeholder="材质筛选" clearable style="width: 180px">
+                <el-option
+                  v-for="(count, material) in itemMaterialStats"
+                  :key="material"
+                  :label="`${material} (${count})`"
+                  :value="material"
+                />
+              </el-select>
+            </div>
+            <div class="header-actions">
+              <el-button @click="refreshItems" :loading="itemsLoading">
+                <el-icon><Refresh /></el-icon>
+                刷新
+              </el-button>
+            </div>
+          </div>
+
+          <!-- 物品列表 -->
+          <el-table :data="filteredItems" v-loading="itemsLoading" stripe style="width: 100%">
+            <el-table-column prop="id" label="物品 ID" width="200" sortable />
+            <el-table-column prop="displayName" label="显示名称" width="200" />
+            <el-table-column prop="material" label="材质" width="180" sortable />
+            <el-table-column label="自定义模型" width="120">
+              <template #default="{ row }">
+                <el-tag v-if="row.customModelData" type="info" size="small">
+                  {{ row.customModelData }}
+                </el-tag>
+                <span v-else class="no-data">-</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="附魔" width="100">
+              <template #default="{ row }">
+                <el-tag v-if="row.enchantments?.length" type="warning" size="small">
+                  {{ row.enchantments.length }} 个
+                </el-tag>
+                <span v-else class="no-data">-</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="属性" width="100">
+              <template #default="{ row }">
+                <el-tag v-if="row.attributes?.length" type="success" size="small">
+                  {{ row.attributes.length }} 个
+                </el-tag>
+                <span v-else class="no-data">-</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Lore" width="100">
+              <template #default="{ row }">
+                <el-tag v-if="row.lore?.length" type="info" size="small">
+                  {{ row.lore.length }} 行
+                </el-tag>
+                <span v-else class="no-data">-</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="fileName" label="配置文件" width="180" />
+            <el-table-column label="操作" width="120" fixed="right">
+              <template #default="{ row }">
+                <el-button type="primary" link @click="showItemDetail(row.id)">
+                  <el-icon><View /></el-icon>
+                  详情
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
       </el-tabs>
     </el-card>
 
@@ -686,13 +770,116 @@
         <el-button type="primary" @click="saveYamlConfig" :loading="yamlSaving">保存</el-button>
       </template>
     </el-dialog>
+
+    <!-- 物品详情对话框 -->
+    <el-dialog
+      v-model="itemDetailVisible"
+      :title="itemDetail?.displayName || '物品详情'"
+      width="700px"
+    >
+      <div v-if="itemDetailLoading" class="detail-loading">
+        <el-skeleton :rows="8" animated />
+      </div>
+      <div v-else-if="itemDetail" class="item-detail">
+        <!-- 基础信息 -->
+        <el-descriptions :column="2" border>
+          <el-descriptions-item label="物品 ID">{{ itemDetail.id }}</el-descriptions-item>
+          <el-descriptions-item label="显示名称">{{ itemDetail.displayName }}</el-descriptions-item>
+          <el-descriptions-item label="材质">{{ itemDetail.material }}</el-descriptions-item>
+          <el-descriptions-item label="数量">{{ itemDetail.amount || 1 }}</el-descriptions-item>
+          <el-descriptions-item v-if="itemDetail.customModelData" label="自定义模型">
+            {{ itemDetail.customModelData }}
+          </el-descriptions-item>
+          <el-descriptions-item v-if="itemDetail.unbreakable" label="不可破坏">
+            <el-tag type="success" size="small">是</el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item v-if="itemDetail.color" label="颜色">
+            <span class="color-preview" :style="{ backgroundColor: itemDetail.color }"></span>
+            {{ itemDetail.color }}
+          </el-descriptions-item>
+          <el-descriptions-item label="配置文件" :span="2">{{ itemDetail.fileName }}</el-descriptions-item>
+        </el-descriptions>
+
+        <!-- Lore -->
+        <div v-if="itemDetail.lore?.length" class="detail-section">
+          <h4>Lore (描述)</h4>
+          <div class="lore-list">
+            <div v-for="(line, index) in itemDetail.lore" :key="index" class="lore-line">
+              {{ line }}
+            </div>
+          </div>
+        </div>
+
+        <!-- 附魔 -->
+        <div v-if="itemDetail.enchantments?.length" class="detail-section">
+          <h4>附魔 ({{ itemDetail.enchantments.length }} 个)</h4>
+          <el-table :data="itemDetail.enchantments" size="small" stripe>
+            <el-table-column prop="enchantment" label="附魔类型" />
+            <el-table-column prop="level" label="等级" width="100">
+              <template #default="{ row }">
+                <el-tag type="warning" size="small">{{ row.level }}</el-tag>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+
+        <!-- 属性修饰符 -->
+        <div v-if="itemDetail.attributes?.length" class="detail-section">
+          <h4>属性修饰符 ({{ itemDetail.attributes.length }} 个)</h4>
+          <el-table :data="itemDetail.attributes" size="small" stripe>
+            <el-table-column prop="attribute" label="属性" />
+            <el-table-column prop="amount" label="数值" width="100">
+              <template #default="{ row }">
+                <span :class="row.amount >= 0 ? 'positive-value' : 'negative-value'">
+                  {{ row.amount >= 0 ? '+' : '' }}{{ row.amount }}
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="operation" label="操作" width="100" />
+            <el-table-column prop="slot" label="槽位" width="100" />
+          </el-table>
+        </div>
+
+        <!-- 药水效果 -->
+        <div v-if="itemDetail.potionEffects?.length" class="detail-section">
+          <h4>药水效果</h4>
+          <el-tag v-for="(effect, index) in itemDetail.potionEffects" :key="index" style="margin-right: 8px; margin-bottom: 4px;">
+            {{ effect }}
+          </el-tag>
+        </div>
+
+        <!-- 隐藏标志 -->
+        <div v-if="itemDetail.hideFlags?.length" class="detail-section">
+          <h4>隐藏标志</h4>
+          <el-tag v-for="(flag, index) in itemDetail.hideFlags" :key="index" type="info" style="margin-right: 8px;">
+            {{ flag }}
+          </el-tag>
+        </div>
+
+        <!-- 头颅材质 -->
+        <div v-if="itemDetail.skullTexture" class="detail-section">
+          <h4>头颅材质</h4>
+          <code class="skull-texture">{{ itemDetail.skullTexture }}</code>
+        </div>
+
+        <!-- NBT 数据 -->
+        <div v-if="itemDetail.nbt && Object.keys(itemDetail.nbt).length" class="detail-section">
+          <h4>NBT 数据</h4>
+          <pre class="nbt-data">{{ JSON.stringify(itemDetail.nbt, null, 2) }}</pre>
+        </div>
+      </div>
+
+      <template #footer>
+        <el-button @click="itemDetailVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, reactive } from 'vue';
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus';
-import { Plus, Refresh, Search, Location, View, Edit } from '@element-plus/icons-vue';
+import { Plus, Refresh, Search, Location, View, Edit, Box } from '@element-plus/icons-vue';
 import {
   bossApi,
   type BossSpawnPoint,
@@ -700,6 +887,8 @@ import {
   type MythicMobInfo,
   type MythicMobDetailInfo,
   type MythicMobsStatus,
+  type MythicItemInfo,
+  type MythicItemDetailInfo,
   type CreateSpawnPointInput,
   BOSS_TIERS,
   SPAWN_MODES,
@@ -755,6 +944,16 @@ const filterEnabled = ref<boolean | null>(null);
 // 筛选 - MythicMobs
 const mobSearchText = ref('');
 const mobFilterType = ref<string | null>(null);
+
+// Items 相关状态
+const itemsLoading = ref(false);
+const items = ref<MythicItemInfo[]>([]);
+const itemMaterialStats = ref<Record<string, number>>({});
+const itemSearchText = ref('');
+const itemFilterMaterial = ref<string | null>(null);
+const itemDetailVisible = ref(false);
+const itemDetailLoading = ref(false);
+const itemDetail = ref<MythicItemDetailInfo | null>(null);
 
 // 表单
 const formRef = ref<FormInstance>();
@@ -845,6 +1044,27 @@ const hasOtherOptions = computed(() => {
   );
 });
 
+// 计算属性 - Items 筛选
+const filteredItems = computed(() => {
+  let result = items.value;
+
+  if (itemSearchText.value) {
+    const keyword = itemSearchText.value.toLowerCase();
+    result = result.filter(
+      item =>
+        item.id.toLowerCase().includes(keyword) ||
+        item.displayName.toLowerCase().includes(keyword) ||
+        item.material.toLowerCase().includes(keyword)
+    );
+  }
+
+  if (itemFilterMaterial.value) {
+    result = result.filter(item => item.material.toUpperCase() === itemFilterMaterial.value);
+  }
+
+  return result;
+});
+
 // 方法
 const fetchData = async () => {
   loading.value = true;
@@ -910,6 +1130,42 @@ const showMobDetail = async (mobId: string) => {
     ElMessage.error('获取怪物详情失败');
   } finally {
     mobDetailLoading.value = false;
+  }
+};
+
+// Items 相关方法
+const fetchItems = async () => {
+  itemsLoading.value = true;
+  try {
+    const [itemsList, materialStats] = await Promise.all([
+      bossApi.getItems(),
+      bossApi.getItemMaterialStats(),
+    ]);
+    items.value = itemsList;
+    itemMaterialStats.value = materialStats;
+  } catch (error) {
+    console.error('获取物品列表失败:', error);
+  } finally {
+    itemsLoading.value = false;
+  }
+};
+
+const refreshItems = async () => {
+  await fetchItems();
+  ElMessage.success('物品列表已刷新');
+};
+
+const showItemDetail = async (itemId: string) => {
+  itemDetailVisible.value = true;
+  itemDetailLoading.value = true;
+  itemDetail.value = null;
+
+  try {
+    itemDetail.value = await bossApi.getItemDetail(itemId);
+  } catch (error) {
+    ElMessage.error('获取物品详情失败');
+  } finally {
+    itemDetailLoading.value = false;
   }
 };
 
@@ -1096,6 +1352,7 @@ const handleDelete = async (row: BossSpawnPoint) => {
 onMounted(() => {
   fetchData();
   fetchMythicMobs();
+  fetchItems();
 });
 </script>
 
@@ -1304,5 +1561,65 @@ onMounted(() => {
 
 .yaml-error {
   margin-top: 10px;
+}
+
+/* 物品详情样式 */
+.item-detail {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.lore-list {
+  background-color: var(--el-fill-color-light);
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.lore-line {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--el-text-color-regular);
+  padding: 2px 0;
+}
+
+.color-preview {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  vertical-align: middle;
+  margin-right: 6px;
+  border: 1px solid var(--el-border-color-light);
+}
+
+.positive-value {
+  color: #67c23a;
+  font-weight: 500;
+}
+
+.negative-value {
+  color: #f56c6c;
+  font-weight: 500;
+}
+
+.skull-texture {
+  display: block;
+  font-size: 12px;
+  background-color: var(--el-fill-color-light);
+  padding: 8px 12px;
+  border-radius: 6px;
+  word-break: break-all;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.nbt-data {
+  font-size: 12px;
+  background-color: var(--el-fill-color-light);
+  padding: 12px;
+  border-radius: 6px;
+  margin: 0;
+  max-height: 200px;
+  overflow: auto;
 }
 </style>

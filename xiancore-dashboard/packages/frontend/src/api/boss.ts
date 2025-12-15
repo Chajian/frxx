@@ -86,6 +86,53 @@ export interface MythicTemplateInfo {
 }
 
 /**
+ * MythicMobs 物品附魔信息
+ */
+export interface MythicEnchantmentInfo {
+  enchantment: string;
+  level: number;
+}
+
+/**
+ * MythicMobs 物品属性修饰符
+ */
+export interface MythicAttributeInfo {
+  attribute: string;
+  amount: number;
+  operation?: string;
+  slot?: string;
+}
+
+/**
+ * MythicMobs 物品基础信息
+ */
+export interface MythicItemInfo {
+  id: string;
+  displayName: string;
+  material: string;
+  amount?: number;
+  customModelData?: number;
+  lore?: string[];
+  enchantments?: MythicEnchantmentInfo[];
+  attributes?: MythicAttributeInfo[];
+  unbreakable?: boolean;
+  hideFlags?: string[];
+  color?: string;
+  potionEffects?: string[];
+  skullTexture?: string;
+  nbt?: Record<string, any>;
+  options?: Record<string, any>;
+  fileName: string;
+}
+
+/**
+ * MythicMobs 物品详细信息
+ */
+export interface MythicItemDetailInfo extends MythicItemInfo {
+  rawConfig: Record<string, any>;
+}
+
+/**
  * 装备信息
  */
 export interface MythicEquipmentInfo {
@@ -431,6 +478,28 @@ export const bossApi = {
   /** 更新奖励配置 */
   updateReward(data: { tier: number; rank: number; multiplier: number; rewardsJson: string }): Promise<any> {
     return request.put('/boss/rewards', data);
+  },
+
+  // ==================== MythicMobs Items ====================
+
+  /** 获取所有物品 */
+  getItems(): Promise<MythicItemInfo[]> {
+    return request.get('/boss/items');
+  },
+
+  /** 搜索物品 */
+  searchItems(keyword: string): Promise<MythicItemInfo[]> {
+    return request.get('/boss/items/search', { params: { keyword } });
+  },
+
+  /** 获取物品详情 */
+  getItemDetail(id: string): Promise<MythicItemDetailInfo> {
+    return request.get(`/boss/items/${id}`);
+  },
+
+  /** 获取物品材质统计 */
+  getItemMaterialStats(): Promise<Record<string, number>> {
+    return request.get('/boss/items-stats');
   },
 };
 
