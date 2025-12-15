@@ -65,4 +65,9 @@ app.listen(PORT, () => {
   console.log(`   - GET  /api/sects`);
   console.log(`   - GET  /api/sects/ranking`);
   console.log(`   - GET  /api/sects/:id`);
+  console.log(`   - GET  /api/boss/spawn-points`);
+  console.log(`   - GET  /api/boss/mythicmobs`);
+  console.log(`   - GET  /api/boss/stats`);
+  console.log(`   - GET  /api/boss/history`);
+  console.log(`📁 MythicMobs Path: ${process.env.MYTHICMOBS_MOBS_PATH || '(not configured)'}`);
 });

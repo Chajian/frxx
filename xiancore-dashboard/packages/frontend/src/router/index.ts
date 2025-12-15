@@ -32,6 +32,14 @@ const routes = [
         },
       },
       {
+        path: 'boss',
+        name: 'Boss',
+        component: () => import('@/views/Boss.vue'),
+        meta: {
+          title: 'Boss管理',
+        },
+      },
+      {
         path: 'ranking',
         name: 'Ranking',
         component: () => import('@/views/Dashboard.vue'), // 暂时复用 Dashboard

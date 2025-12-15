@@ -7,35 +7,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 玩家数据表
 model XianPlayer {
-  uuid                    String   @id @db.VarChar(36)
-  name                    String   @db.VarChar(16)
-  realm                   String   @default("炼气期") @db.VarChar(32)
-  realmStage              Int      @default(1) @map("realm_stage")
-  qi                      BigInt   @default(0)
-  spiritualRoot           Float    @default(0.5) @map("spiritual_root") @db.Double
-  spiritualRootType       String?  @map("spiritual_root_type") @db.VarChar(64)
-  comprehension           Float    @default(0.5) @db.Double
-  techniqueAdaptation     Float    @default(0.6) @map("technique_adaptation") @db.Double
-  spiritStones            BigInt   @default(0) @map("spirit_stones")
-  contributionPoints      Int      @default(0) @map("contribution_points")
-  skillPoints             Int      @default(0) @map("skill_points")
-  playerLevel             Int      @default(1) @map("player_level")
-  sectId                  Int?     @map("sect_id")
-  sectRank                String   @default("member") @map("sect_rank") @db.VarChar(32)
-  lastLogin               BigInt?  @map("last_login")
-  createdAt               BigInt?  @map("created_at")
-  updatedAt               BigInt?  @map("updated_at")
-  breakthroughAttempts    Int      @default(0) @map("breakthrough_attempts")
-  successfulBreakthroughs Int      @default(0) @map("successful_breakthroughs")
-  activeQi                BigInt   @default(0) @map("active_qi")
-  lastFateTime            BigInt   @default(0) @map("last_fate_time")
-  fateCount               Int      @default(0) @map("fate_count")
-
-  skills     XianPlayerSkill[]
-  equipment  XianPlayerEquipment[]
-  skillBinds XianPlayerSkillBind[]
+  uuid                    String                @id @db.VarChar(36)
+  name                    String                @db.VarChar(16)
+  realm                   String                @default("炼气期") @db.VarChar(32)
+  realmStage              Int                   @default(1) @map("realm_stage")
+  qi                      BigInt                @default(0)
+  spiritualRoot           Float                 @default(0.5) @map("spiritual_root")
+  spiritualRootType       String?               @map("spiritual_root_type") @db.VarChar(64)
+  comprehension           Float                 @default(0.5)
+  techniqueAdaptation     Float                 @default(0.6) @map("technique_adaptation")
+  spiritStones            BigInt                @default(0) @map("spirit_stones")
+  contributionPoints      Int                   @default(0) @map("contribution_points")
+  skillPoints             Int                   @default(0) @map("skill_points")
+  playerLevel             Int                   @default(1) @map("player_level")
+  sectId                  Int?                  @map("sect_id")
+  sectRank                String                @default("member") @map("sect_rank") @db.VarChar(32)
+  lastLogin               BigInt?               @map("last_login")
+  createdAt               BigInt?               @map("created_at")
+  updatedAt               BigInt?               @map("updated_at")
+  breakthroughAttempts    Int                   @default(0) @map("breakthrough_attempts")
+  successfulBreakthroughs Int                   @default(0) @map("successful_breakthroughs")
+  activeQi                BigInt                @default(0) @map("active_qi")
+  lastFateTime            BigInt                @default(0) @map("last_fate_time")
+  fateCount               Int                   @default(0) @map("fate_count")
+  equipment               XianPlayerEquipment[]
+  skills                  XianPlayerSkill[]
+  skillBinds              XianPlayerSkillBind[]
 
   @@index([sectId], map: "idx_sect")
   @@index([realm], map: "idx_realm")
@@ -43,49 +41,42 @@ model XianPlayer {
   @@map("xian_players")
 }
 
-// 玩家功法表
 model XianPlayerSkill {
-  playerUuid String @db.VarChar(36) @map("player_uuid")
-  skillId    String @db.VarChar(64) @map("skill_id")
-  skillLevel Int    @default(1) @map("skill_level")
-
-  player XianPlayer @relation(fields: [playerUuid], references: [uuid], onDelete: Cascade)
+  playerUuid String     @map("player_uuid") @db.VarChar(36)
+  skillId    String     @map("skill_id") @db.VarChar(64)
+  skillLevel Int        @default(1) @map("skill_level")
+  player     XianPlayer @relation(fields: [playerUuid], references: [uuid], onDelete: Cascade)
 
   @@id([playerUuid, skillId])
   @@index([playerUuid], map: "idx_player")
   @@map("xian_player_skills")
 }
 
-// 玩家装备表
 model XianPlayerEquipment {
-  playerUuid    String @db.VarChar(36) @map("player_uuid")
-  slot          String @db.VarChar(32)
-  equipmentUuid String @db.VarChar(36) @map("equipment_uuid")
-
-  player XianPlayer @relation(fields: [playerUuid], references: [uuid], onDelete: Cascade)
+  playerUuid    String     @map("player_uuid") @db.VarChar(36)
+  slot          String     @db.VarChar(32)
+  equipmentUuid String     @map("equipment_uuid") @db.VarChar(36)
+  player        XianPlayer @relation(fields: [playerUuid], references: [uuid], onDelete: Cascade)
 
   @@id([playerUuid, slot])
   @@index([playerUuid], map: "idx_player")
   @@map("xian_player_equipment")
 }
 
-// 玩家技能绑定表
 model XianPlayerSkillBind {
-  playerUuid String @db.VarChar(36) @map("player_uuid")
+  playerUuid String     @map("player_uuid") @db.VarChar(36)
   slot       Int
-  skillId    String @db.VarChar(64) @map("skill_id")
-
-  player XianPlayer @relation(fields: [playerUuid], references: [uuid], onDelete: Cascade)
+  skillId    String     @map("skill_id") @db.VarChar(64)
+  player     XianPlayer @relation(fields: [playerUuid], references: [uuid], onDelete: Cascade)
 
   @@id([playerUuid, slot])
   @@index([playerUuid], map: "idx_player")
   @@map("xian_player_skill_binds")
 }
 
-// 宗门数据表
 model XianSect {
   id                  Int     @id @default(autoincrement())
-  name                String  @unique @db.VarChar(32)
+  name                String  @unique(map: "name") @db.VarChar(32)
   description         String? @db.Text
   ownerUuid           String  @map("owner_uuid") @db.VarChar(36)
   ownerName           String  @map("owner_name") @db.VarChar(16)
@@ -99,9 +90,9 @@ model XianSect {
   announcement        String? @db.Text
   residenceLandId     String? @map("residence_land_id") @db.VarChar(128)
   landCenterWorld     String? @map("land_center_world") @db.VarChar(64)
-  landCenterX         Float?  @default(0) @map("land_center_x") @db.Double
-  landCenterY         Float?  @default(0) @map("land_center_y") @db.Double
-  landCenterZ         Float?  @default(0) @map("land_center_z") @db.Double
+  landCenterX         Float?  @default(0) @map("land_center_x")
+  landCenterY         Float?  @default(0) @map("land_center_y")
+  landCenterZ         Float?  @default(0) @map("land_center_z")
   lastMaintenanceTime BigInt  @default(0) @map("last_maintenance_time")
   buildingSlotsData   String? @map("building_slots_data") @db.LongText
   createdAt           BigInt? @map("created_at")
@@ -117,18 +108,17 @@ model XianSect {
   @@map("xian_sects")
 }
 
-// 宗门成员表
 model XianSectMember {
-  sectId              Int    @map("sect_id")
-  playerUuid          String @db.VarChar(36) @map("player_uuid")
-  playerName          String @db.VarChar(16) @map("player_name")
-  rank                String @default("OUTER_DISCIPLE") @db.VarChar(32)
-  contribution        Int    @default(0)
-  weeklyContribution  Int    @default(0) @map("weekly_contribution")
-  joinedAt            BigInt? @map("joined_at")
-  lastActiveAt        BigInt? @map("last_active_at")
-  tasksCompleted      Int    @default(0) @map("tasks_completed")
-  donationCount       Int    @default(0) @map("donation_count")
+  sectId             Int      @map("sect_id")
+  playerUuid         String   @map("player_uuid") @db.VarChar(36)
+  playerName         String   @map("player_name") @db.VarChar(16)
+  rank               String   @default("OUTER_DISCIPLE") @db.VarChar(32)
+  contribution       Int      @default(0)
+  weeklyContribution Int      @default(0) @map("weekly_contribution")
+  joinedAt           BigInt?  @map("joined_at")
+  lastActiveAt       BigInt?  @map("last_active_at")
+  tasksCompleted     Int      @default(0) @map("tasks_completed")
+  donationCount      Int      @default(0) @map("donation_count")
 
   sect XianSect @relation(fields: [sectId], references: [id], onDelete: Cascade)
 
@@ -138,7 +128,6 @@ model XianSectMember {
   @@map("xian_sect_members")
 }
 
-// 宗门设施表
 model XianSectFacility {
   sectId       Int     @map("sect_id")
   facilityType String  @map("facility_type") @db.VarChar(32)
@@ -153,7 +142,6 @@ model XianSectFacility {
   @@map("xian_sect_facilities")
 }
 
-// 宗门仓库表
 model XianSectWarehouse {
   sectId       Int     @id @map("sect_id")
   capacity     Int     @default(54)
@@ -165,27 +153,112 @@ model XianSectWarehouse {
   @@map("xian_sect_warehouses")
 }
 
-// 天劫数据表
 model XianTribulation {
-  tribulationUuid   String  @id @db.VarChar(36) @map("tribulation_uuid")
-  playerUuid        String  @db.VarChar(36) @map("player_uuid")
-  type              String  @db.VarChar(32)
-  worldName         String  @map("world_name") @db.VarChar(64)
-  x                 Float   @db.Double
-  y                 Float   @db.Double
-  z                 Float   @db.Double
-  currentWave       Int     @default(0) @map("current_wave")
-  totalWaves        Int     @map("total_waves")
-  active            Boolean @default(false)
-  completed         Boolean @default(false)
-  failed            Boolean @default(false)
-  startTime         BigInt? @map("start_time")
-  endTime           BigInt? @map("end_time")
-  lastWaveTime      BigInt? @map("last_wave_time")
-  totalDamageDealt  Float   @default(0) @map("total_damage_dealt") @db.Double
-  totalDamageTaken  Float   @default(0) @map("total_damage_taken") @db.Double
+  tribulationUuid  String  @id @map("tribulation_uuid") @db.VarChar(36)
+  playerUuid       String  @map("player_uuid") @db.VarChar(36)
+  type             String  @db.VarChar(32)
+  worldName        String  @map("world_name") @db.VarChar(64)
+  x                Float
+  y                Float
+  z                Float
+  currentWave      Int     @default(0) @map("current_wave")
+  totalWaves       Int     @map("total_waves")
+  active           Boolean @default(false)
+  completed        Boolean @default(false)
+  failed           Boolean @default(false)
+  startTime        BigInt? @map("start_time")
+  endTime          BigInt? @map("end_time")
+  lastWaveTime     BigInt? @map("last_wave_time")
+  totalDamageDealt Float   @default(0) @map("total_damage_dealt")
+  totalDamageTaken Float   @default(0) @map("total_damage_taken")
 
   @@index([playerUuid], map: "idx_player")
   @@index([active], map: "idx_active")
   @@map("xian_tribulations")
+}
+
+model BossSpawnPoint {
+  id              String  @id @db.VarChar(64)
+  name            String  @db.VarChar(64)
+  description     String? @db.Text
+  world           String  @db.VarChar(64)
+  x               Int
+  y               Int
+  z               Int
+  mythicMobId     String  @map("mythic_mob_id") @db.VarChar(64)
+  tier            Int     @default(1)
+  cooldownSeconds BigInt  @default(7200) @map("cooldown_seconds")
+  maxCount        Int     @default(1) @map("max_count")
+  randomLocation  Boolean @default(false) @map("random_location")
+  spawnRadius     Int     @default(100) @map("spawn_radius")
+  randomRadius    Int     @default(0) @map("random_radius")
+  spawnMode       String  @default("fixed") @map("spawn_mode") @db.VarChar(32)
+  enabled         Boolean @default(true)
+  preSpawnWarning Int     @default(30) @map("pre_spawn_warning")
+  spawnMessage    String? @map("spawn_message") @db.Text
+  killMessage     String? @map("kill_message") @db.Text
+  lastSpawnTime   BigInt  @default(0) @map("last_spawn_time")
+  currentCount    Int     @default(0) @map("current_count")
+  totalSpawns     Int     @default(0) @map("total_spawns")
+  createdAt       BigInt? @map("created_at")
+  updatedAt       BigInt? @map("updated_at")
+
+  killHistory BossKillHistory[]
+
+  @@index([mythicMobId], map: "idx_mythic_mob")
+  @@index([enabled], map: "idx_enabled")
+  @@index([tier], map: "idx_tier")
+  @@map("boss_spawn_points")
+}
+
+model BossKillHistory {
+  id               Int     @id @default(autoincrement())
+  bossUuid         String  @map("boss_uuid") @db.VarChar(36)
+  spawnPointId     String  @map("spawn_point_id") @db.VarChar(64)
+  mythicMobId      String  @map("mythic_mob_id") @db.VarChar(64)
+  tier             Int
+  killerUuid       String? @map("killer_uuid") @db.VarChar(36)
+  killerName       String? @map("killer_name") @db.VarChar(16)
+  totalDamage      Float   @default(0) @map("total_damage")
+  aliveDuration    BigInt  @default(0) @map("alive_duration")
+  participantCount Int     @default(0) @map("participant_count")
+  participantsJson String? @map("participants_json") @db.Text
+  spawnTime        BigInt  @map("spawn_time")
+  killTime         BigInt  @map("kill_time")
+
+  spawnPoint BossSpawnPoint @relation(fields: [spawnPointId], references: [id], onDelete: Cascade)
+
+  @@index([spawnPointId], map: "idx_spawn_point")
+  @@index([killerUuid], map: "idx_killer")
+  @@index([killTime], map: "idx_kill_time")
+  @@index([mythicMobId], map: "idx_mythic_mob_history")
+  @@map("boss_kill_history")
+}
+
+model BossRewardConfig {
+  id          Int    @id @default(autoincrement())
+  tier        Int
+  rank        Int
+  multiplier  Float  @default(1)
+  rewardsJson String @map("rewards_json") @db.Text
+
+  @@unique([tier, rank])
+  @@map("boss_reward_configs")
+}
+
+model BossActive {
+  bossUuid      String @id @map("boss_uuid") @db.VarChar(36)
+  spawnPointId  String @map("spawn_point_id") @db.VarChar(64)
+  mythicMobId   String @map("mythic_mob_id") @db.VarChar(64)
+  tier          Int
+  world         String @db.VarChar(64)
+  x             Int
+  y             Int
+  z             Int
+  spawnTime     BigInt @map("spawn_time")
+  currentHealth Float? @map("current_health")
+  maxHealth     Float? @map("max_health")
+
+  @@index([spawnPointId], map: "idx_active_spawn_point")
+  @@map("boss_active")
 }

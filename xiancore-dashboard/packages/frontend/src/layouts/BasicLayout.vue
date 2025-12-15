@@ -29,6 +29,10 @@
             <el-icon><OfficeBuilding /></el-icon>
             <template #title>宗门管理</template>
           </el-menu-item>
+          <el-menu-item index="/boss">
+            <el-icon><Aim /></el-icon>
+            <template #title>Boss管理</template>
+          </el-menu-item>
           <el-menu-item index="/ranking">
             <el-icon><TrophyBase /></el-icon>
             <template #title>排行榜</template>
@@ -100,6 +104,10 @@
                 <el-icon><OfficeBuilding /></el-icon>
                 <span>宗门管理</span>
               </el-menu-item>
+              <el-menu-item index="/boss">
+                <el-icon><Aim /></el-icon>
+                <span>Boss管理</span>
+              </el-menu-item>
               <el-menu-item index="/ranking">
                 <el-icon><TrophyBase /></el-icon>
                 <span>排行榜</span>
@@ -163,6 +171,10 @@
                 <el-icon><OfficeBuilding /></el-icon>
                 <template #title>宗门管理</template>
               </el-menu-item>
+              <el-menu-item index="/boss">
+                <el-icon><Aim /></el-icon>
+                <template #title>Boss管理</template>
+              </el-menu-item>
               <el-menu-item index="/ranking">
                 <el-icon><TrophyBase /></el-icon>
                 <template #title>排行榜</template>
@@ -224,6 +236,9 @@
                   <el-dropdown-item @click="$router.push('/sects')">
                     <el-icon><OfficeBuilding /></el-icon> 宗门管理
                   </el-dropdown-item>
+                  <el-dropdown-item @click="$router.push('/boss')">
+                    <el-icon><Aim /></el-icon> Boss管理
+                  </el-dropdown-item>
                   <el-dropdown-item @click="$router.push('/ranking')">
                     <el-icon><TrophyBase /></el-icon> 排行榜
                   </el-dropdown-item>
@@ -272,6 +287,10 @@
           <el-menu-item index="/sects">
             <el-icon><OfficeBuilding /></el-icon>
             <template #title>宗门管理</template>
+          </el-menu-item>
+          <el-menu-item index="/boss">
+            <el-icon><Aim /></el-icon>
+            <template #title>Boss管理</template>
           </el-menu-item>
           <el-menu-item index="/ranking">
             <el-icon><TrophyBase /></el-icon>
@@ -325,6 +344,7 @@ import {
   User,
   OfficeBuilding,
   TrophyBase,
+  Aim,
   Refresh,
   Setting,
   Fold,
