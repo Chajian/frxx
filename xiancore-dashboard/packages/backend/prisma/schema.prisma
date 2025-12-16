@@ -46,10 +46,44 @@ model XianPlayerSkill {
   skillId    String     @map("skill_id") @db.VarChar(64)
   skillLevel Int        @default(1) @map("skill_level")
   player     XianPlayer @relation(fields: [playerUuid], references: [uuid], onDelete: Cascade)
+  skill      XianSkill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
   @@id([playerUuid, skillId])
   @@index([playerUuid], map: "idx_player")
+  @@index([skillId], map: "idx_skill")
   @@map("xian_player_skills")
+}
+
+// 功法配置表
+model XianSkill {
+  id                 String   @id @db.VarChar(64)
+  name               String   @db.VarChar(128)
+  description        String?  @db.Text
+  type               String   @db.VarChar(32)  // ATTACK, HEAL, MOVEMENT, AOE_ATTACK, BUFF, CONTROL, DEBUFF
+  element            String   @db.VarChar(32)  // FIRE, WOOD, METAL, WATER, EARTH, NEUTRAL
+  mythicSkillId      String?  @map("mythic_skill_id") @db.VarChar(64)
+  useMythic          Boolean  @default(true) @map("use_mythic")
+  requiredRealm      String   @default("炼气期") @map("required_realm") @db.VarChar(32)
+  requiredLevel      Int      @default(0) @map("required_level")
+  requiredSkillsJson String?  @map("required_skills_json") @db.Text  // JSON array of skill ids
+  qiCost             Int      @default(0) @map("qi_cost")
+  cooldown           Int      @default(0)
+  damage             Int      @default(0)
+  healing            Int      @default(0)
+  duration           Int      @default(0)
+  range              Int      @default(0)
+  upgradeCost        Int      @default(0) @map("upgrade_cost")
+  upgradeSkillPoints Int      @default(1) @map("upgrade_skill_points")
+  maxLevel           Int      @default(10) @map("max_level")
+  createdAt          BigInt?  @map("created_at")
+  updatedAt          BigInt?  @map("updated_at")
+
+  // 关联
+  playerSkills XianPlayerSkill[]
+
+  @@index([type], map: "idx_type")
+  @@index([element], map: "idx_element")
+  @@map("xian_skills")
 }
 
 model XianPlayerEquipment {

@@ -33,6 +33,10 @@
             <el-icon><Aim /></el-icon>
             <template #title>Boss管理</template>
           </el-menu-item>
+          <el-menu-item index="/skills">
+            <el-icon><Document /></el-icon>
+            <template #title>功法管理</template>
+          </el-menu-item>
           <el-menu-item index="/ranking">
             <el-icon><TrophyBase /></el-icon>
             <template #title>排行榜</template>
@@ -107,6 +111,10 @@
               <el-menu-item index="/boss">
                 <el-icon><Aim /></el-icon>
                 <span>Boss管理</span>
+              </el-menu-item>
+              <el-menu-item index="/skills">
+                <el-icon><Document /></el-icon>
+                <span>功法管理</span>
               </el-menu-item>
               <el-menu-item index="/ranking">
                 <el-icon><TrophyBase /></el-icon>
@@ -292,6 +300,10 @@
             <el-icon><Aim /></el-icon>
             <template #title>Boss管理</template>
           </el-menu-item>
+          <el-menu-item index="/skills">
+            <el-icon><Document /></el-icon>
+            <template #title>功法管理</template>
+          </el-menu-item>
           <el-menu-item index="/ranking">
             <el-icon><TrophyBase /></el-icon>
             <template #title>排行榜</template>
@@ -350,6 +362,7 @@ import {
   Fold,
   Expand,
   Menu,
+  Document,
 } from '@element-plus/icons-vue';
 import { usePreferencesStore } from '@/stores/preferences';
 import { mixWithBlack } from '@/config/theme';

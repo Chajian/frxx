@@ -82,12 +82,61 @@
 
           <!-- 功法技能 -->
           <el-tab-pane label="功法技能" name="skills">
-            <el-table :data="currentPlayer.skills || []" stripe max-height="300">
-              <el-table-column prop="skillId" label="技能ID" width="200" />
-              <el-table-column prop="level" label="等级" width="100" />
-              <el-table-column prop="proficiency" label="熟练度" />
+            <!-- 统计卡片 -->
+            <el-row :gutter="20" style="margin-bottom: 20px">
+              <el-col :span="8">
+                <el-statistic title="已学功法" :value="currentPlayer.skills?.length || 0" />
+              </el-col>
+              <el-col :span="8">
+                <el-statistic title="平均等级" :value="avgSkillLevel" :precision="1" />
+              </el-col>
+              <el-col :span="8">
+                <el-statistic title="技能点" :value="currentPlayer.skillPoints || 0" />
+              </el-col>
+            </el-row>
+
+            <!-- 增强的功法表格 -->
+            <el-table :data="enrichedSkills" stripe max-height="400" v-if="currentPlayer.skills?.length">
+              <el-table-column prop="skillId" label="功法ID" width="150" />
+              <el-table-column label="功法名称" width="150">
+                <template #default="{ row }">
+                  {{ row.skillInfo?.name || '未知' }}
+                </template>
+              </el-table-column>
+              <el-table-column label="类型" width="120">
+                <template #default="{ row }">
+                  <el-tag v-if="row.skillInfo">{{ getSkillTypeLabel(row.skillInfo.type) }}</el-tag>
+                  <span v-else>-</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="元素" width="100">
+                <template #default="{ row }">
+                  <el-tag v-if="row.skillInfo" :type="getElementTagType(row.skillInfo.element)">
+                    {{ getSkillElementLabel(row.skillInfo.element) }}
+                  </el-tag>
+                  <span v-else>-</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="等级进度" width="200">
+                <template #default="{ row }">
+                  <el-progress
+                    v-if="row.skillInfo"
+                    :percentage="(row.level / (row.skillInfo.maxLevel || 10)) * 100"
+                    :format="() => `${row.level}/${row.skillInfo.maxLevel || 10}`"
+                  />
+                  <span v-else>Lv.{{ row.level }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="proficiency" label="熟练度" width="100" />
+              <el-table-column label="操作" width="120">
+                <template #default="{ row }">
+                  <el-button type="primary" link size="small" @click="viewSkillDetail(row.skillId)">
+                    查看详情
+                  </el-button>
+                </template>
+              </el-table-column>
             </el-table>
-            <el-empty v-if="!currentPlayer.skills?.length" description="暂无功法技能" />
+            <el-empty v-else description="暂无功法技能" />
           </el-tab-pane>
 
           <!-- 装备 -->
@@ -208,8 +257,18 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { playerApi, type Player } from '@/api/player';
+import {
+  skillApi,
+  getSkillTypeLabel,
+  getSkillElementLabel,
+  getElementTagType,
+  type SkillInfo,
+} from '@/api/skill';
 import { ElMessage } from 'element-plus';
+
+const router = useRouter();
 
 const loading = ref(false);
 const detailLoading = ref(false);
@@ -221,12 +280,31 @@ const currentPlayer = ref<any>(null);
 const activeTab = ref('basic');
 const editMode = ref(false);
 const editFormData = ref<Partial<Player>>({});
+const allSkills = ref<SkillInfo[]>([]);
 
 const filteredPlayers = computed(() => {
   if (!searchText.value) return players.value;
   return players.value.filter((p) =>
     p.name.toLowerCase().includes(searchText.value.toLowerCase())
   );
+});
+
+// 丰富化的功法数据（关联功法详细信息）
+const enrichedSkills = computed(() => {
+  if (!currentPlayer.value?.skills) return [];
+
+  return currentPlayer.value.skills.map((ps: any) => ({
+    ...ps,
+    skillInfo: allSkills.value.find((s) => s.id === ps.skillId) || null,
+  }));
+});
+
+// 平均功法等级
+const avgSkillLevel = computed(() => {
+  const skills = currentPlayer.value?.skills || [];
+  if (skills.length === 0) return 0;
+  const sum = skills.reduce((acc: number, s: any) => acc + (s.level || 0), 0);
+  return sum / skills.length;
 });
 
 const fetchPlayers = async () => {
@@ -240,6 +318,15 @@ const fetchPlayers = async () => {
   }
 };
 
+// 加载所有功法（用于丰富化玩家功法数据）
+const fetchAllSkills = async () => {
+  try {
+    allSkills.value = await skillApi.getAllSkills();
+  } catch (error) {
+    console.error('获取功法列表失败:', error);
+  }
+};
+
 const viewDetail = async (player: Player) => {
   detailDialogVisible.value = true;
   detailLoading.value = true;
@@ -247,12 +334,22 @@ const viewDetail = async (player: Player) => {
   editMode.value = false;
 
   try {
-    currentPlayer.value = await playerApi.getByUuid(player.uuid);
+    const [playerDetail] = await Promise.all([
+      playerApi.getByUuid(player.uuid),
+      allSkills.value.length === 0 ? fetchAllSkills() : Promise.resolve(),
+    ]);
+    currentPlayer.value = playerDetail;
   } catch (error) {
     ElMessage.error('获取玩家详情失败');
   } finally {
     detailLoading.value = false;
   }
+};
+
+// 查看功法详情（跳转到功法管理页面）
+const viewSkillDetail = (skillId: string) => {
+  detailDialogVisible.value = false;
+  router.push(`/skills?highlight=${skillId}`);
 };
 
 const enterEditMode = () => {

@@ -1,13 +1,21 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import routes from '@/routes/index.js';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import { resolve } from "path";
+import routes from "@/routes/index.js";
 
-dotenv.config();
+// 明确指定 .env 文件路径，确保从正确的位置加载
+dotenv.config({ path: resolve(process.cwd(), ".env") });
+
+// 调试输出：检查环境变量是否加载成功
+console.log(
+  "🔍 Database URL:",
+  process.env.DATABASE_URL ? "Loaded" : "NOT FOUND"
+);
 
 // 全局 BigInt 序列化支持
 // @ts-ignore
-BigInt.prototype.toJSON = function() {
+BigInt.prototype.toJSON = function () {
   return this.toString();
 };
 
@@ -15,10 +23,12 @@ const app = express();
 const PORT = process.env.PORT || 8400;
 
 // Middleware
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -29,29 +39,36 @@ app.use((req, res, next) => {
 });
 
 // Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: Date.now() });
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", timestamp: Date.now() });
 });
 
 // API routes
-app.use('/api', routes);
+app.use("/api", routes);
 
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
     code: 404,
-    message: 'API endpoint not found',
+    message: "API endpoint not found",
   });
 });
 
 // Error handler
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Error:', err);
-  res.status(500).json({
-    code: 500,
-    message: err.message || 'Internal server error',
-  });
-});
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    console.error("Error:", err);
+    res.status(500).json({
+      code: 500,
+      message: err.message || "Internal server error",
+    });
+  }
+);
 
 // Start server
 app.listen(PORT, () => {
@@ -69,5 +86,9 @@ app.listen(PORT, () => {
   console.log(`   - GET  /api/boss/mythicmobs`);
   console.log(`   - GET  /api/boss/stats`);
   console.log(`   - GET  /api/boss/history`);
-  console.log(`📁 MythicMobs Path: ${process.env.MYTHICMOBS_MOBS_PATH || '(not configured)'}`);
+  console.log(
+    `📁 MythicMobs Path: ${
+      process.env.MYTHICMOBS_MOBS_PATH || "(not configured)"
+    }`
+  );
 });

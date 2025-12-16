@@ -40,6 +40,14 @@ const routes = [
         },
       },
       {
+        path: 'skills',
+        name: 'Skills',
+        component: () => import('@/views/Skills.vue'),
+        meta: {
+          title: '功法管理',
+        },
+      },
+      {
         path: 'ranking',
         name: 'Ranking',
         component: () => import('@/views/Dashboard.vue'), // 暂时复用 Dashboard

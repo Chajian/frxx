@@ -13,3 +13,8 @@
 !*.yml
 !*.yaml
 !*.xml
+!*.js
+!*.json
+!*.vue
+!*.ts
+!*.env

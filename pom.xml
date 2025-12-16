@@ -37,7 +37,6 @@
     <modules>
         <module>xiancore-common</module>
         <module>xiancore-boss-system</module>
-        <module>xiancore-web</module>
         <module>XianCore</module>
     </modules>
 
