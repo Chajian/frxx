@@ -209,7 +209,36 @@ public class SchemaManager {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8
                     """);
 
-            plugin.getLogger().info("§a✓ 数据表创建/检查完成（包含3张新表）");
+            // 功法配置表（新增）
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS xian_skills (
+                        id VARCHAR(64) PRIMARY KEY,
+                        name VARCHAR(128) NOT NULL,
+                        description TEXT,
+                        type VARCHAR(32) NOT NULL,
+                        element VARCHAR(32) NOT NULL,
+                        mythic_skill_id VARCHAR(64),
+                        use_mythic BOOLEAN DEFAULT TRUE,
+                        required_realm VARCHAR(32) DEFAULT '炼气期',
+                        required_level INT DEFAULT 0,
+                        required_skills_json TEXT,
+                        qi_cost INT DEFAULT 0,
+                        cooldown INT DEFAULT 0,
+                        damage INT DEFAULT 0,
+                        healing INT DEFAULT 0,
+                        duration INT DEFAULT 0,
+                        `range` INT DEFAULT 0,
+                        upgrade_cost INT DEFAULT 0,
+                        upgrade_skill_points INT DEFAULT 1,
+                        max_level INT DEFAULT 10,
+                        created_at BIGINT,
+                        updated_at BIGINT,
+                        INDEX idx_type (type),
+                        INDEX idx_element (element)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+                    """);
+
+            plugin.getLogger().info("§a✓ 数据表创建/检查完成（包含4张新表）");
 
         } catch (SQLException e) {
             plugin.getLogger().severe("§c✗ 创建数据表失败!");

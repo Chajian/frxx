@@ -10,6 +10,7 @@ import com.xiancore.core.data.migrate.migrators.BossDataMigrator;
 import com.xiancore.core.data.migrate.migrators.BossConfigMigrator;
 import com.xiancore.core.data.migrate.migrators.TribulationDataMigrator;
 import com.xiancore.core.data.migrate.migrators.FateDataMigrator;
+import com.xiancore.core.data.migrate.migrators.SkillConfigMigrator;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -58,6 +59,9 @@ public class MigrationManager {
 
         // 注册奇遇数据迁移器
         registerMigrator("fate", new FateDataMigrator(plugin));
+
+        // 注册功法配置迁移器
+        registerMigrator("skill-config", new SkillConfigMigrator(plugin));
     }
     
     /**
